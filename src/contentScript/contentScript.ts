@@ -1,6 +1,8 @@
 // TODO: content script
-const changeableTags: string[] = ['a', 'p', 'em', 'b'];
+import './contentScript.css';
+const changeableTags: string[] = ['h1', 'h2', 'h3', 'h4', 'p', 'em', 'b'];
 import InputField from './InputField';
+
 const tagTypeToBeChanged =
 	changeableTags[Math.floor(Math.random() * changeableTags.length)];
 const tags = document.getElementsByTagName(tagTypeToBeChanged);
@@ -9,21 +11,49 @@ const getRandomArbitrary = (min: number, max: number) => {
 };
 
 const randomElementIndex: number = getRandomArbitrary(0, tags.length);
-const chosenItem = tags.item(randomElementIndex) as HTMLElement;
-
-chosenItem.style['background-color'] = 'yellow';
-// chosenItem.textContent = 'Selam Baba';
-chosenItem.innerHTML = `${InputField} ${chosenItem.innerHTML} `;
+let chosenItem = tags.item(randomElementIndex) as HTMLElement;
+chosenItem = document.querySelector('#firstHeading');
+// chosenItem.style['background-color'] = 'yellow';
+let translateText = chosenItem.textContent;
+if (translateText) {
+	chosenItem.innerHTML = `${InputField} <em style="background-color: yellow">${chosenItem.innerHTML}</em> `;
+}
 
 //Create Clear Button Functionality
-let button = document.querySelector('#anan-but-x') as HTMLElement;
-button.addEventListener(
+let clearButton = document.querySelector(
+	'.ern-ext-clear-button'
+) as HTMLElement;
+clearButton.addEventListener(
 	'click',
-	function () {
-		let div = document.querySelector('#extra-chrome-gift') as HTMLElement;
-		div.style['display'] = 'none';
+	function (e) {
+		e.preventDefault();
+		document.querySelector('.extra-chrome-gift').remove();
 	},
 	false
 );
 
-console.log(tagTypeToBeChanged, chosenItem);
+//Create Translate Button Functionality
+let translateButton = document.querySelector(
+	'.ern-ext-translate-button'
+) as HTMLElement;
+translateButton.addEventListener(
+	'click',
+	function (e) {
+		e.preventDefault();
+		let elem = document.querySelector('.ern-ext-input') as HTMLInputElement;
+		let value = elem.value;
+		// document.querySelector('.extra-chrome-gift').remove();
+		document.querySelector('.ern-ext-translate-button').className += ' clicked';
+
+		setTimeout(() => {
+			document
+				.querySelector('.ern-ext-translate-button')
+				.classList.remove('clicked');
+			setTimeout(() => {
+				chosenItem.innerHTML =
+					'<em style="background-color: yellow">' + value + '</em>';
+			}, 500);
+		}, 1000);
+	},
+	false
+);
