@@ -50,22 +50,24 @@ chrome.runtime.onMessage.addListener(handleMessages);
 chrome.runtime.onConnect.addListener(function (port) {
 	port.onMessage.addListener(async function (msg) {
 		let reqData;
+		chrome.action.setBadgeText({ text: 'load' });
 		try {
 			reqData = await fetch(
 				`http://localhost:5001/shopgrid-0/us-central1/api/translate`,
 				{
 					method: 'POST',
-					body: JSON.stringify({ text: 'Selam' }),
+					body: JSON.stringify({ text: msg.text }),
 				}
 			);
 			reqData = (await reqData.json()).data;
 		} catch (error) {
 			console.error(error);
-			chrome.action.setBadgeText({ text: '' });
+
 			return;
 		}
 		// if (msg.joke == 'Knock knock')
-		port.postMessage({ joke: reqData.translatedPrompts.en });
-		console.log('hey');
+		console.log(reqData);
+		port.postMessage({ text: reqData.translatedPrompts.es });
+		chrome.action.setBadgeText({ text: '' });
 	});
 });

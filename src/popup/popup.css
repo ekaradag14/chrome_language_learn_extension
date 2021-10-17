@@ -1,3 +1,16 @@
-body {
-  background-color: #1c1c1c;
+#pop-up-container {
+	width: 200px;
+	height: 100%;
+	padding: 10px;
+	display: flex;
+}
+#frequency-container {
+	margin: 20px 0;
+	height: 50px;
+	width: 100%;
+}
+#target-language-container {
+	margin: 20px 0;
+	height: 50px;
+	width: 100%;
 }

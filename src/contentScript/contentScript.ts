@@ -3,6 +3,7 @@ import './contentScript.css';
 const changeableTags: string[] = ['h1', 'h2', 'h3', 'h4', 'p', 'em', 'b'];
 import InputField from './InputField';
 
+const singleWordRegex: RegExp = /^([\w]+)/g;
 type FirebaseResp = {
 	basePrompt: string;
 	id: string;
@@ -14,6 +15,15 @@ type FirebaseResp = {
 		tr: string;
 	};
 };
+// Add a listener for any port that can be opened in the application
+chrome.runtime.onConnect.addListener(function (port) {
+	console.assert(port.name === 'knockknock');
+	//Handle any message that can come
+	port.onMessage.addListener(function (msg) {
+		if (msg.joke === 'Knock knock')
+			port.postMessage({ question: "Who's there?" });
+	});
+});
 
 const tagTypeToBeChanged =
 	changeableTags[Math.floor(Math.random() * changeableTags.length)];
@@ -24,13 +34,17 @@ const getRandomArbitrary = (min: number, max: number) => {
 
 const randomElementIndex: number = getRandomArbitrary(0, tags.length);
 let chosenItem = tags.item(randomElementIndex) as HTMLElement;
-chosenItem = document.querySelector('#firstHeading');
+chosenItem = document.querySelector('#sale');
 // chosenItem.style['background-color'] = 'yellow';
-let translateText = chosenItem?.textContent;
+let translateText = chosenItem?.textContent?.trim();
+let inputText, remainingText;
 if (translateText) {
-	chosenItem.innerHTML = `${InputField} <em style="background-color: yellow">${chosenItem.innerHTML}</em> `;
+	inputText = translateText.match(singleWordRegex)[0];
+	remainingText = translateText.replace(singleWordRegex, '');
+	chosenItem.innerHTML = `${InputField} <p><em style="background-color: #DDF5F8; border-radius:5px;">${inputText}</em>${remainingText}</p>`;
 }
 
+// console.log(translateText.replace(singleWordRegex, ''));
 //Create Clear Button Functionality
 let clearButton = document.querySelector(
 	'.ern-ext-clear-button'
@@ -62,12 +76,12 @@ translateButton.addEventListener(
 			name: 'knockknock',
 		});
 		//Send a message from the port
-		port.postMessage({ joke: 'Knock knock' });
+		port.postMessage({ joke: 'Knock knock', text: inputText });
 		//Handle any response that might come on this port
 		port.onMessage.addListener(function (msg) {
-			console.log('helu');
-
-			changeContent(msg.joke);
+			console.log('helu', msg);
+			console.log(msg);
+			changeContent(msg.text);
 		});
 	},
 	false
@@ -79,16 +93,10 @@ const changeContent = (value) => {
 		.classList.remove('clicked');
 	setTimeout(() => {
 		chosenItem.innerHTML =
-			'<em style="background-color: yellow">' + value + '</em>';
+			'<p><em style="background-color: #DDF5F8; border-radius:5px;">' +
+			value +
+			'</em>' +
+			remainingText +
+			'</p>';
 	}, 500);
 };
-
-// Add a listener for any port that can be opened in the application
-chrome.runtime.onConnect.addListener(function (port) {
-	console.assert(port.name === 'knockknock');
-	//Handle any message that can come
-	port.onMessage.addListener(function (msg) {
-		if (msg.joke === 'Knock knock')
-			port.postMessage({ question: "Who's there?" });
-	});
-});
