@@ -11,7 +11,7 @@ export type FooterProps = {
 import { GeneralContext } from '../../../context/general';
 const constants = require('../../../constants.js');
 const Footer: FunctionComponent<FooterProps> = ({ setCurrentView }) => {
-	const { alertDispatch, alertMessages, setOpen } = useContext(GeneralContext);
+	const { alertDispatch,  setOpen } = useContext(GeneralContext);
 	return (
 		<Grid
 			style={{

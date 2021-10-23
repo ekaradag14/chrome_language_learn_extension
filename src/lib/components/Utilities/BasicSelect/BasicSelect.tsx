@@ -12,26 +12,28 @@ export type BasicSelectProps = {
 	selectValue: string;
 	setSelectValue: React.Dispatch<React.SetStateAction<string>>;
 	options: { value: string; label: string }[];
+	variant?;
 };
 
 const BasicSelect: FunctionComponent<BasicSelectProps> = ({
 	label,
 	options,
+	variant = 'outlined',
 	selectValue,
 	setSelectValue,
 }) => {
 	const handleChange = (event: SelectChangeEvent) => {
 		setSelectValue(event.target.value as string);
 	};
-	console.log('options', options);
+
 	return (
-		<Box>
-			<FormControl fullWidth>
+		<Box style={{ width: '100%' }}>
+			<FormControl variant={variant} fullWidth>
 				<InputLabel id="demo-simple-select-label">{label}</InputLabel>
 				<Select
 					labelId="demo-simple-select-label"
 					value={selectValue}
-					label={label}
+					label={label || null}
 					onChange={handleChange}
 				>
 					{options.map((el, index) => (
