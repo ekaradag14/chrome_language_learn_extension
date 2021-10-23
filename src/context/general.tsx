@@ -72,33 +72,7 @@ const GeneralContextProvider = ({
 	const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
 	const [dialogs, setDialogs] = useState([]);
 	const [modals, setModals] = useState({});
-	const alertDispatch = (
-		message = 'Something has gone wrong, please try again.',
-		severity = 'error',
-		time = undefined
-	) => {
-		console.log('hell1o');
-		let data;
-		if (typeof message !== 'object') {
-			data = {
-				isOpen: true,
-				message: message,
-				severity: severity,
-			};
-		} else {
-			data = message;
-		}
-
-		if (time) {
-			data = { ...data, autoHideDuration: time };
-		}
-		setAlert(data);
-		setIsSnackbarOpen(true);
-	};
-
-	const alertClear = () => {
-		setIsSnackbarOpen(false);
-	};
+	//In order to avoid re-creation of functions in every render we use useMemo
 	const value = useMemo(() => {
 		const alertDispatch = (
 			message = 'Something has gone wrong, please try again.',
@@ -149,7 +123,8 @@ const GeneralContextProvider = ({
 			alertDispatch,
 			alertClear,
 			alertMessages,
-			open,
+			setOpen: setIsSnackbarOpen,
+			open: isSnackbarOpen,
 			alert,
 			// closeDialog,
 			// closeModal,
@@ -160,12 +135,7 @@ const GeneralContextProvider = ({
 	return (
 		<GeneralContext.Provider
 			value={{
-				alert,
-				alertClear,
-				alertDispatch,
-				alertMessages,
-				open: isSnackbarOpen,
-				setOpen: setIsSnackbarOpen,
+				...value,
 			}}
 		>
 			{children}
