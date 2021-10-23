@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useContext } from 'react';
 import { Grid } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -8,8 +8,10 @@ import './Footer.css';
 export type FooterProps = {
 	setCurrentView: React.Dispatch<React.SetStateAction<string>>;
 };
+import { GeneralContext } from '../../../context/general';
 const constants = require('../../../constants.js');
 const Footer: FunctionComponent<FooterProps> = ({ setCurrentView }) => {
+	const { alertDispatch, alertMessages, setOpen } = useContext(GeneralContext);
 	return (
 		<Grid
 			style={{
@@ -29,7 +31,7 @@ const Footer: FunctionComponent<FooterProps> = ({ setCurrentView }) => {
 				</IconButton>
 			</Tooltip>
 			<Tooltip title="Contact">
-				<IconButton aria-label="Logout">
+				<IconButton onClick={() => alertDispatch()} aria-label="Logout">
 					<ChatIcon color="primary" />
 				</IconButton>
 			</Tooltip>

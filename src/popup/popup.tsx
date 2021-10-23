@@ -1,10 +1,12 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useContext } from 'react';
 import ReactDOM from 'react-dom';
 import { Grid } from '@mui/material';
 import Card from '@mui/material/Card';
-
-import { ThemeProvider } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
+
+//Context
+import { ThemeProvider } from '@mui/material/styles';
+import GeneralContextProvider from '../context/general';
 
 //Themes
 import lightTheme from '../lightTheme';
@@ -17,6 +19,7 @@ import './popup.css';
 import { Header } from '../lib/components/Header';
 import { Footer } from '../lib/components/Footer';
 import { Snackbar } from '../lib/components/Utilities/Snackbar';
+
 //Views
 import { Settings } from '../lib/Views/Settings';
 import { Homepage } from '../lib/Views/Homepage';
@@ -30,29 +33,37 @@ const App: FunctionComponent<{}> = () => {
 
 	return (
 		<ThemeProvider theme={theme}>
-			<Grid container id="pop-up-container">
-				<Header
-					currentView={currentView}
-					setCurrentView={setCurrentView}
-					setTheme={setTheme}
-				/>
-				<Card
-					variant="outlined"
-					style={{
-						width: '100%',
-						padding: 15,
-						paddingBottom: 40,
-						display: 'flex',
-						flexDirection: 'column',
-					}}
-				>
-					{currentView === constants.routes.HOMEPAGE && <Homepage />}
-					{currentView === constants.routes.SETTINGS && <Settings />}
-				</Card>
-				<button onClick={() => setIsSnackbarOpen(true)}>XXX</button>
-				<Footer setCurrentView={setCurrentView} />
-			</Grid>
-			<Snackbar open={isSnackbarOpen} setOpen={setIsSnackbarOpen} />
+			<GeneralContextProvider>
+				<Grid container id="pop-up-container">
+					<Header
+						currentView={currentView}
+						setCurrentView={setCurrentView}
+						setTheme={setTheme}
+					/>
+					<Card
+						variant="outlined"
+						style={{
+							width: '100%',
+							padding: 15,
+							paddingBottom: 40,
+							display: 'flex',
+							flexDirection: 'column',
+						}}
+					>
+						{currentView === constants.routes.HOMEPAGE && <Homepage />}
+						{currentView === constants.routes.SETTINGS && <Settings />}
+					</Card>
+					<button
+						onClick={() => {
+							console.log('hello');
+						}}
+					>
+						XXX
+					</button>
+					<Footer setCurrentView={setCurrentView} />
+				</Grid>
+				{/* <Snackbar open={isSnackbarOpen} setOpen={setIsSnackbarOpen} /> */}
+			</GeneralContextProvider>
 		</ThemeProvider>
 	);
 };

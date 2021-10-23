@@ -2,7 +2,7 @@ import React, { FunctionComponent, useState } from 'react';
 import Button from '@mui/material/Button';
 import SnackbarMUI from '@mui/material/Snackbar';
 import Slide, { SlideProps } from '@mui/material/Slide';
-import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import MuiAlert, { AlertProps, AlertColor } from '@mui/material/Alert';
 type TransitionProps = Omit<SlideProps, 'direction'>;
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 	props,
@@ -19,16 +19,21 @@ function TransitionLeft(props: TransitionProps) {
 export type SnackbarProps = {
 	open: boolean;
 	setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+	alert: {
+		message: string;
+		severity: AlertColor;
+	};
 	autoHideDuration?: number;
-	severity;
-	message?: string;
 };
 const Snackbar: FunctionComponent<SnackbarProps> = ({
-	open = false,
+	open,
 	setOpen,
-	severity,
+	alert = {
+		message: '',
+		severity: 'success',
+	},
+
 	autoHideDuration = 2000,
-	message,
 }) => {
 	const handleClose = () => {
 		setOpen(false);
@@ -45,9 +50,9 @@ const Snackbar: FunctionComponent<SnackbarProps> = ({
 				onClose={() => {
 					setOpen(false);
 				}}
-				severity="success"
+				severity={alert.severity}
 			>
-				{message}
+				{alert.message}
 			</Alert>
 		</SnackbarMUI>
 	);
