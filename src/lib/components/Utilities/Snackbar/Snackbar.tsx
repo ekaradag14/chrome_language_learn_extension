@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useState } from 'react';
-import Button from '@mui/material/Button';
+
 import SnackbarMUI from '@mui/material/Snackbar';
 import Slide, { SlideProps } from '@mui/material/Slide';
 import MuiAlert, { AlertProps, AlertColor } from '@mui/material/Alert';
@@ -32,8 +32,7 @@ const Snackbar: FunctionComponent<SnackbarProps> = ({
 		message: '',
 		severity: 'success',
 	},
-
-	autoHideDuration = 2000,
+	autoHideDuration = 4000,
 }) => {
 	const handleClose = () => {
 		setOpen(false);
@@ -45,6 +44,11 @@ const Snackbar: FunctionComponent<SnackbarProps> = ({
 			onClose={handleClose}
 			transitionDuration={500}
 			TransitionComponent={TransitionLeft}
+			style={{
+				justifyContent: 'center',
+				alignContent: 'center',
+				alignItems: 'center',
+			}}
 		>
 			<Alert
 				onClose={() => {

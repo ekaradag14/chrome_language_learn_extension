@@ -31,7 +31,10 @@ const Footer: FunctionComponent<FooterProps> = ({ setCurrentView }) => {
 				</IconButton>
 			</Tooltip>
 			<Tooltip title="Contact">
-				<IconButton onClick={() => alertDispatch()} aria-label="Logout">
+				<IconButton
+					onClick={() => setCurrentView(constants.routes.CONTACT)}
+					aria-label="Contact Us Link"
+				>
 					<ChatIcon color="primary" />
 				</IconButton>
 			</Tooltip>

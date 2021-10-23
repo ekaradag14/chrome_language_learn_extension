@@ -1,6 +1,7 @@
 import { createContext, useState, useReducer, useMemo } from 'react';
 import { Snackbar } from '../lib/components/Utilities/Snackbar';
 import { AlertColor } from '@mui/material/Alert';
+const constants = require('../constants.js');
 export type ContextProps = {
 	alert: {
 		message: string;
@@ -18,29 +19,7 @@ export type ContextProps = {
 	// closeModal;
 	// setModals;
 };
-const alertMessages = {
-	UNAUTHORIZED: {
-		isOpen: true,
-		message:
-			'You are unauthorized, please login again to terminate your process.',
-		severity: 'error',
-	},
-	LIMIT_OVERFLOW: {
-		isOpen: true,
-		message: 'Your usage limit has been reached.',
-		severity: 'error',
-	},
-	SUCCESSFUL_SAVE: {
-		isOpen: true,
-		message: `Item saved successfully.`,
-		severity: 'success',
-	},
-	SUCCESSFUL_DELETE: {
-		isOpen: true,
-		message: 'Item deleted successfully.',
-		severity: 'success',
-	},
-};
+
 export const GeneralContext = createContext<ContextProps>(null);
 // {
 // 	alert: {
@@ -70,29 +49,14 @@ const GeneralContextProvider = ({
 		severity: 'success',
 	});
 	const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
+
 	const [dialogs, setDialogs] = useState([]);
 	const [modals, setModals] = useState({});
 	//In order to avoid re-creation of functions in every render we use useMemo
 	const value = useMemo(() => {
-		const alertDispatch = (
-			message = 'Something has gone wrong, please try again.',
-			severity = 'error',
-			time = undefined
-		) => {
-			console.log('hello');
-			let data;
-			if (typeof message !== 'object') {
-				data = {
-					isOpen: true,
-					message: message,
-					severity: severity,
-				};
-			} else {
-				data = message;
-			}
-
-			if (time) {
-				data = { ...data, autoHideDuration: time };
+		const alertDispatch = (data) => {
+			if (data.time) {
+				data = { ...data, autoHideDuration: data.time };
 			}
 			setAlert(data);
 			setIsSnackbarOpen(true);
@@ -101,6 +65,7 @@ const GeneralContextProvider = ({
 		const alertClear = () => {
 			setIsSnackbarOpen(false);
 		};
+
 		// const open = (data) => {
 		// 	setDialogs((prevState) => [...prevState, data]);
 		// };
@@ -122,7 +87,7 @@ const GeneralContextProvider = ({
 		return {
 			alertDispatch,
 			alertClear,
-			alertMessages,
+			alertMessages: constants.alertMessages,
 			setOpen: setIsSnackbarOpen,
 			open: isSnackbarOpen,
 			alert,

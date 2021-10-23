@@ -23,12 +23,18 @@ import { Snackbar } from '../lib/components/Utilities/Snackbar';
 //Views
 import { Settings } from '../lib/Views/Settings';
 import { Homepage } from '../lib/Views/Homepage';
+import { Contact } from '../lib/Views/Contact';
 
 const constants = require('../constants.js');
 
+const views = {
+	[constants.routes.HOMEPAGE]: <Homepage />,
+	[constants.routes.SETTINGS]: <Settings />,
+	[constants.routes.CONTACT]: <Contact />,
+};
+
 const App: FunctionComponent<{}> = () => {
 	const [theme, setTheme] = useState<typeof lightTheme>(lightTheme);
-	const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
 	const [currentView, setCurrentView] = useState(constants.routes.HOMEPAGE);
 
 	return (
@@ -50,19 +56,10 @@ const App: FunctionComponent<{}> = () => {
 							flexDirection: 'column',
 						}}
 					>
-						{currentView === constants.routes.HOMEPAGE && <Homepage />}
-						{currentView === constants.routes.SETTINGS && <Settings />}
+						{views[currentView]}
 					</Card>
-					<button
-						onClick={() => {
-							console.log('hello');
-						}}
-					>
-						XXX
-					</button>
 					<Footer setCurrentView={setCurrentView} />
 				</Grid>
-				{/* <Snackbar open={isSnackbarOpen} setOpen={setIsSnackbarOpen} /> */}
 			</GeneralContextProvider>
 		</ThemeProvider>
 	);
