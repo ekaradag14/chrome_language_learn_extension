@@ -2,6 +2,7 @@ import React, { FunctionComponent, useState, useContext } from 'react';
 import { Grid } from '@mui/material';
 import { TargetLanguage } from '../../components/TargetLanguage';
 import { Frequency } from '../../components/Frequency';
+import { Amount } from '../../components/Amount';
 import './Homepage.css';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
@@ -20,6 +21,7 @@ const Homepage: FunctionComponent<{}> = () => {
 	return (
 		<>
 			<Frequency />
+			<Amount />
 			<TargetLanguage />
 			<LoadingButton
 				color="primary"
@@ -28,7 +30,7 @@ const Homepage: FunctionComponent<{}> = () => {
 				loadingPosition="start"
 				startIcon={<SaveIcon />}
 				variant="contained"
-				style={{ maxWidth: '50%', margin: '30px auto 0 auto' }}
+				style={{ maxWidth: '50%', margin: '20px auto 0 auto' }}
 			>
 				Save
 			</LoadingButton>

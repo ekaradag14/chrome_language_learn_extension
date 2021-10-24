@@ -24,19 +24,21 @@ import { Snackbar } from '../lib/components/Utilities/Snackbar';
 import { Settings } from '../lib/Views/Settings';
 import { Homepage } from '../lib/Views/Homepage';
 import { Contact } from '../lib/Views/Contact';
+import { Login } from '../lib/Views/Login';
+import { Signup } from '../lib/Views/Signup';
 
 const constants = require('../constants.js');
-
-const views = {
-	[constants.routes.HOMEPAGE]: <Homepage />,
-	[constants.routes.SETTINGS]: <Settings />,
-	[constants.routes.CONTACT]: <Contact />,
-};
 
 const App: FunctionComponent<{}> = () => {
 	const [theme, setTheme] = useState<typeof lightTheme>(lightTheme);
 	const [currentView, setCurrentView] = useState(constants.routes.HOMEPAGE);
-
+	const views = {
+		[constants.routes.HOMEPAGE]: <Homepage />,
+		[constants.routes.SETTINGS]: <Settings />,
+		[constants.routes.CONTACT]: <Contact />,
+		[constants.routes.LOGIN]: <Login setCurrentView={setCurrentView} />,
+		[constants.routes.SIGNUP]: <Signup setCurrentView={setCurrentView} />,
+	};
 	return (
 		<ThemeProvider theme={theme}>
 			<GeneralContextProvider>
@@ -54,6 +56,8 @@ const App: FunctionComponent<{}> = () => {
 							paddingBottom: 40,
 							display: 'flex',
 							flexDirection: 'column',
+							height: '100%',
+							overflowY: 'scroll',
 						}}
 					>
 						{views[currentView]}

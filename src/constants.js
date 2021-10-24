@@ -3,6 +3,8 @@ module.exports = {
 		SETTINGS: '/settings',
 		HOMEPAGE: '/homepage',
 		CONTACT: '/contact',
+		LOGIN: '/login',
+		SIGNUP: '/signup',
 	},
 	alertMessages: {
 		UNAUTHORIZED: {

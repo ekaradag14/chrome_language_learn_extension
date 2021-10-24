@@ -27,7 +27,7 @@ const TargetLanguage: FunctionComponent<{}> = () => {
 				setValue(newValue);
 			}}
 			renderInput={(params) => (
-				<TextField {...params} variant="standard" label="Target Language" />
+				<TextField {...params} variant="outlined" label="Target Language" />
 			)}
 		/>
 	);

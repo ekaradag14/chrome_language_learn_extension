@@ -5,18 +5,19 @@ import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
-import './Frequency.css';
+
+import './Amount.css';
 function valuetext(value: number) {
 	return `${value}°C`;
 }
-const Frequency: FunctionComponent<{}> = () => {
+const Amount: FunctionComponent<{}> = () => {
 	return (
-		<Grid id="frequency-container">
+		<Grid id="amount-container" style={{ marginBottom: 10 }}>
 			<div style={{ display: 'flex', flexDirection: 'row' }}>
-				<p style={{ fontSize: 16, color: 'gray' }}>Frequency</p>
+				<p style={{ fontSize: 16, color: 'gray' }}>Amount</p>
 				<CustomWidthTooltip
 					placement="top"
-					title="How frequent do you want exercises to be?"
+					title="How many exercises do you want to do in a day?"
 					leaveDelay={200}
 					arrow
 				>
@@ -27,7 +28,7 @@ const Frequency: FunctionComponent<{}> = () => {
 			</div>
 			<div style={{ padding: 0, paddingLeft: 10, marginTop: -10 }}>
 				<Slider
-					aria-label="Frequency"
+					aria-label="Amount"
 					defaultValue={1}
 					getAriaValueText={valuetext}
 					valueLabelDisplay="auto"
@@ -47,4 +48,4 @@ const CustomWidthTooltip = styled(({ className, ...props }: TooltipProps) => (
 		maxWidth: 150,
 	},
 });
-export default Frequency;
+export default Amount;
