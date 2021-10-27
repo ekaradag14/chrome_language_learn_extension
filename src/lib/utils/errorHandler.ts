@@ -8,8 +8,7 @@ export const generalErrorHandler = (alertDispatch, err) => {
 		err.code === 'auth/wrong-password'
 	) {
 		errorCase = alertDispatch(constants.errorMessages.WRONG_CREDENTIALS);
-	} else if (err.status === 400) {
-		console.log(err);
+	} else if (err.code === 2002 || err.code === 2001 || err.code === 2000) {
 		errorCase = alertDispatch({
 			isOpen: true,
 			message: err.error,

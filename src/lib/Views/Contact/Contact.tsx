@@ -18,7 +18,6 @@ const topics = [
 	{ value: 'support', label: 'Support' },
 	{ value: 'suggestion', label: 'Suggestion' },
 	{ value: 'other', label: 'Other' },
-	{ value: 'other33', label: 'Othe3r' },
 ];
 
 const constants = require('../../../constants.js');
@@ -52,20 +51,23 @@ const Contact: FunctionComponent<{}> = ({}) => {
 		setLoading(true);
 		let data;
 		try {
-			data = await sendContactMessageAPI(userMessage);
+			data = await (await sendContactMessageAPI(userMessage)).json();
 		} catch (err) {
 			generalErrorHandler(alertDispatch, err);
 			setLoading(false);
 			return;
 		}
-		if (data.status !== 200) {
-			console.log(data);
-			generalErrorHandler(alertDispatch, data);
+		console.log('skduf', data);
+		if (data.code !== 200) {
+			setTimeout(() => {
+				generalErrorHandler(alertDispatch, data);
+				setLoading(false);
+				return;
+			}, 500);
+		} else {
 			setLoading(false);
-			return;
+			alertDispatch(constants.alertMessages.SUCCESSFUL_CONTACT_US);
 		}
-		setLoading(false);
-		alertDispatch(constants.alertMessages.SUCCESSFUL_CONTACT_US);
 	};
 
 	useEffect(() => {
