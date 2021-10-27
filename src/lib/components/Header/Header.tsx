@@ -34,26 +34,22 @@ const Header: FunctionComponent<HeaderProps> = ({
 				marginBottom: 10,
 			}}
 		>
-			{currentView !== constants.routes.LOGIN && (
-				<>
-					{currentView === constants.routes.HOMEPAGE ? (
-						<Tooltip title="Logout">
-							<IconButton
-								onClick={() => setCurrentView(constants.routes.LOGIN)}
-								aria-label="Logout"
-							>
-								<LogoutRoundedIcon color="primary" />
-							</IconButton>
-						</Tooltip>
-					) : (
-						<IconButton
-							onClick={() => setCurrentView(constants.routes.HOMEPAGE)}
-							aria-label="Logout"
-						>
-							<ArrowBackIosIcon color="primary" />
-						</IconButton>
-					)}
-				</>
+			{currentView === constants.routes.HOMEPAGE ? (
+				<Tooltip title="Logout">
+					<IconButton
+						onClick={() => setCurrentView(constants.routes.LOGIN)}
+						aria-label="Logout"
+					>
+						<LogoutRoundedIcon color="primary" />
+					</IconButton>
+				</Tooltip>
+			) : (
+				<IconButton
+					onClick={() => setCurrentView(constants.routes.HOMEPAGE)}
+					aria-label="Logout"
+				>
+					<ArrowBackIosIcon color="primary" />
+				</IconButton>
 			)}
 			<img src="icon.png" style={{ width: 30, height: 30 }} />
 			<FormControlLabel

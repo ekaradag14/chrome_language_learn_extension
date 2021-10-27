@@ -28,7 +28,7 @@ import { Login } from '../lib/Views/Login';
 import { Signup } from '../lib/Views/Signup';
 
 const constants = require('../constants.js');
-
+const noHeaderRoutes = [constants.routes.LOGIN, constants.routes.SIGNUP];
 const App: FunctionComponent<{}> = () => {
 	const [theme, setTheme] = useState<typeof lightTheme>(lightTheme);
 	const [currentView, setCurrentView] = useState(constants.routes.HOMEPAGE);
@@ -39,15 +39,18 @@ const App: FunctionComponent<{}> = () => {
 		[constants.routes.LOGIN]: <Login setCurrentView={setCurrentView} />,
 		[constants.routes.SIGNUP]: <Signup setCurrentView={setCurrentView} />,
 	};
+
 	return (
 		<ThemeProvider theme={theme}>
 			<GeneralContextProvider>
 				<Grid container id="pop-up-container">
-					<Header
-						currentView={currentView}
-						setCurrentView={setCurrentView}
-						setTheme={setTheme}
-					/>
+					{!noHeaderRoutes.includes(currentView) && (
+						<Header
+							currentView={currentView}
+							setCurrentView={setCurrentView}
+							setTheme={setTheme}
+						/>
+					)}
 					<Card
 						variant="outlined"
 						style={{
@@ -60,6 +63,12 @@ const App: FunctionComponent<{}> = () => {
 							overflowY: 'scroll',
 						}}
 					>
+						{noHeaderRoutes.includes(currentView) && (
+							<img
+								src="icon.png"
+								style={{ width: 50, height: 50, margin: 'auto' }}
+							/>
+						)}
 						{views[currentView]}
 					</Card>
 					<Footer setCurrentView={setCurrentView} />

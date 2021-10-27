@@ -3,6 +3,7 @@ import { Grid, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import { signUpUserAPI } from '../../endpoints/user';
 const constants = require('../../../constants.js');
 import './Signup.css';
 
@@ -27,7 +28,8 @@ const Signup: FunctionComponent<SignupProps> = ({ setCurrentView }) => {
 		setLoading(true);
 		setTimeout(() => {
 			setLoading(false);
-			setCurrentView(constants.routes.HOMEPAGE);
+			signUpUserAPI(credentials);
+			// setCurrentView(constants.routes.HOMEPAGE);
 		}, 1000);
 	};
 	return (
@@ -36,7 +38,7 @@ const Signup: FunctionComponent<SignupProps> = ({ setCurrentView }) => {
 			rowSpacing={1}
 			style={{ marginTop: 'auto', marginBottom: 'auto' }}
 		>
-			<Grid item xs={12}>
+			<Grid style={{ padding: 10 }} item xs={12}>
 				<TextField
 					id="user-mail-text-field"
 					label="Email"
@@ -47,7 +49,7 @@ const Signup: FunctionComponent<SignupProps> = ({ setCurrentView }) => {
 					onChange={handleChange}
 				/>
 			</Grid>
-			<Grid item xs={12}>
+			<Grid style={{ padding: 10 }} item xs={12}>
 				<TextField
 					id="outlined-multiline-flexible"
 					label="Password"
@@ -57,8 +59,8 @@ const Signup: FunctionComponent<SignupProps> = ({ setCurrentView }) => {
 					onChange={handleChange}
 				/>
 			</Grid>
-			<Grid item xs={12} textAlign="center">
-				<p>
+			<Grid style={{ padding: 0 }} item xs={12} textAlign="center">
+				<p style={{ margin: 0 }}>
 					Already have an account?{' '}
 					<b
 						style={{ cursor: 'pointer' }}

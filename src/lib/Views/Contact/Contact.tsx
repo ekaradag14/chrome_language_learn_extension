@@ -1,21 +1,29 @@
-import React, { FunctionComponent, useState, useContext } from 'react';
+import React, {
+	FunctionComponent,
+	useState,
+	useContext,
+	useEffect,
+} from 'react';
 import { Grid } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SendIcon from '@mui/icons-material/Send';
 import { BasicSelect } from '../../components/Utilities/BasicSelect';
 import { GeneralContext } from '../../../context/general';
-
+import * as modals from '../../modals';
 import './Contact.css';
+import { generalErrorHandler } from '../../utils/errorHandler';
+import { sendContactMessageAPI } from '../../endpoints/contact';
 const topics = [
 	{ value: 'support', label: 'Support' },
 	{ value: 'suggestion', label: 'Suggestion' },
 	{ value: 'other', label: 'Other' },
+	{ value: 'other33', label: 'Othe3r' },
 ];
 
 const constants = require('../../../constants.js');
 const Contact: FunctionComponent<{}> = ({}) => {
-	const [userMessage, setUserMessage] = useState({
+	const [userMessage, setUserMessage] = useState<modals.ContactUsMessage>({
 		topic: '',
 		body: '',
 		email: '',
@@ -23,20 +31,48 @@ const Contact: FunctionComponent<{}> = ({}) => {
 	const [topic, setTopic] = useState();
 	const [loading, setLoading] = useState(false);
 
-	const { alertDispatch, setOpen } = useContext(GeneralContext);
+	const { alertDispatch } = useContext(GeneralContext);
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setUserMessage((pS) => ({
 			...pS,
 			[event.target.name]: event.target.value,
 		}));
 	};
-	function handleClick() {
+	const handleClick = async () => {
+		if (
+			userMessage.topic.length === 0 ||
+			userMessage.body.length === 0 ||
+			userMessage.email.length === 0
+		) {
+			alertDispatch(constants.alertMessages.UNFILLED_FIELDS);
+
+			return;
+		}
+
 		setLoading(true);
-		setTimeout(() => {
+		let data;
+		try {
+			data = await sendContactMessageAPI(userMessage);
+		} catch (err) {
+			generalErrorHandler(alertDispatch, err);
 			setLoading(false);
-			alertDispatch(constants.alertMessages.SUCCESSFUL_CONTACT_US);
-		}, 1000);
-	}
+			return;
+		}
+		if (data.status !== 200) {
+			console.log(data);
+			generalErrorHandler(alertDispatch, data);
+			setLoading(false);
+			return;
+		}
+		setLoading(false);
+		alertDispatch(constants.alertMessages.SUCCESSFUL_CONTACT_US);
+	};
+
+	useEffect(() => {
+		if (topic) {
+			setUserMessage((pS) => ({ ...pS, topic }));
+		}
+	}, [topic]);
 	return (
 		<Grid container rowSpacing={1}>
 			<Grid item xs={12}>

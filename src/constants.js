@@ -28,5 +28,39 @@ module.exports = {
 			message: 'We received your message and will get back to you ASAP!',
 			severity: 'success',
 		},
+		UNFILLED_FIELDS: {
+			isOpen: true,
+			message: 'Please fill all required fields.',
+			severity: 'warning',
+		},
+	},
+	backendBaseURL: {
+		DEV: 'http://localhost:5001/shopgrid-0/us-central1/api',
+		PROD: 'https://us-central1-chrome-language-learn-ext.cloudfunctions.net/api',
+	},
+	firebaseConfig: {
+		apiKey: 'AIzaSyAfyWCKjq5t8ZO7oEM8T_A20qs3ZDrBrZE',
+		authDomain: 'chrome-language-learn-ext.firebaseapp.com',
+		projectId: 'chrome-language-learn-ext',
+		storageBucket: 'chrome-language-learn-ext.appspot.com',
+		messagingSenderId: '159546725443',
+		appId: '1:159546725443:web:7c8a0c47a293f8b54870f6',
+	},
+	errorMessages: {
+		WRONG_CREDENTIALS: {
+			isOpen: true,
+			message: 'Incorrect password or email.',
+			severity: 'error',
+		},
+		BAD_REQUEST: {
+			isOpen: true,
+			message: 'Please use valid information.',
+			severity: 'error',
+		},
+		SOMETHING_WRONG: {
+			isOpen: true,
+			message: 'Something is wrong, please try again.',
+			severity: 'warning',
+		},
 	},
 };
