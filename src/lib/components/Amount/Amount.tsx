@@ -5,12 +5,16 @@ import { styled } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
-
+import { UserSettingsProps } from '../../modals';
 import './Amount.css';
 function valuetext(value: number) {
 	return `${value}°C`;
 }
-const Amount: FunctionComponent<{}> = () => {
+export type AmountProps = {
+	value: UserSettingsProps;
+	setValue;
+};
+const Amount: FunctionComponent<AmountProps> = ({ value, setValue }) => {
 	return (
 		<Grid id="amount-container" style={{ marginBottom: 10 }}>
 			<div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -34,6 +38,10 @@ const Amount: FunctionComponent<{}> = () => {
 					valueLabelDisplay="auto"
 					step={1}
 					marks
+					value={value.amount}
+					onChange={(e, n) =>
+						setValue((pS: UserSettingsProps) => ({ ...pS, amount: n }))
+					}
 					min={1}
 					max={5}
 				/>

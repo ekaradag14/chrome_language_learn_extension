@@ -22,7 +22,7 @@ export const signUpUserAPI = async (userCreds: SignupPayload) => {
 	});
 };
 
-export const loginUserAPI = async (userCreds: SignupPayload) => {
+export const saveSettingsAPI = async (settings) => {
 	// let headers;
 	// try {
 	// 	headers = await getHeaders();
@@ -31,9 +31,9 @@ export const loginUserAPI = async (userCreds: SignupPayload) => {
 	// 	return;
 	// }
 
-	return fetch(`${constants.backendBaseURL.DEV}/login`, {
+	return fetch(`${constants.backendBaseURL.DEV}/save-settings`, {
 		method: 'POST',
 		// headers,
-		body: JSON.stringify(userCreds),
+		body: JSON.stringify({ settings, uid: '3JJDuaMHUDZdMpsfra4nAY0xg0b2' }),
 	});
 };

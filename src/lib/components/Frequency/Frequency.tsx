@@ -6,10 +6,15 @@ import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import './Frequency.css';
+import { UserSettingsProps } from '../../modals';
 function valuetext(value: number) {
 	return `${value}°C`;
 }
-const Frequency: FunctionComponent<{}> = () => {
+export type FrequencyProps = {
+	value: UserSettingsProps;
+	setValue;
+};
+const Frequency: FunctionComponent<FrequencyProps> = ({ value, setValue }) => {
 	return (
 		<Grid id="frequency-container">
 			<div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -33,6 +38,10 @@ const Frequency: FunctionComponent<{}> = () => {
 					valueLabelDisplay="auto"
 					step={1}
 					marks
+					value={value.frequency}
+					onChange={(e, n) =>
+						setValue((pS: UserSettingsProps) => ({ ...pS, frequency: n }))
+					}
 					min={1}
 					max={5}
 				/>
