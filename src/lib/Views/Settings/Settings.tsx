@@ -1,13 +1,8 @@
 import React, { FunctionComponent, useState } from 'react';
-import { Grid } from '@mui/material';
+import { Card, Divider, Grid } from '@mui/material';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import { BasicSelect } from '../../components/Utilities/BasicSelect';
+import { addBannedSiteAPI, removeBannedSiteAPI } from '../../endpoints/user';
+import { Table } from '../../components/Utilities/Table';
 import './Settings.css';
 
 const Settings: FunctionComponent<{}> = () => {
@@ -21,49 +16,143 @@ const Settings: FunctionComponent<{}> = () => {
 	const handleClose = () => {
 		setOpen(false);
 	};
+	const removeDisable = async (url = 'console.firebase.google.com') => {
+		chrome.storage.local.get(['bannedSites'], async (res) => {
+			if (res.bannedSites) {
+				let newBannedSites = res.bannedSites.filter((el) => el !== url);
+				chrome.storage.local.set({
+					bannedSites: newBannedSites,
+				});
+			}
+		});
+		try {
+			await removeBannedSiteAPI(url);
+		} catch (err) {
+			console.error(err);
+		}
+	};
+
 	const disableSite = () => {
 		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			var tab = tabs[0];
 			var url = new URL(tab.url);
 			var domain = url.hostname;
-			chrome.storage.local.get(['bannedSites'], (res) => {
+			let resp;
+			chrome.storage.local.get(['bannedSites'], async (res) => {
 				if (res.bannedSites) {
 					if (!res.bannedSites.includes(domain)) {
 						chrome.storage.local.set({
 							bannedSites: [...res.bannedSites, domain],
 						});
+						try {
+							resp = await addBannedSiteAPI({ url: domain });
+						} catch (err) {
+							console.error(err);
+						}
+						console.log(resp);
 					}
 				} else {
 					chrome.storage.local.set({
 						bannedSites: [domain],
 					});
+					try {
+						resp = await addBannedSiteAPI({ url: domain });
+					} catch (err) {
+						console.error(err);
+					}
+					console.log(resp);
 				}
 			});
 		});
 	};
-	return (
-		<Grid>
-			<Button onClick={disableSite} color="primary" variant="contained">
-				Disable
+	const SettingsCard: FunctionComponent<{
+		title: string;
+		body: string;
+		buttonText: string;
+		action;
+	}> = ({ title, body, buttonText, action }) => (
+		<Card
+			style={{
+				padding: 10,
+				display: 'flex',
+				flexDirection: 'column',
+				margin: '10px 0',
+				backgroundColor: '#f1eeee',
+			}}
+		>
+			<h2 style={{ margin: 0, color: 'gray' }}>{title}</h2>
+			<Divider style={{ margin: '10px 0' }} />
+			<p style={{ margin: 0, color: 'gray' }}>{body}</p>
+			<Button onClick={action} style={{ marginLeft: 'auto', padding: 0 }}>
+				{buttonText}
 			</Button>
-		</Grid>
+		</Card>
+	);
+	const settingsArray = [
+		{
+			title: 'Disable Page',
+			body: 'Do not run extension on this page',
+			buttonText: 'Disable',
+			action: disableSite,
+		},
+		{
+			title: 'Disable Site',
+			body: 'Do not run extension on this site',
+			buttonText: 'Disable',
+			action: disableSite,
+		},
+		{
+			title: 'Sync Settings',
+			body: 'Sync all my settings from the server.',
+			buttonText: 'Sync',
+			action: disableSite,
+		},
+	];
+	return (
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				justifyContent: 'center',
+			}}
+		>
+			{settingsArray.map((el) => (
+				<SettingsCard key={el.title} {...el} />
+			))}
+			{/* <Button
+				style={{ margin: ' 10px auto' }}
+				onClick={disableSite}
+				color="primary"
+				variant="contained"
+			>
+				Disable Page
+			</Button>
+			<Button
+				style={{ margin: ' 10px auto' }}
+				onClick={() => removeDisable()}
+				color="primary"
+				variant="contained"
+			>
+				Disable Site
+			</Button>
+			<Button
+				style={{ margin: ' 10px auto' }}
+				color="primary"
+				variant="contained"
+			>
+				Sync Settings
+			</Button> */}
+			{chrome.storage.local.get(['bannedSites'], (res) => {
+				console.log(res);
+				if (res.bannedSites) {
+					<>
+						<Table data={res.bannedSites} />
+						<p>sdugh</p>
+					</>;
+				}
+			})}
+		</div>
 	);
 };
 
 export default Settings;
-
-const options = [
-	{ value: '1', label: '1' },
-	{ value: '2', label: '2' },
-	{ value: '3', label: '3' },
-	{ value: '4', label: '4' },
-	{ value: '5', label: '5' },
-	{ value: '6', label: '6' },
-	{ value: '7', label: '7' },
-];
-
-const options2 = [
-	{ value: 'hours', label: 'Hours' },
-	{ value: 'days', label: 'Days' },
-	{ value: 'weeks', label: 'Weeks' },
-];

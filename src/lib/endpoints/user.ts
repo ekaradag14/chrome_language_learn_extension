@@ -23,17 +23,27 @@ export const signUpUserAPI = async (userCreds: SignupPayload) => {
 };
 
 export const saveSettingsAPI = async (settings) => {
-	// let headers;
-	// try {
-	// 	headers = await getHeaders();
-	// } catch (error) {
-	// 	//TODO NO HEADERS MEANS NO AUTH
-	// 	return;
-	// }
-
 	return fetch(`${constants.backendBaseURL.DEV}/save-settings`, {
 		method: 'POST',
-		// headers,
 		body: JSON.stringify({ settings, uid: '3JJDuaMHUDZdMpsfra4nAY0xg0b2' }),
+	});
+};
+
+export const addBannedSiteAPI = async (bannedSite: { url: string }) => {
+	return fetch(`${constants.backendBaseURL.DEV}/add-banned-site`, {
+		method: 'POST',
+		body: JSON.stringify({
+			...bannedSite,
+			uid: '3JJDuaMHUDZdMpsfra4nAY0xg0b2',
+		}),
+	});
+};
+export const removeBannedSiteAPI = async (bannedSite) => {
+	return fetch(`${constants.backendBaseURL.DEV}/remove-banned-site`, {
+		method: 'POST',
+		body: JSON.stringify({
+			bannedSite,
+			uid: '3JJDuaMHUDZdMpsfra4nAY0xg0b2',
+		}),
 	});
 };
