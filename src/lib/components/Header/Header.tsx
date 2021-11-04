@@ -28,7 +28,7 @@ const Header: FunctionComponent<HeaderProps> = ({
 		<Grid
 			style={{
 				display: 'flex',
-				justifyContent: 'space-between',
+
 				width: '100%',
 				alignContent: 'center',
 				marginBottom: 10,
@@ -51,19 +51,24 @@ const Header: FunctionComponent<HeaderProps> = ({
 					<ArrowBackIosIcon color="primary" />
 				</IconButton>
 			)}
-			<img src="icon.png" style={{ width: 30, height: 30 }} />
-			<FormControlLabel
-				label=""
-				style={{ margin: 0 }}
-				control={
-					<Android12Switch
-						onChange={(e) =>
-							e.target.checked ? setTheme(lightTheme) : setTheme(darkTheme)
-						}
-						defaultChecked
-					/>
-				}
+			<img
+				src="icon.png"
+				style={{ width: 30, height: 30, margin: 'auto', paddingRight: 45 }}
 			/>
+			{false && (
+				<FormControlLabel
+					label=""
+					style={{ margin: 0 }}
+					control={
+						<Android12Switch
+							onChange={(e) =>
+								e.target.checked ? setTheme(lightTheme) : setTheme(darkTheme)
+							}
+							defaultChecked
+						/>
+					}
+				/>
+			)}
 		</Grid>
 	);
 };

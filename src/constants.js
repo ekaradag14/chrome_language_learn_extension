@@ -33,6 +33,21 @@ module.exports = {
 			message: 'Please fill all required fields.',
 			severity: 'warning',
 		},
+		SUCCESSFUL_PAGE_DISABLE: {
+			isOpen: true,
+			message: 'Page disabled successfully.',
+			severity: 'success',
+		},
+		SUCCESSFUL_SITE_DISABLE: {
+			isOpen: true,
+			message: 'Site disabled successfully.',
+			severity: 'success',
+		},
+		SUCCESSFUL_DISABLE_REMOVE: {
+			isOpen: true,
+			message: 'Site disable removed successfully.',
+			severity: 'success',
+		},
 	},
 	backendBaseURL: {
 		DEV: 'http://localhost:5001/shopgrid-0/us-central1/api',

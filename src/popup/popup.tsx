@@ -28,7 +28,7 @@ import { Login } from '../lib/Views/Login';
 import { Signup } from '../lib/Views/Signup';
 
 const constants = require('../constants.js');
-const noHeaderRoutes = [constants.routes.LOGIN, constants.routes.SIGNUP];
+const noAuthRoutes = [constants.routes.LOGIN, constants.routes.SIGNUP];
 const App: FunctionComponent<{}> = () => {
 	const [theme, setTheme] = useState<typeof lightTheme>(lightTheme);
 	const [currentView, setCurrentView] = useState(constants.routes.HOMEPAGE);
@@ -44,7 +44,7 @@ const App: FunctionComponent<{}> = () => {
 		<ThemeProvider theme={theme}>
 			<GeneralContextProvider>
 				<Grid container id="pop-up-container">
-					{!noHeaderRoutes.includes(currentView) && (
+					{!noAuthRoutes.includes(currentView) && (
 						<Header
 							currentView={currentView}
 							setCurrentView={setCurrentView}
@@ -61,9 +61,10 @@ const App: FunctionComponent<{}> = () => {
 							flexDirection: 'column',
 							height: '100%',
 							overflowY: 'scroll',
+							marginBottom: 10,
 						}}
 					>
-						{noHeaderRoutes.includes(currentView) && (
+						{noAuthRoutes.includes(currentView) && (
 							<img
 								src="icon.png"
 								style={{ width: 50, height: 50, margin: 'auto' }}
@@ -71,7 +72,9 @@ const App: FunctionComponent<{}> = () => {
 						)}
 						{views[currentView]}
 					</Card>
-					<Footer setCurrentView={setCurrentView} />
+					{!noAuthRoutes.includes(currentView) && (
+						<Footer setCurrentView={setCurrentView} />
+					)}
 				</Grid>
 			</GeneralContextProvider>
 		</ThemeProvider>

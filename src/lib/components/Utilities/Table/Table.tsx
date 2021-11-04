@@ -134,10 +134,11 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 interface EnhancedTableToolbarProps {
 	numSelected: number;
+	deleteAction;
 }
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
-	const { numSelected } = props;
+	const { numSelected, deleteAction } = props;
 
 	return (
 		<Toolbar
@@ -174,7 +175,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 			)}
 			{numSelected > 0 && (
 				<Tooltip title="Delete">
-					<IconButton>
+					<IconButton onClick={deleteAction}>
 						<DeleteIcon />
 					</IconButton>
 				</Tooltip>
@@ -183,7 +184,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 	);
 };
 
-export default function EnhancedTable({ data }) {
+export default function EnhancedTable({ data, deleteAction }) {
 	const [order, setOrder] = React.useState<Order>('asc');
 	const [orderBy, setOrderBy] = React.useState<keyof Data>('name');
 	const [selected, setSelected] = React.useState<readonly string[]>([]);
@@ -248,7 +249,10 @@ export default function EnhancedTable({ data }) {
 				style={{ backgroundColor: '#f4f6f9' }}
 				sx={{ width: '100%', mb: 2 }}
 			>
-				<EnhancedTableToolbar numSelected={selected.length} />
+				<EnhancedTableToolbar
+					deleteAction={() => deleteAction(selected)}
+					numSelected={selected.length}
+				/>
 				<TableContainer>
 					<Table aria-labelledby="tableTitle" size={dense ? 'small' : 'medium'}>
 						<EnhancedTableHead

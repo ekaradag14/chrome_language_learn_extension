@@ -1,14 +1,20 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, {
+	FunctionComponent,
+	useState,
+	useEffect,
+	useContext,
+} from 'react';
 import { Card, Divider, Grid } from '@mui/material';
 import Button from '@mui/material/Button';
 import { addBannedSiteAPI, removeBannedSiteAPI } from '../../endpoints/user';
 import { Table } from '../../components/Utilities/Table';
+import { GeneralContext } from '../../../context/general';
 import './Settings.css';
-
+const constants = require('../../../constants.js');
 const Settings: FunctionComponent<{}> = () => {
 	const [open, setOpen] = React.useState(false);
-	const [timeAmount, setTimeAmount] = useState('2');
-	const [timeType, setTimeType] = useState('hours');
+	const [bannedSites, setBannedSites] = useState<string[]>([]);
+	const { alertDispatch } = useContext(GeneralContext);
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
@@ -16,27 +22,31 @@ const Settings: FunctionComponent<{}> = () => {
 	const handleClose = () => {
 		setOpen(false);
 	};
-	const removeDisable = async (url = 'console.firebase.google.com') => {
+	const removeDisable = async (urls: string[]) => {
 		chrome.storage.local.get(['bannedSites'], async (res) => {
 			if (res.bannedSites) {
-				let newBannedSites = res.bannedSites.filter((el) => el !== url);
+				let newBannedSites = res.bannedSites.filter((el) => !urls.includes(el));
 				chrome.storage.local.set({
 					bannedSites: newBannedSites,
 				});
+				setBannedSites(newBannedSites);
+				alertDispatch(constants.alertMessages.SUCCESSFUL_DISABLE_REMOVE);
 			}
 		});
+
 		try {
-			await removeBannedSiteAPI(url);
+			await removeBannedSiteAPI({ sites: urls });
 		} catch (err) {
 			console.error(err);
 		}
 	};
 
-	const disableSite = () => {
+	const disableDomain = (type: 'page' | 'site') => {
 		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			var tab = tabs[0];
 			var url = new URL(tab.url);
-			var domain = url.hostname;
+			var domain = type === 'site' ? url.hostname : tab.url;
+			if (domain === 'newtab') return;
 			let resp;
 			chrome.storage.local.get(['bannedSites'], async (res) => {
 				if (res.bannedSites) {
@@ -44,27 +54,44 @@ const Settings: FunctionComponent<{}> = () => {
 						chrome.storage.local.set({
 							bannedSites: [...res.bannedSites, domain],
 						});
+						setBannedSites((pS) => [...pS, domain]);
 						try {
 							resp = await addBannedSiteAPI({ url: domain });
 						} catch (err) {
 							console.error(err);
 						}
+
 						console.log(resp);
 					}
 				} else {
 					chrome.storage.local.set({
 						bannedSites: [domain],
 					});
+					setBannedSites([domain]);
 					try {
 						resp = await addBannedSiteAPI({ url: domain });
 					} catch (err) {
 						console.error(err);
 					}
+
 					console.log(resp);
 				}
+				alertDispatch(
+					type === 'site'
+						? constants.alertMessages.SUCCESSFUL_SITE_DISABLE
+						: constants.alertMessages.SUCCESSFUL_PAGE_DISABLE
+				);
 			});
 		});
 	};
+	useEffect(() => {
+		chrome.storage.local.get(['bannedSites'], (res) => {
+			console.log(res);
+			if (res.bannedSites) {
+				setBannedSites(res.bannedSites);
+			}
+		});
+	}, []);
 	const SettingsCard: FunctionComponent<{
 		title: string;
 		body: string;
@@ -91,22 +118,22 @@ const Settings: FunctionComponent<{}> = () => {
 	const settingsArray = [
 		{
 			title: 'Disable Page',
-			body: 'Do not run extension on this page',
+			body: 'Do not run extension on this page. ',
 			buttonText: 'Disable',
-			action: disableSite,
+			action: () => disableDomain('page'),
 		},
 		{
 			title: 'Disable Site',
-			body: 'Do not run extension on this site',
+			body: 'Do not run extension on this site. ',
 			buttonText: 'Disable',
-			action: disableSite,
+			action: () => disableDomain('site'),
 		},
-		{
-			title: 'Sync Settings',
-			body: 'Sync all my settings from the server.',
-			buttonText: 'Sync',
-			action: disableSite,
-		},
+		// {
+		// 	title: 'Sync Settings',
+		// 	body: 'Sync all my settings from the server.',
+		// 	buttonText: 'Sync',
+		// 	action: disableDomain,
+		// },
 	];
 	return (
 		<div
@@ -142,15 +169,12 @@ const Settings: FunctionComponent<{}> = () => {
 			>
 				Sync Settings
 			</Button> */}
-			{chrome.storage.local.get(['bannedSites'], (res) => {
-				console.log(res);
-				if (res.bannedSites) {
-					<>
-						<Table data={res.bannedSites} />
-						<p>sdugh</p>
-					</>;
-				}
-			})}
+			{bannedSites.length !== 0 && (
+				<Table
+					deleteAction={(sites) => removeDisable(sites)}
+					data={bannedSites}
+				/>
+			)}
 		</div>
 	);
 };

@@ -47,6 +47,12 @@ const Login: FunctionComponent<LoginProps> = ({ setCurrentView }) => {
 		if (userCredentials.user.uid) {
 			setTimeout(() => {
 				setLoading(false);
+				chrome.storage.local.set({
+					userCredentials: {
+						email: userCredentials.user.email,
+						uid: userCredentials.user.uid,
+					},
+				});
 				setCurrentView(constants.routes.HOMEPAGE);
 			}, 500);
 		}
