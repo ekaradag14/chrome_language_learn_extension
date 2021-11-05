@@ -8,13 +8,8 @@ const InputField = `
 <div class="extra-chrome-gift">
   <input class='ern-ext-input' type="text" placeholder="Translate"></input>
   <button class="ern-ext-translate-button">
-
 ${checkMarkSVG}
-
 </button>
-  <button  type="button" class="ern-ext-clear-button">
-${crossSVG}
-  </button>
 </div>
 `;
 export default InputField;

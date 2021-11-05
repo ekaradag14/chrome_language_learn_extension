@@ -12,9 +12,7 @@
 .extra-chrome-gift:hover .ern-ext-translate-button {
 	fill: black;
 }
-.extra-chrome-gift:hover .ern-ext-clear-button {
-	fill: black;
-}
+
 .extra-chrome-gift:hover .ern-ext-input {
 	width: 70%;
 }
@@ -63,23 +61,6 @@
 	transform: scale(1.2);
 	background-color: blue;
 	fill: white;
-}
-
-.ern-ext-clear-button {
-	cursor: pointer;
-	fill: transparent;
-	margin-left: 4px;
-	width: 20px;
-	height: 20px;
-	border-radius: 50%;
-	border-width: 0;
-	padding: auto;
-	transition: all 0.2s ease-in-out 0.1s;
-}
-.ern-ext-clear-button:hover {
-	background-color: orange;
-	fill: white !important;
-	transform: scale(1.2);
 }
 
 @keyframes button-loading-spinner {

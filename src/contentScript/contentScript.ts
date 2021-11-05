@@ -59,8 +59,7 @@ const createTagsForUser = () => {
 		remainingText = translateText.replace(singleWordRegex, '');
 		const inputDiv = document.createElement('div');
 		inputDiv.innerHTML = InputField;
-		chosenItem.innerHTML = ` <span style='	background-color: #ddf5f8;
-	border-radius: 5px;' >${inputText}</span>${remainingText}`;
+		chosenItem.innerHTML = ` <span style='background-color: #ddf5f8;border-radius: 5px;' >${inputText}</span>${remainingText}`;
 		chosenItem.parentElement.insertBefore(inputDiv, chosenItem);
 	}
 
