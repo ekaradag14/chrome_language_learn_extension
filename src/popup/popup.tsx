@@ -55,13 +55,12 @@ const App: FunctionComponent<{}> = () => {
 						variant="outlined"
 						style={{
 							width: '100%',
-							padding: 15,
-							paddingBottom: 40,
+							padding: '20px 15px',
+
 							display: 'flex',
 							flexDirection: 'column',
 							height: '100%',
 							overflowY: 'scroll',
-							marginBottom: 10,
 						}}
 					>
 						{noAuthRoutes.includes(currentView) && (

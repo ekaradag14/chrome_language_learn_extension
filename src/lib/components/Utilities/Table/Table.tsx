@@ -170,7 +170,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 					id="tableTitle"
 					component="div"
 				>
-					Disabled Pages
+					Disabled Sites
 				</Typography>
 			)}
 			{numSelected > 0 && (
@@ -246,7 +246,7 @@ export default function EnhancedTable({ data, deleteAction }) {
 	return (
 		<Box sx={{ width: '100%', marginTop: '20px' }}>
 			<Paper
-				style={{ backgroundColor: '#f4f6f9' }}
+				style={{ backgroundColor: 'rgb(242,238,238)' }}
 				sx={{ width: '100%', mb: 2 }}
 			>
 				<EnhancedTableToolbar

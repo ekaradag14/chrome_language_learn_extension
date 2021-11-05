@@ -11,6 +11,7 @@ import { Table } from '../../components/Utilities/Table';
 import { GeneralContext } from '../../../context/general';
 import './Settings.css';
 const constants = require('../../../constants.js');
+
 const Settings: FunctionComponent<{}> = () => {
 	const [open, setOpen] = React.useState(false);
 	const [bannedSites, setBannedSites] = useState<string[]>([]);
@@ -47,6 +48,7 @@ const Settings: FunctionComponent<{}> = () => {
 			var url = new URL(tab.url);
 			var domain = type === 'site' ? url.hostname : tab.url;
 			if (domain === 'newtab') return;
+			domain.replace('https://', '');
 			let resp;
 			chrome.storage.local.get(['bannedSites'], async (res) => {
 				if (res.bannedSites) {
@@ -116,12 +118,12 @@ const Settings: FunctionComponent<{}> = () => {
 		</Card>
 	);
 	const settingsArray = [
-		{
-			title: 'Disable Page',
-			body: 'Do not run extension on this page. ',
-			buttonText: 'Disable',
-			action: () => disableDomain('page'),
-		},
+		// {
+		// 	title: 'Disable Page',
+		// 	body: 'Do not run extension on this page. ',
+		// 	buttonText: 'Disable',
+		// 	action: () => disableDomain('page'),
+		// },
 		{
 			title: 'Disable Site',
 			body: 'Do not run extension on this site. ',

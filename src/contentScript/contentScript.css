@@ -1,25 +1,29 @@
 .extra-chrome-gift {
 	display: flex;
 	flex-direction: row;
-	max-width: 150px;
-	transition: all 0.2s ease-in-out;
+	max-width: 200px;
+	transition: all 0.3s ease-in-out;
 	height: 30px;
+	align-items: center;
+}
+.translate-text {
+	transition: all 0.3s ease-in-out;
 }
 .extra-chrome-gift:hover .ern-ext-translate-button {
-	display: block;
+	fill: black;
 }
 .extra-chrome-gift:hover .ern-ext-clear-button {
-	display: block;
+	fill: black;
 }
 .extra-chrome-gift:hover .ern-ext-input {
-	width: 100%;
+	width: 70%;
 }
+
 .ern-ext-input {
-	display: absolute;
 	padding-left: 10px;
-	width: 10px;
+	width: 20px;
 	outline: none;
-	max-height: 15px;
+	max-height: 20px;
 	border-radius: 20px;
 	border: 1px solid linear-gradient(0deg, red, #1beabd);
 	transition: all 0.2s ease-in-out;
@@ -35,37 +39,46 @@
 
 .ern-ext-translate-button {
 	cursor: pointer;
-	display: none;
+	fill: transparent;
+	width: 20px;
+	height: 20px;
 	margin-left: 4px;
-	max-height: 23px;
 	border-radius: 50%;
 	border-width: 0;
+	padding: auto;
 	transition: all 0.2s ease-in-out 0.1s;
 }
-.ern-ext-translate-button:hover {
-	background-color: blue;
-	color: white;
-	transform: scale(1.2);
-}
 
+.ern-ext-translate-button:hover {
+	transform: scale(1.2);
+	background-color: blue;
+	fill: white !important;
+}
+.ern-span {
+	width: 20px;
+	height: 100%;
+}
 .clicked {
 	animation: button-loading-spinner 1s ease infinite;
+	transform: scale(1.2);
 	background-color: blue;
-	color: white;
+	fill: white;
 }
 
 .ern-ext-clear-button {
 	cursor: pointer;
-	display: none;
+	fill: transparent;
 	margin-left: 4px;
-	max-height: 23px;
+	width: 20px;
+	height: 20px;
 	border-radius: 50%;
 	border-width: 0;
+	padding: auto;
 	transition: all 0.2s ease-in-out 0.1s;
 }
 .ern-ext-clear-button:hover {
 	background-color: orange;
-	color: white;
+	fill: white !important;
 	transform: scale(1.2);
 }
 
