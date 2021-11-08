@@ -1,10 +1,10 @@
 const getHeaders = () => {
 	return new Promise((resolve) => {
-		chrome.storage.local.get(['userCredentials'], (res) => {
-			console.log(res);
+		chrome.storage.local.get(['userCredentials', 'userSettings'], (res) => {
 			if (res.userCredentials.uid) {
 				resolve({
 					uid: res.userCredentials.uid,
+					ignorespecialcharacters: res?.userSettings?.ignoreSpecialCharacters,
 				});
 			}
 		});

@@ -48,6 +48,11 @@ module.exports = {
 			message: 'Site disable removed successfully.',
 			severity: 'success',
 		},
+		BAD_EMAIL: {
+			isOpen: true,
+			message: 'Please enter a valid email.',
+			severity: 'warning',
+		},
 	},
 	backendBaseURL: {
 		DEV: 'http://localhost:5001/shopgrid-0/us-central1/api',

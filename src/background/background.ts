@@ -15,7 +15,12 @@ chrome.runtime.onConnect.addListener(function (port) {
 		let reqData;
 		chrome.action.setBadgeText({ text: 'load' });
 		try {
-			reqData = await textAPIS.translateTextAPI(msg.text);
+			reqData = await textAPIS.translateTextAPI({
+				language: msg.language,
+				text: msg.text,
+				userTranslation: msg.userTranslation,
+				source: msg.source,
+			});
 			reqData = (await reqData.json()).data;
 		} catch (error) {
 			console.error(error);
@@ -23,8 +28,9 @@ chrome.runtime.onConnect.addListener(function (port) {
 			return;
 		}
 		// if (msg.joke == 'Knock knock')
-		console.log(reqData);
-		port.postMessage({ text: reqData.translatedPrompts.es });
+
+		console.log('reqData', reqData);
+		port.postMessage(reqData);
 		chrome.action.setBadgeText({ text: '' });
 	});
 });

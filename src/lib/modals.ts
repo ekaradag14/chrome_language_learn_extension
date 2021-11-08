@@ -11,4 +11,5 @@ export type UserSettingsProps = {
 	frequency: number;
 	amount: number;
 	targetLanguages: string[];
+	ignoreSpecialCharacters: boolean;
 };

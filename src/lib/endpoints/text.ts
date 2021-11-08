@@ -2,7 +2,12 @@
 import * as modals from '../modals';
 import constants from '../../constants';
 import * as getHeaders from './getHeaders';
-export const translateTextAPI = async (text: string) => {
+export const translateTextAPI = async (translationPayload: {
+	text: string;
+	language: string;
+	userTranslation: string;
+	source: string;
+}) => {
 	let headers;
 	try {
 		headers = await getHeaders.default();
@@ -14,6 +19,6 @@ export const translateTextAPI = async (text: string) => {
 	return fetch(`${constants.backendBaseURL.DEV}/translate`, {
 		method: 'POST',
 		headers,
-		body: JSON.stringify({ text }),
+		body: JSON.stringify(translationPayload),
 	});
 };

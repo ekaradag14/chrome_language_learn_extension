@@ -19,14 +19,15 @@ const topics = [
 	{ value: 'suggestion', label: 'Suggestion' },
 	{ value: 'other', label: 'Other' },
 ];
-
+const emptyUserMessage: modals.ContactUsMessage = {
+	topic: '',
+	body: '',
+	email: '',
+};
 const constants = require('../../../constants.js');
 const Contact: FunctionComponent<{}> = ({}) => {
-	const [userMessage, setUserMessage] = useState<modals.ContactUsMessage>({
-		topic: '',
-		body: '',
-		email: '',
-	});
+	const [userMessage, setUserMessage] =
+		useState<modals.ContactUsMessage>(emptyUserMessage);
 	const [topic, setTopic] = useState();
 	const [loading, setLoading] = useState(false);
 
@@ -38,16 +39,9 @@ const Contact: FunctionComponent<{}> = ({}) => {
 		}));
 	};
 	const handleClick = async () => {
-		if (
-			userMessage.topic.length === 0 ||
-			userMessage.body.length === 0 ||
-			userMessage.email.length === 0
-		) {
-			alertDispatch(constants.alertMessages.UNFILLED_FIELDS);
-
+		if (!isFormValid(userMessage, alertDispatch)) {
 			return;
 		}
-
 		setLoading(true);
 		let data;
 		try {
@@ -66,6 +60,8 @@ const Contact: FunctionComponent<{}> = ({}) => {
 			}, 500);
 		} else {
 			setLoading(false);
+			setUserMessage(emptyUserMessage);
+			setTopic(null);
 			alertDispatch(constants.alertMessages.SUCCESSFUL_CONTACT_US);
 		}
 	};
@@ -96,6 +92,7 @@ const Contact: FunctionComponent<{}> = ({}) => {
 					onChange={handleChange}
 				/>
 			</Grid>
+
 			<Grid item xs={12}>
 				<TextField
 					id="outlined-multiline-flexible"
@@ -127,4 +124,20 @@ const Contact: FunctionComponent<{}> = ({}) => {
 	);
 };
 
+const isEmailValid = (email) => {
+	const emailCheckRegex = /\S+@\S+\.\S+/;
+	return emailCheckRegex.test(email);
+};
+
+const isFormValid = (userMessage, alertDispatch) => {
+	let isValid = true;
+	if (userMessage.topic.length === 0 || userMessage.body.length === 0) {
+		alertDispatch(constants.alertMessages.UNFILLED_FIELDS);
+		isValid = false;
+	} else if (!isEmailValid(userMessage.email)) {
+		alertDispatch(constants.alertMessages.BAD_EMAIL);
+		isValid = false;
+	}
+	return isValid;
+};
 export default Contact;

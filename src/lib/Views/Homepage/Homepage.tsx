@@ -1,4 +1,9 @@
-import React, { FunctionComponent, useState, useContext } from 'react';
+import React, {
+	FunctionComponent,
+	useState,
+	useContext,
+	useEffect,
+} from 'react';
 import { Grid } from '@mui/material';
 import { TargetLanguage } from '../../components/TargetLanguage';
 import { Frequency } from '../../components/Frequency';
@@ -7,22 +12,23 @@ import './Homepage.css';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
 import { GeneralContext } from '../../../context/general';
+import Checkbox from '@mui/material/Checkbox';
 import { saveSettingsAPI } from '../../endpoints/user';
 const constants = require('../../../constants.js');
 import { UserSettingsProps } from '../../modals';
-const Homepage: FunctionComponent<{}> = () => {
+const Homepage: FunctionComponent<{
+	userSettings: UserSettingsProps;
+	setUserSettings;
+}> = ({ userSettings, setUserSettings }) => {
 	const [loading, setLoading] = useState(false);
 	const { alertDispatch, setOpen } = useContext(GeneralContext);
-	const [userSettings, setUserSettings] = useState<UserSettingsProps>({
-		frequency: 1,
-		amount: 1,
-		targetLanguages: [],
-	});
+
 	const handleClick = async () => {
 		setLoading(true);
 
 		try {
 			await saveSettingsAPI(userSettings);
+			chrome.storage.local.set({ userSettings });
 		} catch (error) {
 			console.log(error);
 		}
@@ -32,15 +38,37 @@ const Homepage: FunctionComponent<{}> = () => {
 			alertDispatch(constants.alertMessages.SUCCESSFUL_SAVE);
 		}, 300);
 	};
+	const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setUserSettings((pS) => ({
+			...pS,
+			ignoreSpecialCharacters: event.target.checked,
+		}));
+	};
 	const defaultArgs = {
 		value: userSettings,
 		setValue: setUserSettings,
 	};
+
 	return (
 		<>
 			<Frequency {...defaultArgs} />
-			<Amount {...defaultArgs} />
+			<div style={{ height: 20 }}></div>
+
 			<TargetLanguage {...defaultArgs} />
+			<Grid container alignContent="center" display="flex" flexDirection="row">
+				<Grid item sm={1}>
+					<Checkbox
+						inputProps={{ 'aria-label': 'Checkbox demo' }}
+						style={{ padding: 5 }}
+						checked={userSettings.ignoreSpecialCharacters}
+						onChange={handleCheckChange}
+						sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
+					/>
+				</Grid>
+				<Grid item sm={9} margin="auto 0">
+					Ignore Special Characters
+				</Grid>
+			</Grid>
 			<LoadingButton
 				color="primary"
 				onClick={handleClick}

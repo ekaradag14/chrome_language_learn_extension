@@ -14,7 +14,7 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 	value,
 	setValue,
 }) => {
-	const [options, setOptions] = useState<LanguageOption[]>(top100Films);
+	const [options, setOptions] = useState<LanguageOption[]>(supportedLanguages);
 
 	return (
 		<Autocomplete
@@ -24,12 +24,15 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 			options={options}
 			getOptionLabel={(option) => option.title}
 			value={value.targetLanguages}
-			getOptionDisabled={(option) => option.title === 'No Value'}
+			getOptionDisabled={(option) => value.targetLanguages.length > 1}
 			filterSelectedOptions
-			onChange={(event: any, newValue: LanguageOption[]) => {
-				if (newValue?.length === 2) {
-					setOptions([...newValue, { title: 'No Value' }]);
-				}
+			onChange={(event: any, newValue: LanguageOption[], reason) => {
+				// console.log(reason);
+				// if (newValue?.length === 2) {
+				// 	setOptions([...newValue, { title: 'No Value' }]);
+				// } else if (reason === 'removeOption' || reason === 'clear') {
+				// 	setOptions((pS) => pS.filter((el) => el.title !== 'No Value'));
+				// }
 				setValue((pS) => ({ ...pS, targetLanguages: newValue }));
 			}}
 			renderInput={(params) => (
@@ -38,7 +41,7 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 		/>
 	);
 };
-const top100Films: LanguageOption[] = [
+const supportedLanguages: LanguageOption[] = [
 	{ title: 'English' },
 	{ title: 'Spanish' },
 	{ title: 'Russian' },

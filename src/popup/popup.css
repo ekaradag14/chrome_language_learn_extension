@@ -2,3 +2,6 @@
 	width: 240px;
 	height: 280px;
 }
+.main-card::-webkit-scrollbar {
+	display: none; /* for Chrome, Safari, and Opera */
+}

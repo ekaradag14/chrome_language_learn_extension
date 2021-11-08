@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState, useContext } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Grid } from '@mui/material';
 import Card from '@mui/material/Card';
@@ -26,20 +26,34 @@ import { Homepage } from '../lib/Views/Homepage';
 import { Contact } from '../lib/Views/Contact';
 import { Login } from '../lib/Views/Login';
 import { Signup } from '../lib/Views/Signup';
-
+import { UserSettingsProps } from '../lib/modals';
 const constants = require('../constants.js');
 const noAuthRoutes = [constants.routes.LOGIN, constants.routes.SIGNUP];
 const App: FunctionComponent<{}> = () => {
 	const [theme, setTheme] = useState<typeof lightTheme>(lightTheme);
 	const [currentView, setCurrentView] = useState(constants.routes.HOMEPAGE);
+	const [userSettings, setUserSettings] = useState<UserSettingsProps>({
+		frequency: 1,
+		amount: 1,
+		targetLanguages: [],
+		ignoreSpecialCharacters: false,
+	});
 	const views = {
-		[constants.routes.HOMEPAGE]: <Homepage />,
+		[constants.routes.HOMEPAGE]: (
+			<Homepage userSettings={userSettings} setUserSettings={setUserSettings} />
+		),
 		[constants.routes.SETTINGS]: <Settings />,
 		[constants.routes.CONTACT]: <Contact />,
 		[constants.routes.LOGIN]: <Login setCurrentView={setCurrentView} />,
 		[constants.routes.SIGNUP]: <Signup setCurrentView={setCurrentView} />,
 	};
-
+	useEffect(() => {
+		chrome.storage.local.get(['userSettings'], async (res) => {
+			if (res.userSettings) {
+				setUserSettings(res.userSettings);
+			}
+		});
+	}, []);
 	return (
 		<ThemeProvider theme={theme}>
 			<GeneralContextProvider>
@@ -53,10 +67,11 @@ const App: FunctionComponent<{}> = () => {
 					)}
 					<Card
 						variant="outlined"
+						className="main-card"
 						style={{
 							width: '100%',
 							padding: '20px 15px',
-
+							scrollbarWidth: 'none',
 							display: 'flex',
 							flexDirection: 'column',
 							height: '100%',
