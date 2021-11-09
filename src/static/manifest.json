@@ -1,6 +1,6 @@
 {
-	"name": "Language Learn",
-	"description": "Chrome Extension in React!",
+	"name": "Learnip",
+	"description": "Learn languages one slice at a time!",
 	"version": "1.0.0",
 	"manifest_version": 3,
 	"icons": {

@@ -24,6 +24,9 @@
 	width: 70%;
 	color: black;
 	padding-right: 19px;
+	border-bottom-left-radius: 20px;
+	background-color: transparent;
+	border: 2px solid #aef4ffc2;
 }
 .extra-chrome-gift:hover .count-img {
 	opacity: 0.65;
@@ -32,12 +35,14 @@
 .ern-ext-input {
 	padding-left: 10px;
 
+	border: 2px solid transparent;
+	background-color: #aef4ffc2;
 	width: 20px;
 	outline: none;
 	max-height: 20px;
 	border-radius: 20px;
-	border: 1px solid linear-gradient(0deg, red, #1beabd);
 	transition: all 0.2s ease-in-out;
+	border-bottom-left-radius: 0;
 	color: transparent;
 }
 
@@ -52,6 +57,7 @@
 	height: 20px;
 	margin-left: 8px;
 	border-radius: 50%;
+
 	border-width: 0;
 	padding: auto;
 	transition: all 0.2s ease-in-out 0.1s;
@@ -59,7 +65,7 @@
 
 .ern-ext-translate-button:hover {
 	transform: scale(1.2);
-	background-color: blue;
+	background-color: #aef4ff;
 	fill: white !important;
 }
 .ern-span {
@@ -69,7 +75,7 @@
 .clicked {
 	animation: button-loading-spinner 1s ease infinite;
 	transform: scale(1.2);
-	background-color: blue;
+	background-color: #aef4ff;
 	fill: white;
 }
 .successful-translation {

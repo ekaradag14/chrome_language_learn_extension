@@ -55,18 +55,23 @@ const Homepage: FunctionComponent<{
 			<div style={{ height: 20 }}></div>
 
 			<TargetLanguage {...defaultArgs} />
-			<Grid container alignContent="center" display="flex" flexDirection="row">
+			<Grid
+				container
+				justifyContent="center"
+				display="flex"
+				flexDirection="row"
+			>
 				<Grid item sm={1}>
 					<Checkbox
 						inputProps={{ 'aria-label': 'Checkbox demo' }}
 						style={{ padding: 5 }}
 						checked={userSettings.ignoreSpecialCharacters}
 						onChange={handleCheckChange}
-						sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
+						sx={{ '& .MuiSvgIcon-root': { fontSize: 21 } }}
 					/>
 				</Grid>
 				<Grid item sm={9} margin="auto 0">
-					Ignore Special Characters
+					<em style={{ color: 'gray' }}>Ignore Special Characters</em>
 				</Grid>
 			</Grid>
 			<LoadingButton
@@ -76,7 +81,7 @@ const Homepage: FunctionComponent<{
 				loadingPosition="start"
 				startIcon={<SaveIcon />}
 				variant="contained"
-				style={{ maxWidth: '50%', margin: '20px auto 0 auto' }}
+				style={{ maxWidth: '50%', margin: '10px auto 0 auto' }}
 			>
 				Save
 			</LoadingButton>

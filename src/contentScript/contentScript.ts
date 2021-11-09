@@ -3,7 +3,7 @@ import './contentScript.css';
 const changeableTags: string[] = ['h1', 'h2', 'h3', 'h4', 'p', 'em', 'b'];
 import InputField from './InputField';
 let isBanned = false;
-
+import { UserSettingsProps } from '../lib/modals';
 const singleWordRegex: RegExp = /^([\w]+)/g;
 type FirebaseResp = {
 	basePrompt: string;
@@ -39,7 +39,12 @@ chrome.runtime.onConnect.addListener(function (port) {
 			port.postMessage({ question: "Who's there?" });
 	});
 });
-const createTagsForUser = (userSettings) => {
+const createTagsForUser = (userSettings: UserSettingsProps) => {
+	let targetLanguage =
+		userSettings.targetLanguages[
+			randomNumberInRange(0, userSettings.targetLanguages.length)
+		].code;
+
 	const tagTypeToBeChanged =
 		changeableTags[Math.floor(Math.random() * changeableTags.length)];
 	const tags = document.getElementsByTagName(tagTypeToBeChanged);
@@ -50,7 +55,7 @@ const createTagsForUser = (userSettings) => {
 	const randomElementIndex: number = getRandomArbitrary(0, tags.length);
 	let chosenItem = tags.item(randomElementIndex) as HTMLElement;
 	chosenItem = document.querySelector('.code-block__label');
-	console.log(chosenItem);
+
 	// chosenItem.style['background-color'] = 'yellow';
 	let translateText = chosenItem?.textContent?.trim();
 	let inputText, remainingText;
@@ -60,7 +65,7 @@ const createTagsForUser = (userSettings) => {
 		inputText = translateText.match(singleWordRegex)[0];
 		remainingText = translateText.replace(singleWordRegex, '');
 		const inputDiv = document.createElement('div');
-		inputDiv.innerHTML = InputField('germany');
+		inputDiv.innerHTML = InputField(targetLanguage);
 		chosenItem.innerHTML = ` <span style='background-color: #ddf5f8;border-radius: 5px;' >${inputText}</span>${remainingText}`;
 		chosenItem.parentElement.insertBefore(inputDiv, chosenItem);
 	}
@@ -75,7 +80,9 @@ const createTagsForUser = (userSettings) => {
 			e.preventDefault();
 			let elem = document.querySelector('.ern-ext-input') as HTMLInputElement;
 			let value = elem.value;
-
+			if (value.length === 0) {
+				return;
+			}
 			// document.querySelector('.extra-chrome-gift').remove();
 			document.querySelector('.ern-ext-translate-button').className +=
 				' clicked';
@@ -90,7 +97,7 @@ const createTagsForUser = (userSettings) => {
 				joke: 'Knock knock',
 				text: inputText,
 				userTranslation: value,
-				language: 'es',
+				language: targetLanguage,
 				source: document.URL,
 			});
 			//Handle any response that might come on this port
@@ -138,3 +145,5 @@ const createTagsForUser = (userSettings) => {
 const removeElement = (query) => {
 	return document.querySelector(query).remove();
 };
+const randomNumberInRange = (min, max) =>
+	Math.floor(Math.random() * (max - min)) + min;

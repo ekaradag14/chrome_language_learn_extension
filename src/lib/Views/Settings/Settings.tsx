@@ -112,7 +112,10 @@ const Settings: FunctionComponent<{}> = () => {
 			<h2 style={{ margin: 0, color: 'gray' }}>{title}</h2>
 			<Divider style={{ margin: '10px 0' }} />
 			<p style={{ margin: 0, color: 'gray' }}>{body}</p>
-			<Button onClick={action} style={{ marginLeft: 'auto', padding: 0 }}>
+			<Button
+				onClick={action}
+				style={{ marginLeft: 'auto', padding: 0, marginTop: 10 }}
+			>
 				{buttonText}
 			</Button>
 		</Card>

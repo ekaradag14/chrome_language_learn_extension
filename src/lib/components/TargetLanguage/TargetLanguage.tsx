@@ -2,10 +2,8 @@ import React, { FunctionComponent, useState } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import './TargetLanguage.css';
-import { UserSettingsProps } from '../../modals';
-export type LanguageOption = {
-	title: string;
-};
+import { UserSettingsProps, LanguageOptionProps } from '../../modals';
+
 export type TargetLanguageProps = {
 	value: UserSettingsProps;
 	setValue;
@@ -14,7 +12,8 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 	value,
 	setValue,
 }) => {
-	const [options, setOptions] = useState<LanguageOption[]>(supportedLanguages);
+	const [options, setOptions] =
+		useState<LanguageOptionProps[]>(supportedLanguages);
 
 	return (
 		<Autocomplete
@@ -24,9 +23,9 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 			options={options}
 			getOptionLabel={(option) => option.title}
 			value={value.targetLanguages}
-			getOptionDisabled={(option) => value.targetLanguages.length > 1}
+			getOptionDisabled={(option) => value.targetLanguages.length > 0}
 			filterSelectedOptions
-			onChange={(event: any, newValue: LanguageOption[], reason) => {
+			onChange={(event: any, newValue: LanguageOptionProps[], reason) => {
 				// console.log(reason);
 				// if (newValue?.length === 2) {
 				// 	setOptions([...newValue, { title: 'No Value' }]);
@@ -41,10 +40,12 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 		/>
 	);
 };
-const supportedLanguages: LanguageOption[] = [
-	{ title: 'English' },
-	{ title: 'Spanish' },
-	{ title: 'Russian' },
-	{ title: 'Turkish' },
+const supportedLanguages: LanguageOptionProps[] = [
+	{ title: 'English', code: 'en' },
+	{ title: 'Spanish', code: 'es' },
+	{ title: 'German', code: 'de' },
+	{ title: 'Russian', code: 'ru' },
+	{ title: 'French', code: 'fr' },
+	{ title: 'Italian', code: 'it' },
 ];
 export default TargetLanguage;

@@ -30,21 +30,25 @@ const Frequency: FunctionComponent<FrequencyProps> = ({ value, setValue }) => {
 					</IconButton>
 				</CustomWidthTooltip>
 			</div>
-			<div style={{ padding: 0, paddingLeft: 10, marginTop: -10 }}>
+			<div className="slider-container">
 				<Slider
 					aria-label="Frequency"
 					defaultValue={1}
 					getAriaValueText={valuetext}
 					valueLabelDisplay="auto"
-					step={1}
-					marks
+					step={null}
+					marks={[{ value: 0 }, { value: 1 }, { value: 2 }]}
 					value={value.frequency}
 					onChange={(e, n) =>
 						setValue((pS: UserSettingsProps) => ({ ...pS, frequency: n }))
 					}
-					min={1}
-					max={5}
+					min={0}
+					max={4}
 				/>
+
+				<em className={`no-droplets ${value.frequency === 0 ? 'shown' : ''}`}>
+					You will not see any droplets!
+				</em>
 			</div>
 		</Grid>
 	);

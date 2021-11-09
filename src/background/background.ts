@@ -28,8 +28,6 @@ chrome.runtime.onConnect.addListener(function (port) {
 			return;
 		}
 		// if (msg.joke == 'Knock knock')
-
-		console.log('reqData', reqData);
 		port.postMessage(reqData);
 		chrome.action.setBadgeText({ text: '' });
 	});

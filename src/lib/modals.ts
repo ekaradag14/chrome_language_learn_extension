@@ -7,9 +7,13 @@ export type ContactUsMessage = {
 export type AuthenticationPayload = {
 	uid: string;
 };
+export type LanguageOptionProps = {
+	title: string;
+	code: string;
+};
 export type UserSettingsProps = {
 	frequency: number;
 	amount: number;
-	targetLanguages: string[];
+	targetLanguages: LanguageOptionProps[];
 	ignoreSpecialCharacters: boolean;
 };

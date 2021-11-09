@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Grid } from '@mui/material';
+import { Divider, Grid } from '@mui/material';
 import Card from '@mui/material/Card';
 import IconButton from '@mui/material/IconButton';
 
@@ -70,7 +70,7 @@ const App: FunctionComponent<{}> = () => {
 						className="main-card"
 						style={{
 							width: '100%',
-							padding: '20px 15px',
+							padding: '5px 15px',
 							scrollbarWidth: 'none',
 							display: 'flex',
 							flexDirection: 'column',
@@ -85,6 +85,20 @@ const App: FunctionComponent<{}> = () => {
 							/>
 						)}
 						{views[currentView]}
+						<div style={{ marginTop: '20px', paddingBottom: 7 }}>
+							<Divider style={{ marginBottom: 7 }} />
+							<em style={{ color: 'gray' }}>
+								Become a{' '}
+								<a
+									target="__blank"
+									href="https://wwww.learnip.co"
+									style={{ textDecoration: 'none', color: 'green' }}
+								>
+									<b style={{ cursor: 'pointer' }}>turnipster</b>
+								</a>{' '}
+								to unlock your full turnip power!
+							</em>
+						</div>
 					</Card>
 					{!noAuthRoutes.includes(currentView) && (
 						<Footer setCurrentView={setCurrentView} />
