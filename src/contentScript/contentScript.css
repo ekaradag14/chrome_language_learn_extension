@@ -22,7 +22,7 @@
 
 .extra-chrome-gift:hover .ern-ext-input {
 	width: 70%;
-	color: black;
+	color: #747171;
 	padding-right: 19px;
 	border-bottom-left-radius: 20px;
 	background-color: transparent;
@@ -34,7 +34,7 @@
 
 .ern-ext-input {
 	padding-left: 10px;
-
+	text-transform: capitalize;
 	border: 2px solid transparent;
 	background-color: #aef4ffc2;
 	width: 20px;
@@ -60,11 +60,12 @@
 
 	border-width: 0;
 	padding: auto;
-	transition: all 0.2s ease-in-out 0.1s;
+	transition: all 0.2s ease-in-out;
 }
 
 .ern-ext-translate-button:hover {
 	transform: scale(1.2);
+
 	background-color: #aef4ff;
 	fill: white !important;
 }
@@ -76,17 +77,17 @@
 	animation: button-loading-spinner 1s ease infinite;
 	transform: scale(1.2);
 	background-color: #aef4ff;
-	fill: white;
+	fill: white !important;
 }
 .successful-translation {
 	transform: scale(1.2);
 	background-color: green;
-	fill: white;
+	fill: white !important;
 }
 .failed-translation {
 	transform: scale(1.2);
 	background-color: red;
-	fill: white;
+	fill: white !important;
 }
 @keyframes button-loading-spinner {
 	from {

@@ -52,7 +52,6 @@ const Homepage: FunctionComponent<{
 	return (
 		<>
 			<Frequency {...defaultArgs} />
-			<div style={{ height: 20 }}></div>
 
 			<TargetLanguage {...defaultArgs} />
 			<Grid

@@ -51,7 +51,7 @@ const Contact: FunctionComponent<{}> = ({}) => {
 			setLoading(false);
 			return;
 		}
-		console.log('skduf', data);
+
 		if (data.code !== 200) {
 			setTimeout(() => {
 				generalErrorHandler(alertDispatch, data);
@@ -72,7 +72,7 @@ const Contact: FunctionComponent<{}> = ({}) => {
 		}
 	}, [topic]);
 	return (
-		<Grid container rowSpacing={1}>
+		<Grid container rowSpacing={1} style={{ margin: 'auto' }}>
 			<Grid item xs={12}>
 				<BasicSelect
 					label="About"

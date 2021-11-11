@@ -51,6 +51,8 @@ const App: FunctionComponent<{}> = () => {
 		chrome.storage.local.get(['userSettings'], async (res) => {
 			if (res.userSettings) {
 				setUserSettings(res.userSettings);
+			} else {
+				setCurrentView(constants.routes.LOGIN);
 			}
 		});
 	}, []);
@@ -85,20 +87,22 @@ const App: FunctionComponent<{}> = () => {
 							/>
 						)}
 						{views[currentView]}
-						<div style={{ marginTop: '20px', paddingBottom: 7 }}>
-							<Divider style={{ marginBottom: 7 }} />
-							<em style={{ color: 'gray' }}>
-								Become a{' '}
-								<a
-									target="__blank"
-									href="https://wwww.learnip.co"
-									style={{ textDecoration: 'none', color: 'green' }}
-								>
-									<b style={{ cursor: 'pointer' }}>turnipster</b>
-								</a>{' '}
-								to unlock your full turnip power!
-							</em>
-						</div>
+						{currentView === constants.routes.HOMEPAGE && (
+							<div style={{ marginTop: 'auto', paddingBottom: 7 }}>
+								<Divider style={{ marginBottom: 7 }} />
+								<em style={{ color: 'gray' }}>
+									Become a{' '}
+									<a
+										target="__blank"
+										href="https://www.learnip.co"
+										style={{ textDecoration: 'none', color: 'green' }}
+									>
+										<b style={{ cursor: 'pointer' }}>turnipster</b>
+									</a>{' '}
+									to unlock your full turnip power!
+								</em>
+							</div>
+						)}
 					</Card>
 					{!noAuthRoutes.includes(currentView) && (
 						<Footer setCurrentView={setCurrentView} />

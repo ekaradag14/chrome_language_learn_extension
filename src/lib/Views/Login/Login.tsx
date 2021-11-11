@@ -8,6 +8,8 @@ import * as firebase from '../../firebaseInit';
 import './Login.css';
 import { GeneralContext } from '../../../context/general';
 import { generalErrorHandler } from '../../utils/errorHandler';
+import { getUserStorageDataAPI } from '../../endpoints/user';
+// import ReCAPTCHA from 'react-google-recaptcha';
 const constants = require('../../../constants.js');
 
 export type LoginProps = {
@@ -16,10 +18,10 @@ export type LoginProps = {
 
 const Login: FunctionComponent<LoginProps> = ({ setCurrentView }) => {
 	const [credentials, setCredentials] = useState({
-		email: 'test2@test2.com',
+		email: 'eren@eren.com',
 		password: '123456',
 	});
-
+	getUserStorageDataAPI;
 	const { alertDispatch } = useContext(GeneralContext);
 	const [loading, setLoading] = useState(false);
 
@@ -31,28 +33,35 @@ const Login: FunctionComponent<LoginProps> = ({ setCurrentView }) => {
 	};
 	const handleClick = async () => {
 		setLoading(true);
+		let idToken, userCredentials, userData;
 
-		let userCredentials;
 		try {
 			userCredentials = await signInWithEmailAndPassword(
 				firebase.auth,
 				credentials.email,
 				credentials.password
 			);
+			idToken = await firebase.auth.currentUser.getIdToken(true);
+			userData = await (await getUserStorageDataAPI(idToken)).json();
 		} catch (err) {
 			generalErrorHandler(alertDispatch, err);
 			setLoading(false);
 			return;
 		}
-		if (userCredentials.user.uid) {
+		if (userData) {
+			chrome.storage.local.set({
+				userSettings: userData.data.settings,
+				bannedSites: userData.data.bannedSites,
+			});
+		}
+		if (idToken) {
+			chrome.storage.local.set({
+				userCredentials: {
+					uid: userCredentials.user.uid,
+				},
+			});
 			setTimeout(() => {
 				setLoading(false);
-				chrome.storage.local.set({
-					userCredentials: {
-						email: userCredentials.user.email,
-						uid: userCredentials.user.uid,
-					},
-				});
 				setCurrentView(constants.routes.HOMEPAGE);
 			}, 500);
 		}

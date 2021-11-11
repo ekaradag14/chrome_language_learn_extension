@@ -37,7 +37,16 @@ const Header: FunctionComponent<HeaderProps> = ({
 			{currentView === constants.routes.HOMEPAGE ? (
 				<Tooltip title="Logout">
 					<IconButton
-						onClick={() => setCurrentView(constants.routes.LOGIN)}
+						onClick={() => {
+							chrome.storage.local.clear(function () {
+								var error = chrome.runtime.lastError;
+								if (!error) {
+									setCurrentView(constants.routes.LOGIN);
+								}
+							});
+
+							setCurrentView(constants.routes.LOGIN);
+						}}
 						aria-label="Logout"
 					>
 						<LogoutRoundedIcon color="primary" />
@@ -46,7 +55,7 @@ const Header: FunctionComponent<HeaderProps> = ({
 			) : (
 				<IconButton
 					onClick={() => setCurrentView(constants.routes.HOMEPAGE)}
-					aria-label="Logout"
+					aria-label="Go Back"
 				>
 					<ArrowBackIosIcon color="primary" />
 				</IconButton>

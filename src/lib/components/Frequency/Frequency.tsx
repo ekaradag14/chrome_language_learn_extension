@@ -46,9 +46,9 @@ const Frequency: FunctionComponent<FrequencyProps> = ({ value, setValue }) => {
 					max={4}
 				/>
 
-				<em className={`no-droplets ${value.frequency === 0 ? 'shown' : ''}`}>
-					You will not see any droplets!
-				</em>
+				<div className={`no-droplets ${value.frequency === 0 ? 'shown' : ''}`}>
+					<em>You will not see any droplets</em>
+				</div>
 			</div>
 		</Grid>
 	);

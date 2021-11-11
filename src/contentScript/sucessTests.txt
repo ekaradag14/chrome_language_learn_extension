@@ -1,0 +1,64 @@
+		if (
+			!isBanned &&
+			res.userSettings.frequency !== 0 &&
+			res.userSettings.targetLanguages.length &&
+			getRandomArbitrary(0, 10) % 2 === 0
+		) {
+			createTagsForUser(res.userSettings);
+			console.log('hello');
+		} else {
+			chrome.storage.local.get(['pollResults'], (res) => {
+				if (res.pollResults) {
+					chrome.storage.local.set({
+						pollResults: [{ randomTest: false }, ...res.pollResults],
+					});
+				} else {
+					chrome.storage.local.set({
+						pollResults: [{ randomTest: false }],
+					});
+				}
+			});
+			setTimeout(() => {
+				location.reload();
+				return;
+			}, 1000);
+		}
+	}
+    
+    
+    if (!chosenItem) {
+		console.log('no suitable item');
+		chrome.storage.local.get(['pollResults'], (res) => {
+			if (res.pollResults) {
+				chrome.storage.local.set({
+					pollResults: [{ itemTest: false }, ...res.pollResults],
+				});
+			} else {
+				chrome.storage.local.set({
+					pollResults: [{ itemTest: false }],
+				});
+			}
+		});
+		setTimeout(() => {
+			location.reload();
+			return;
+		}, 1000);
+	} else {
+		chrome.storage.local.get(['pollResults'], (res) => {
+			if (res.pollResults) {
+				chrome.storage.local.set({
+					pollResults: [{ allTest: true }, ...res.pollResults],
+				});
+			} else {
+				chrome.storage.local.set({
+					pollResults: [{ allTest: true }],
+				});
+			}
+		});
+		setTimeout(() => {
+			location.reload();
+			return;
+		}, 1000);
+	}
+
+

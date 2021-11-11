@@ -1,31 +1,37 @@
 // TODO: content script
 import './contentScript.css';
-const changeableTags: string[] = ['h1', 'h2', 'h3', 'h4', 'p', 'em', 'b'];
+const changeableTags: string[] = [
+	'h1',
+	'h2',
+	'h3',
+	'h4',
+	'p',
+	'em',
+	'b',
+	'a',
+	'button',
+];
 import InputField from './InputField';
 let isBanned = false;
 import { UserSettingsProps } from '../lib/modals';
 const singleWordRegex: RegExp = /^([\w]+)/g;
-type FirebaseResp = {
-	basePrompt: string;
-	id: string;
-	translatedPrompts: {
-		de: string;
-		en: string;
-		es: string;
-		fr: string;
-		tr: string;
-	};
+const getRandomArbitrary = (min: number, max: number) => {
+	return Math.floor(Math.random() * (max - min) + min);
 };
-
 chrome.storage.local.get(['bannedSites', 'userSettings'], (res) => {
 	if (res.bannedSites) {
 		res.bannedSites.forEach((el) => {
 			if (el.includes(document.domain)) {
 				isBanned = true;
-				console.log('isBanned', isBanned);
 			}
 		});
-		if (!isBanned) {
+		console.log(getRandomArbitrary(0, 10) % 2 === 0);
+		if (
+			!isBanned &&
+			res.userSettings.frequency !== 0 &&
+			res.userSettings.targetLanguages.length &&
+			getRandomArbitrary(0, 10) % 2 === 0
+		) {
 			createTagsForUser(res.userSettings);
 			console.log('hello');
 		}
@@ -40,23 +46,24 @@ chrome.runtime.onConnect.addListener(function (port) {
 	});
 });
 const createTagsForUser = (userSettings: UserSettingsProps) => {
+	let chosenItem;
 	let targetLanguage =
 		userSettings.targetLanguages[
 			randomNumberInRange(0, userSettings.targetLanguages.length)
 		].code;
-
 	const tagTypeToBeChanged =
 		changeableTags[Math.floor(Math.random() * changeableTags.length)];
 	const tags = document.getElementsByTagName(tagTypeToBeChanged);
-	const getRandomArbitrary = (min: number, max: number) => {
-		return Math.random() * (max - min) + min;
-	};
-
-	const randomElementIndex: number = getRandomArbitrary(0, tags.length);
-	let chosenItem = tags.item(randomElementIndex) as HTMLElement;
-	chosenItem = document.querySelector('.code-block__label');
-
-	// chosenItem.style['background-color'] = 'yellow';
+	for (const item of tags) {
+		if (!item?.firstElementChild) {
+			chosenItem = item;
+			break;
+		}
+	}
+	if (!chosenItem) {
+		console.log('no suitable item');
+		return;
+	}
 	let translateText = chosenItem?.textContent?.trim();
 	let inputText, remainingText;
 
@@ -66,7 +73,7 @@ const createTagsForUser = (userSettings: UserSettingsProps) => {
 		remainingText = translateText.replace(singleWordRegex, '');
 		const inputDiv = document.createElement('div');
 		inputDiv.innerHTML = InputField(targetLanguage);
-		chosenItem.innerHTML = ` <span style='background-color: #ddf5f8;border-radius: 5px;' >${inputText}</span>${remainingText}`;
+		chosenItem.innerHTML = ` <span style='background-color: #aef4ff7a;border-radius: 5px;' >${inputText}</span>${remainingText}`;
 		chosenItem.parentElement.insertBefore(inputDiv, chosenItem);
 	}
 

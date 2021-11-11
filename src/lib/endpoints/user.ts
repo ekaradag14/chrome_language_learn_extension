@@ -12,7 +12,12 @@ export const signUpUserAPI = async (userCreds: SignupPayload) => {
 		body: JSON.stringify(userCreds),
 	});
 };
-
+export const getUserStorageDataAPI = async (idToken: string) => {
+	return fetch(`${constants.backendBaseURL.DEV}/userStorage`, {
+		method: 'POST',
+		body: JSON.stringify({ idToken }),
+	});
+};
 export const saveSettingsAPI = async (settings) => {
 	let headers;
 	try {
