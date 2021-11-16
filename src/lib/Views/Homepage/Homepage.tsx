@@ -11,7 +11,7 @@ import { Amount } from '../../components/Amount';
 import './Homepage.css';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
-import { GeneralContext } from '../../../context/general';
+//import { GeneralContext } from '../../../context/general';
 import Checkbox from '@mui/material/Checkbox';
 import { saveSettingsAPI } from '../../endpoints/user';
 const constants = require('../../../constants.js');
@@ -21,7 +21,7 @@ const Homepage: FunctionComponent<{
 	setUserSettings;
 }> = ({ userSettings, setUserSettings }) => {
 	const [loading, setLoading] = useState(false);
-	const { alertDispatch, setOpen } = useContext(GeneralContext);
+	//const { alertDispatch, setOpen } = useContext(GeneralContext);
 
 	const handleClick = async () => {
 		setLoading(true);
@@ -35,7 +35,7 @@ const Homepage: FunctionComponent<{
 		//Add check for body validation
 		setTimeout(() => {
 			setLoading(false);
-			alertDispatch(constants.alertMessages.SUCCESSFUL_SAVE);
+			// alertDispatch(constants.alertMessages.SUCCESSFUL_SAVE);
 		}, 300);
 	};
 	const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {

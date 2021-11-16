@@ -8,10 +8,10 @@ import './Footer.css';
 export type FooterProps = {
 	setCurrentView: React.Dispatch<React.SetStateAction<string>>;
 };
-import { GeneralContext } from '../../../context/general';
+//import { GeneralContext } from '../../../context/general';
 const constants = require('../../../constants.js');
 const Footer: FunctionComponent<FooterProps> = ({ setCurrentView }) => {
-	const { alertDispatch,  setOpen } = useContext(GeneralContext);
+	//const { alertDispatch, setOpen } = useContext(GeneralContext);
 	return (
 		<Grid
 			style={{
