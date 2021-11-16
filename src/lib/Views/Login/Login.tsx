@@ -6,7 +6,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import { signInWithEmailAndPassword } from 'firebase/auth'; // New import
 import * as firebase from '../../firebaseInit';
 import './Login.css';
-//import { GeneralContext } from '../../../context/general';
+import { GeneralContext } from '../../../context/general';
 import { generalErrorHandler } from '../../utils/errorHandler';
 import { getUserStorageDataAPI } from '../../endpoints/user';
 // import ReCAPTCHA from 'react-google-recaptcha';

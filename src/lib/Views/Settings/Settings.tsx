@@ -8,7 +8,7 @@ import { Card, Divider, Grid } from '@mui/material';
 import Button from '@mui/material/Button';
 import { addBannedSiteAPI, removeBannedSiteAPI } from '../../endpoints/user';
 import { Table } from '../../components/Utilities/Table';
-//import { GeneralContext } from '../../../context/general';
+import { GeneralContext } from '../../../context/general';
 import './Settings.css';
 const constants = require('../../../constants.js');
 

@@ -10,7 +10,8 @@
 	transition: all 0.3s ease-in-out;
 }
 .extra-chrome-gift:hover .ern-ext-translate-button {
-	fill: black;
+	fill: white;
+	background-color: lightgray;
 }
 
 .count-img {
@@ -23,9 +24,10 @@
 .extra-chrome-gift:hover .ern-ext-input {
 	width: 70%;
 	color: #747171;
+	padding-left: 10px;
 	padding-right: 19px;
 	border-bottom-left-radius: 20px;
-	background-color: transparent;
+	background-color: white;
 	border: 2px solid #aef4ffc2;
 }
 .extra-chrome-gift:hover .count-img {
@@ -33,11 +35,9 @@
 }
 
 .ern-ext-input {
-	padding-left: 10px;
-	text-transform: capitalize;
 	border: 2px solid transparent;
 	background-color: #aef4ffc2;
-	width: 20px;
+	width: 16px;
 	outline: none;
 	max-height: 20px;
 	border-radius: 20px;
@@ -53,6 +53,7 @@
 .ern-ext-translate-button {
 	cursor: pointer;
 	fill: transparent;
+	background-color: transparent;
 	width: 20px;
 	height: 20px;
 	margin-left: 8px;
@@ -66,7 +67,7 @@
 .ern-ext-translate-button:hover {
 	transform: scale(1.2);
 
-	background-color: #aef4ff;
+	background-color: #aef4ff !important;
 	fill: white !important;
 }
 .ern-span {
@@ -80,7 +81,7 @@
 	fill: white !important;
 }
 .successful-translation {
-	transform: scale(1.2);
+	transform: scale(1.3);
 	background-color: green;
 	fill: white !important;
 }
