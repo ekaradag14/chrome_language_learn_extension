@@ -59,10 +59,12 @@ const Contact: FunctionComponent<{}> = ({}) => {
 				return;
 			}, 500);
 		} else {
-			setLoading(false);
-			setUserMessage(emptyUserMessage);
-			setTopic(null);
-			alertDispatch(constants.alertMessages.SUCCESSFUL_CONTACT_US);
+			setTimeout(() => {
+				setLoading(false);
+				setUserMessage(emptyUserMessage);
+				setTopic(null);
+				alertDispatch(constants.alertMessages.SUCCESSFUL_CONTACT_US);
+			}, 400);
 		}
 	};
 

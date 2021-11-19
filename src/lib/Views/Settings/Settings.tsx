@@ -78,11 +78,13 @@ const Settings: FunctionComponent<{}> = () => {
 
 					console.log(resp);
 				}
-				alertDispatch(
-					type === 'site'
-						? constants.alertMessages.SUCCESSFUL_SITE_DISABLE
-						: constants.alertMessages.SUCCESSFUL_PAGE_DISABLE
-				);
+				setTimeout(() => {
+					alertDispatch(
+						type === 'site'
+							? constants.alertMessages.SUCCESSFUL_SITE_DISABLE
+							: constants.alertMessages.SUCCESSFUL_PAGE_DISABLE
+					);
+				}, 400);
 			});
 		});
 	};

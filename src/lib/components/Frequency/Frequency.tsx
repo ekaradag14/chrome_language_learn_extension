@@ -12,9 +12,17 @@ function valuetext(value: number) {
 }
 export type FrequencyProps = {
 	value: UserSettingsProps;
+	isUserPremium: boolean;
 	setValue;
 };
-const Frequency: FunctionComponent<FrequencyProps> = ({ value, setValue }) => {
+const Frequency: FunctionComponent<FrequencyProps> = ({
+	value,
+	setValue,
+	isUserPremium,
+}) => {
+	const marks = isUserPremium
+		? [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }]
+		: [{ value: 0 }, { value: 1 }, { value: 2 }];
 	return (
 		<Grid id="frequency-container">
 			<div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -37,7 +45,7 @@ const Frequency: FunctionComponent<FrequencyProps> = ({ value, setValue }) => {
 					getAriaValueText={valuetext}
 					valueLabelDisplay="auto"
 					step={null}
-					marks={[{ value: 0 }, { value: 1 }, { value: 2 }]}
+					marks={marks}
 					value={value.frequency}
 					onChange={(e, n) =>
 						setValue((pS: UserSettingsProps) => ({ ...pS, frequency: n }))

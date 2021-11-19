@@ -21,7 +21,7 @@ const Login: FunctionComponent<LoginProps> = ({ setCurrentView }) => {
 		email: 'eren@eren.com',
 		password: '123456',
 	});
-	getUserStorageDataAPI;
+
 	const { alertDispatch } = useContext(GeneralContext);
 	const [loading, setLoading] = useState(false);
 
@@ -52,6 +52,8 @@ const Login: FunctionComponent<LoginProps> = ({ setCurrentView }) => {
 			chrome.storage.local.set({
 				userSettings: userData.data.settings,
 				bannedSites: userData.data.bannedSites,
+				isPremium: userData.data.isPremium,
+				lastLanguageChange: userData.data.lastLanguageChange,
 			});
 		}
 		if (idToken) {

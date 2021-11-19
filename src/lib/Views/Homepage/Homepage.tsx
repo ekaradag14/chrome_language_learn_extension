@@ -4,75 +4,89 @@ import React, {
 	useContext,
 	useEffect,
 } from 'react';
-import { Grid } from '@mui/material';
+
 import { TargetLanguage } from '../../components/TargetLanguage';
 import { Frequency } from '../../components/Frequency';
 import { Amount } from '../../components/Amount';
 import './Homepage.css';
 import LoadingButton from '@mui/lab/LoadingButton';
+import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
 import SaveIcon from '@mui/icons-material/Save';
 import { GeneralContext } from '../../../context/general';
-import Checkbox from '@mui/material/Checkbox';
 import { saveSettingsAPI } from '../../endpoints/user';
 const constants = require('../../../constants.js');
 import { UserSettingsProps } from '../../modals';
+import { Dialog } from '../../components/Dialog';
+
 const Homepage: FunctionComponent<{
 	userSettings: UserSettingsProps;
+	languageIsChangeable: boolean;
+	isUserPremium: boolean;
 	setUserSettings;
-}> = ({ userSettings, setUserSettings }) => {
+	setLanguageIsChangeable;
+}> = ({
+	userSettings,
+	setUserSettings,
+	languageIsChangeable,
+	setLanguageIsChangeable,
+	isUserPremium,
+}) => {
 	const [loading, setLoading] = useState(false);
-	const { alertDispatch, setOpen } = useContext(GeneralContext);
 
+	const { alertDispatch, setOpen } = useContext(GeneralContext);
+	const [renderKey, setRenderKey] = useState(0);
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const handleClick = async () => {
+		if (languageIsChangeable) {
+			setIsModalOpen(true);
+		} else {
+			saveSettings(false);
+		}
+	};
+
+	const saveSettings = async (hasLanguageChanged: boolean) => {
 		setLoading(true);
 
+		let settings;
 		try {
-			await saveSettingsAPI(userSettings);
-			chrome.storage.local.set({ userSettings });
+			settings = (await (await saveSettingsAPI(userSettings)).json()).data;
+			chrome.storage.local.set({ userSettings: settings });
+
+			setUserSettings(settings);
 		} catch (error) {
 			console.log(error);
 		}
 		//Add check for body validation
+		if (hasLanguageChanged) {
+			!isUserPremium && setLanguageIsChangeable(false);
+			chrome.storage.local.set({
+				lastLanguageChange: Math.floor(Date.now() / 1000),
+			});
+		}
+
 		setTimeout(() => {
+			setRenderKey(renderKey + 1);
 			setLoading(false);
-			// alertDispatch(constants.alertMessages.SUCCESSFUL_SAVE);
+			setIsModalOpen(false);
+			alertDispatch(constants.alertMessages.SUCCESSFUL_SAVE);
 		}, 300);
 	};
-	const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setUserSettings((pS) => ({
-			...pS,
-			ignoreSpecialCharacters: event.target.checked,
-		}));
-	};
+
 	const defaultArgs = {
 		value: userSettings,
 		setValue: setUserSettings,
 	};
 
 	return (
-		<>
-			<Frequency {...defaultArgs} />
+		<div style={{ display: 'flex', flexDirection: 'column' }} key={renderKey}>
+			<Frequency isUserPremium={isUserPremium} {...defaultArgs} />
+			<TargetLanguage
+				isUserPremium={isUserPremium}
+				ignoreSpecialCharacters={userSettings.ignoreSpecialCharacters}
+				languageIsChangeable={languageIsChangeable}
+				{...defaultArgs}
+			/>
 
-			<TargetLanguage {...defaultArgs} />
-			<Grid
-				container
-				justifyContent="center"
-				display="flex"
-				flexDirection="row"
-			>
-				<Grid item sm={1}>
-					<Checkbox
-						inputProps={{ 'aria-label': 'Checkbox demo' }}
-						style={{ padding: 5 }}
-						checked={userSettings.ignoreSpecialCharacters}
-						onChange={handleCheckChange}
-						sx={{ '& .MuiSvgIcon-root': { fontSize: 21 } }}
-					/>
-				</Grid>
-				<Grid item sm={9} margin="auto 0">
-					<em style={{ color: 'gray' }}>Ignore Special Characters</em>
-				</Grid>
-			</Grid>
 			<LoadingButton
 				color="primary"
 				onClick={handleClick}
@@ -84,7 +98,37 @@ const Homepage: FunctionComponent<{
 			>
 				Save
 			</LoadingButton>
-		</>
+			<Dialog
+				open={isModalOpen}
+				setOpen={setIsModalOpen}
+				title={null}
+				children={
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+						}}
+					>
+						<p style={{ fontSize: 14, color: 'gray' }}>
+							You can only change your language once in a day.
+						</p>
+					</div>
+				}
+				actionChildren={
+					<LoadingButton
+						color="primary"
+						onClick={() => saveSettings(true)}
+						loading={loading}
+						loadingPosition="start"
+						startIcon={<SaveIcon />}
+						variant="contained"
+						style={{ maxWidth: '60%', margin: 'auto' }}
+					>
+						Save
+					</LoadingButton>
+				}
+			/>
+		</div>
 	);
 };
 

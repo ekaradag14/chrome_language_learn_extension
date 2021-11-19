@@ -32,6 +32,10 @@ const noAuthRoutes = [constants.routes.LOGIN, constants.routes.SIGNUP];
 const App: FunctionComponent<{}> = () => {
 	const [theme, setTheme] = useState<typeof lightTheme>(lightTheme);
 	const [currentView, setCurrentView] = useState(constants.routes.HOMEPAGE);
+	const [languageIsChangeable, setLanguageIsChangeable] =
+		useState<boolean>(true);
+	const [isUserPremium, setIsUserPremium] = useState<boolean>(false);
+
 	const [userSettings, setUserSettings] = useState<UserSettingsProps>({
 		frequency: 1,
 		amount: 1,
@@ -40,7 +44,13 @@ const App: FunctionComponent<{}> = () => {
 	});
 	const views = {
 		[constants.routes.HOMEPAGE]: (
-			<Homepage userSettings={userSettings} setUserSettings={setUserSettings} />
+			<Homepage
+				isUserPremium={isUserPremium}
+				setLanguageIsChangeable={setLanguageIsChangeable}
+				languageIsChangeable={languageIsChangeable}
+				userSettings={userSettings}
+				setUserSettings={setUserSettings}
+			/>
 		),
 		[constants.routes.SETTINGS]: <Settings />,
 		[constants.routes.CONTACT]: <Contact />,
@@ -48,13 +58,22 @@ const App: FunctionComponent<{}> = () => {
 		[constants.routes.SIGNUP]: <Signup setCurrentView={setCurrentView} />,
 	};
 	useEffect(() => {
-		chrome.storage.local.get(['userSettings'], async (res) => {
-			if (res.userSettings) {
-				setUserSettings(res.userSettings);
-			} else {
-				setCurrentView(constants.routes.LOGIN);
+		chrome.storage.local.get(
+			['userSettings', 'lastLanguageChange', 'isPremium'],
+			async (res) => {
+				if (res.userSettings) {
+					setUserSettings(res.userSettings);
+				} else {
+					setCurrentView(constants.routes.LOGIN);
+				}
+				if (res.lastLanguageChange) {
+					setLanguageIsChangeable(
+						Math.floor(Date.now() / 1000) - parseInt(res.lastLanguageChange) >
+							86400 || res.isPremium === true
+					);
+				}
 			}
-		});
+		);
 	}, []);
 	return (
 		<ThemeProvider theme={theme}>
