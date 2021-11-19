@@ -66,6 +66,7 @@ const App: FunctionComponent<{}> = () => {
 				} else {
 					setCurrentView(constants.routes.LOGIN);
 				}
+				if (res.isPremium) setIsUserPremium(res.isPremium);
 				if (res.lastLanguageChange) {
 					setLanguageIsChangeable(
 						Math.floor(Date.now() / 1000) - parseInt(res.lastLanguageChange) >

@@ -43,7 +43,7 @@ const Homepage: FunctionComponent<{
 			saveSettings(false);
 		}
 	};
-
+	console.log('isUserPremium', isUserPremium);
 	const saveSettings = async (hasLanguageChanged: boolean) => {
 		setLoading(true);
 
@@ -89,7 +89,9 @@ const Homepage: FunctionComponent<{
 
 			<LoadingButton
 				color="primary"
-				onClick={handleClick}
+				onClick={() => {
+					return isUserPremium ? saveSettings(false) : handleClick();
+				}}
 				loading={loading}
 				loadingPosition="start"
 				startIcon={<SaveIcon />}

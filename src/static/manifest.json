@@ -14,7 +14,7 @@
 		"default_icon": "icon.png"
 	},
 	"permissions": ["storage", "tabs"],
-	"options_page": "options.html",
+
 	"background": {
 		"service_worker": "background.js"
 	},
