@@ -3,7 +3,7 @@
 	flex-direction: row !important;
 	width: 200px !important;
 	transition: all 0.3s ease-in-out !important;
-	height: 20px !important;
+	height: 23px !important;
 	align-items: center !important;
 }
 .learnip-selected-translate-text-23 {
@@ -11,7 +11,7 @@
 }
 
 .learnip-country-img-23 {
-	margin-left: -18px;
+	margin-left: -20px;
 	align-content: center;
 	display: flex;
 	opacity: 0;
@@ -21,10 +21,10 @@
 	width: 150px !important;
 	color: #747171;
 	padding-left: 10px;
-	padding-right: 19px;
+	padding-right: 24px;
 	border-bottom-left-radius: 20px;
 	background-color: white;
-	border: 2px solid #aef4ffc2 !important;
+	border: 2px solid #cbf6fd !important;
 }
 .learnip-container-div-23:hover .learnip-country-img-23 {
 	opacity: 0.65;
@@ -36,10 +36,10 @@
 }
 .learnip-input-23 {
 	border: 2px solid transparent !important;
-	background-color: #aef4ffc2;
-	width: 20px !important;
+	background-color: #cbf6fd;
+	width: 16px !important;
 	outline: none;
-	height: 20px !important;
+	height: 16px !important;
 	border-radius: 20px;
 	transition: all 0.2s ease-in-out;
 	border-bottom-left-radius: 0;
@@ -48,10 +48,10 @@
 	margin-bottom: auto;
 }
 .learnip-input-23:focus {
-	border: 2px solid #aef4ffc2 !important;
+	border: 2px solid #cbf6fd !important;
 }
 .learnip-input-23:active {
-	border: 2px solid #aef4ffc2 !important;
+	border: 2px solid #cbf6fd !important;
 }
 .learnip-input-23::placeholder {
 	color: transparent;
@@ -61,8 +61,9 @@
 }
 .learnip-disabled-input-23 {
 	width: 150px !important;
+	color: #747171;
 	background-color: white !important;
-	border: 2px solid #aef4ffc2 !important;
+	border: 2px solid #cbf6fd !important;
 }
 .learnip-disabled-input-23 ~ .learnip-country-img-23 {
 	opacity: 1;
@@ -103,7 +104,7 @@
 }
 
 .learnip-translate-button-23:hover .learnip-cls-1 {
-	fill: #aef4ff;
+	fill: #cbf6fd;
 }
 
 /*Clicked State Changes*/
@@ -117,7 +118,7 @@
 	transform: scale(1.2);
 }
 .learnip-clicked-state-23 .learnip-cls-1 {
-	fill: #aef4ff !important;
+	fill: #cbf6fd !important;
 }
 
 /*Successful Transformation Changes*/

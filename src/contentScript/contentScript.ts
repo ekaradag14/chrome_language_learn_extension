@@ -18,29 +18,34 @@ import { UserSettingsProps } from '../lib/modals';
 //helpers
 import * as helpers from './helpers';
 export type TranslationResultProps = {
+	clear?: boolean;
 	userTranslation: string;
 	translatedText: string;
 	successfulTranslation: string;
 };
-chrome.storage.local.get(['bannedSites', 'userSettings'], (res) => {
-	if (res.bannedSites) {
-		res.bannedSites.forEach((el: string[]) => {
-			if (el.includes(document.domain)) {
-				isBanned = true;
-			}
-		});
+chrome.storage.local.get(
+	['bannedSites', 'userSettings', 'dailyLimitReached'],
+	(res) => {
+		if (res.bannedSites) {
+			res.bannedSites.forEach((el: string[]) => {
+				if (el.includes(document.domain)) {
+					isBanned = true;
+				}
+			});
 
-		if (
-			true ||
-			(!isBanned &&
-				res.userSettings.frequency !== 0 &&
-				res.userSettings.targetLanguages.length &&
-				helpers.getRandomArbitrary(0, 10) % 2 === 0)
-		) {
-			createTagsForUser(res.userSettings);
+			if (
+				true ||
+				(!isBanned &&
+					res.userSettings.frequency !== 0 &&
+					!res.dailyLimitReached &&
+					res.userSettings.targetLanguages.length &&
+					helpers.getRandomArbitrary(0, 10) % 2 === 0)
+			) {
+				createTagsForUser(res.userSettings);
+			}
 		}
 	}
-});
+);
 
 // Add a listener for any port that can be opened in the application
 // chrome.runtime.onConnect.addListener(function (port) {
@@ -78,7 +83,7 @@ const createTagsForUser = (userSettings: UserSettingsProps) => {
 	if (!chosenItem) {
 		console.log('no suitable item was found');
 	}
-	chosenItem = document.querySelector('.tdb-title-text');
+	chosenItem = document.querySelector('.noprint');
 
 	//Check if element is in a correct form
 	if (!chosenItem) return;
@@ -146,6 +151,11 @@ const createTagsForUser = (userSettings: UserSettingsProps) => {
 	);
 
 	const changeContent = (translationResult: TranslationResultProps) => {
+		if (translationResult.clear) {
+			helpers.removeElement('.learnip-container-div-23', document);
+			chosenItem.innerHTML = `${words[0]} ${inputText} ${remainingText}`;
+			return;
+		}
 		let highlightColor = '#eb7272ba';
 		let className = ' learnip-failed-translation-23 ';
 		let wrongInput = `<em style='background-color: #ddd7d7;'>  ${translationResult.userTranslation}</em>`;
