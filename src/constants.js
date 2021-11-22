@@ -83,4 +83,9 @@ module.exports = {
 			severity: 'warning',
 		},
 	},
+	USER_LIMITS: {
+		free: {
+			dailyUsageLimit: [0, 15, 30, 60, 120],
+		},
+	},
 };

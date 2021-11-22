@@ -34,12 +34,11 @@ chrome.storage.local.get(
 			});
 
 			if (
-				true ||
-				(!isBanned &&
-					res.userSettings.frequency !== 0 &&
-					!res.dailyLimitReached &&
-					res.userSettings.targetLanguages.length &&
-					helpers.getRandomArbitrary(0, 10) % 2 === 0)
+				!isBanned &&
+				res.userSettings.frequency !== 0 &&
+				!res.dailyLimitReached &&
+				res.userSettings.targetLanguages.length
+				// helpers.getRandomArbitrary(0, 10) % 2 === 0)
 			) {
 				createTagsForUser(res.userSettings);
 			}

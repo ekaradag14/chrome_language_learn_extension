@@ -1,5 +1,5 @@
 import * as textAPIS from '../lib/endpoints/text';
-
+const constants = require('../constants.js');
 // var port = chrome.tabs.connect({ name: 'knockknock' });
 // port.postMessage({ joke: 'Knock knock' });
 // port.onMessage.addListener(function (msg) {
@@ -11,9 +11,8 @@ import * as textAPIS from '../lib/endpoints/text';
 //Add a listener for any port messages
 chrome.runtime.onConnect.addListener(function (port) {
 	port.onMessage.addListener(async function (msg) {
-		console.log(msg);
 		let reqData;
-		chrome.action.setBadgeText({ text: 'load' });
+
 		try {
 			reqData = await textAPIS.translateTextAPI({
 				language: msg.language,
@@ -29,11 +28,10 @@ chrome.runtime.onConnect.addListener(function (port) {
 			}
 		} catch (error) {
 			console.log(error);
-
 			return;
 		}
 
-		chrome.storage.local.get(['translationUsages'], (res) => {
+		chrome.storage.local.get(['translationUsages', 'userSettings'], (res) => {
 			if (res.translationUsages) {
 				let newUsage = [
 					...res.translationUsages.filter((el) => el === new Date().getDate()),
@@ -42,7 +40,10 @@ chrome.runtime.onConnect.addListener(function (port) {
 				chrome.storage.local.set({
 					translationUsages: newUsage,
 				});
-				if (newUsage.length === 4) {
+				if (
+					newUsage.length >=
+					constants.USER_LIMITS.free.dailyUsageLimit[res.userSettings.frequency]
+				) {
 					chrome.storage.local.set({
 						dailyLimitReached: true,
 					});
@@ -57,8 +58,5 @@ chrome.runtime.onConnect.addListener(function (port) {
 				});
 			}
 		});
-		// if (msg.joke == 'Knock knock')
-
-		chrome.action.setBadgeText({ text: '' });
 	});
 });

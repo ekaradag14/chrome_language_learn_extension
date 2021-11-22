@@ -18,7 +18,6 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 	isUserPremium,
 	ignoreSpecialCharacters,
 }) => {
-	console.log('isUserPremium', isUserPremium);
 	const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setValue((pS) => ({
 			...pS,

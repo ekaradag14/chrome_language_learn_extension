@@ -108,18 +108,24 @@ const App: FunctionComponent<{}> = () => {
 						)}
 						{views[currentView]}
 						{currentView === constants.routes.HOMEPAGE && (
-							<div style={{ marginTop: 'auto', paddingBottom: 7 }}>
+							<div
+								style={{
+									marginTop: 'auto',
+									paddingBottom: 7,
+									textAlign: 'center',
+								}}
+							>
 								<Divider style={{ marginBottom: 7 }} />
 								<em style={{ color: 'gray' }}>
-									Become a{' '}
+									Discover more about Learnip from{' '}
 									<a
 										target="__blank"
 										href="https://www.learnip.co"
 										style={{ textDecoration: 'none', color: 'green' }}
 									>
-										<b style={{ cursor: 'pointer' }}>turnipster</b>
+										<b style={{ cursor: 'pointer' }}>here.</b>
 									</a>{' '}
-									to unlock your full turnip power!
+									We have much to come!
 								</em>
 							</div>
 						)}
