@@ -32,19 +32,15 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 				id="tags-standard"
 				options={supportedLanguages}
 				getOptionLabel={(option) => option.title}
-				value={value.targetLanguages}
+				value={value.targetLanguages || []}
 				disabled={!languageIsChangeable}
 				getOptionDisabled={(option) =>
-					!isUserPremium && value.targetLanguages.length > 0
+					!isUserPremium &&
+					value.targetLanguages &&
+					value.targetLanguages.length > 0
 				}
 				filterSelectedOptions
 				onChange={(event: any, newValue: LanguageOptionProps[], reason) => {
-					// console.log(reason);
-					// if (newValue?.length === 2) {
-					// 	setOptions([...newValue, { title: 'No Value' }]);
-					// } else if (reason === 'removeOption' || reason === 'clear') {
-					// 	setOptions((pS) => pS.filter((el) => el.title !== 'No Value'));
-					// }
 					setValue((pS) => ({ ...pS, targetLanguages: newValue }));
 				}}
 				renderInput={(params) => (

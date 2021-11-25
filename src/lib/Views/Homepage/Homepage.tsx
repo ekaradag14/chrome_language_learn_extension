@@ -17,7 +17,7 @@ import { saveSettingsAPI } from '../../endpoints/user';
 const constants = require('../../../constants.js');
 import { UserSettingsProps } from '../../modals';
 import { Dialog } from '../../components/Dialog';
-
+import { GrowTurnip } from '../../components/GrowTurnip';
 const Homepage: FunctionComponent<{
 	userSettings: UserSettingsProps;
 	languageIsChangeable: boolean;
@@ -37,10 +37,14 @@ const Homepage: FunctionComponent<{
 	const [renderKey, setRenderKey] = useState(0);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const handleClick = async () => {
+		if (!userSettings?.targetLanguages?.length) {
+			alertDispatch(constants.alertMessages.MISSING_LANGUAGE);
+			return;
+		}
 		if (languageIsChangeable) {
 			setIsModalOpen(true);
 		} else {
-			saveSettings(false);
+			await saveSettings(false);
 		}
 	};
 
@@ -54,7 +58,10 @@ const Homepage: FunctionComponent<{
 
 			setUserSettings(settings);
 		} catch (error) {
-			console.log(error);
+			setLoading(false);
+			setIsModalOpen(false);
+			alertDispatch(constants.errorMessages.SOMETHING_WRONG);
+			return;
 		}
 		//Add check for body validation
 		if (hasLanguageChanged) {
@@ -79,7 +86,8 @@ const Homepage: FunctionComponent<{
 
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column' }} key={renderKey}>
-			<Frequency isUserPremium={isUserPremium} {...defaultArgs} />
+			<GrowTurnip value={userSettings} text={'sdlkfn'} />
+			<div style={{ height: 20 }}></div>
 			<TargetLanguage
 				isUserPremium={isUserPremium}
 				ignoreSpecialCharacters={userSettings.ignoreSpecialCharacters}

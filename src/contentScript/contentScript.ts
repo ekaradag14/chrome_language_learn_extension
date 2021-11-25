@@ -21,7 +21,7 @@ export type TranslationResultProps = {
 	clear?: boolean;
 	userTranslation: string;
 	translatedText: string;
-	successfulTranslation: string;
+	successfulTranslation: boolean;
 };
 chrome.storage.local.get(
 	['bannedSites', 'userSettings', 'dailyLimitReached'],
@@ -32,12 +32,15 @@ chrome.storage.local.get(
 					isBanned = true;
 				}
 			});
-
+			console.log(
+				!isBanned,
+				!res.dailyLimitReached,
+				res.userSettings.targetLanguages
+			);
 			if (
 				!isBanned &&
-				res.userSettings.frequency !== 0 &&
 				!res.dailyLimitReached &&
-				res.userSettings.targetLanguages.length
+				res.userSettings.targetLanguages
 				// helpers.getRandomArbitrary(0, 10) % 2 === 0)
 			) {
 				createTagsForUser(res.userSettings);

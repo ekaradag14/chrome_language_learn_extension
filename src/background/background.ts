@@ -24,6 +24,7 @@ chrome.runtime.onConnect.addListener(function (port) {
 				reqData = (await reqData.json()).data;
 				port.postMessage(reqData);
 			} else {
+				console.log('Background reqData error', reqData);
 				port.postMessage({ clear: true });
 			}
 		} catch (error) {
@@ -31,32 +32,56 @@ chrome.runtime.onConnect.addListener(function (port) {
 			return;
 		}
 
-		chrome.storage.local.get(['translationUsages', 'userSettings'], (res) => {
-			if (res.translationUsages) {
-				let newUsage = [
-					...res.translationUsages.filter((el) => el === new Date().getDate()),
-					new Date().getDate(),
-				];
-				chrome.storage.local.set({
-					translationUsages: newUsage,
-				});
-				if (
-					newUsage.length >=
-					constants.USER_LIMITS.free.dailyUsageLimit[res.userSettings.frequency]
-				) {
+		chrome.storage.local.get(
+			['translationUsages', 'userSettings', 'successfulTranslations'],
+			(res) => {
+				if (reqData.successfulTranslation) {
+					if (res.successfulTranslations) {
+						chrome.storage.local.set({
+							successfulTranslations: [
+								...res.successfulTranslations.filter(
+									(el) => el === new Date().getDate()
+								),
+								new Date().getDate(),
+							],
+						});
+					} else {
+						chrome.storage.local.set({
+							successfulTranslations: [new Date().getDate()],
+						});
+					}
+				}
+
+				if (res.translationUsages) {
+					let newUsage = [
+						...res.translationUsages.filter(
+							(el) => el === new Date().getDate()
+						),
+						new Date().getDate(),
+					];
 					chrome.storage.local.set({
-						dailyLimitReached: true,
+						translationUsages: newUsage,
 					});
+					if (
+						newUsage.length >=
+						constants.USER_LIMITS.free.dailyUsageLimit[
+							res.userSettings.frequency
+						]
+					) {
+						chrome.storage.local.set({
+							dailyLimitReached: true,
+						});
+					} else {
+						chrome.storage.local.set({
+							dailyLimitReached: false,
+						});
+					}
 				} else {
 					chrome.storage.local.set({
-						dailyLimitReached: false,
+						translationUsages: [new Date().getDate()],
 					});
 				}
-			} else {
-				chrome.storage.local.set({
-					translationUsages: [new Date().getDate()],
-				});
 			}
-		});
+		);
 	});
 });

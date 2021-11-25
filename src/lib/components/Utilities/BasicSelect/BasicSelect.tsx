@@ -13,6 +13,7 @@ export type BasicSelectProps = {
 	setSelectValue: React.Dispatch<React.SetStateAction<string>>;
 	options: { value: string; label: string }[];
 	variant?;
+	key?: number;
 };
 
 const BasicSelect: FunctionComponent<BasicSelectProps> = ({
@@ -21,13 +22,14 @@ const BasicSelect: FunctionComponent<BasicSelectProps> = ({
 	variant = 'outlined',
 	selectValue,
 	setSelectValue,
+	key = 0,
 }) => {
 	const handleChange = (event: SelectChangeEvent) => {
 		setSelectValue(event.target.value as string);
 	};
 
 	return (
-		<Box style={{ width: '100%' }}>
+		<Box key={key} style={{ width: '100%' }}>
 			<FormControl variant={variant} fullWidth>
 				<InputLabel id="demo-simple-select-label">{label}</InputLabel>
 				<Select

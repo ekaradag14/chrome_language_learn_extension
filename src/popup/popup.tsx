@@ -110,7 +110,7 @@ const App: FunctionComponent<{}> = () => {
 						{currentView === constants.routes.HOMEPAGE && (
 							<div
 								style={{
-									marginTop: 'auto',
+									marginTop: '20px',
 									paddingBottom: 7,
 									textAlign: 'center',
 								}}
@@ -120,7 +120,7 @@ const App: FunctionComponent<{}> = () => {
 									Discover more about Learnip from{' '}
 									<a
 										target="__blank"
-										href="https://www.learnip.co"
+										href="https://learnip.co"
 										style={{ textDecoration: 'none', color: 'green' }}
 									>
 										<b style={{ cursor: 'pointer' }}>here.</b>

@@ -53,10 +53,16 @@ module.exports = {
 			message: 'Please enter a valid email.',
 			severity: 'warning',
 		},
+		MISSING_LANGUAGE: {
+			isOpen: true,
+			message: 'Please choose a target language.',
+			severity: 'warning',
+		},
 	},
 	backendBaseURL: {
 		DEV: 'http://localhost:5001/shopgrid-0/us-central1/api',
-		PROD: 'https://us-central1-chrome-language-learn-ext.cloudfunctions.net/api',
+		DEV_1:
+			'https://us-central1-chrome-language-learn-ext.cloudfunctions.net/api',
 	},
 	firebaseConfig: {
 		apiKey: 'AIzaSyAfyWCKjq5t8ZO7oEM8T_A20qs3ZDrBrZE',

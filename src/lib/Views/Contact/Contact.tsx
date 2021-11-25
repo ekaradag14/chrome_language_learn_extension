@@ -14,6 +14,7 @@ import * as modals from '../../modals';
 import './Contact.css';
 import { generalErrorHandler } from '../../utils/errorHandler';
 import { sendContactMessageAPI } from '../../endpoints/contact';
+
 const topics = [
 	{ value: 'support', label: 'Support' },
 	{ value: 'suggestion', label: 'Suggestion' },
@@ -30,7 +31,7 @@ const Contact: FunctionComponent<{}> = ({}) => {
 		useState<modals.ContactUsMessage>(emptyUserMessage);
 	const [topic, setTopic] = useState();
 	const [loading, setLoading] = useState(false);
-
+	const [renderKey, setRenderKey] = useState(0);
 	const { alertDispatch } = useContext(GeneralContext);
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setUserMessage((pS) => ({
@@ -63,6 +64,7 @@ const Contact: FunctionComponent<{}> = ({}) => {
 				setLoading(false);
 				setUserMessage(emptyUserMessage);
 				setTopic(null);
+				setRenderKey(renderKey + 1);
 				alertDispatch(constants.alertMessages.SUCCESSFUL_CONTACT_US);
 			}, 400);
 		}
@@ -77,6 +79,7 @@ const Contact: FunctionComponent<{}> = ({}) => {
 		<Grid container rowSpacing={1} style={{ margin: 'auto' }}>
 			<Grid item xs={12}>
 				<BasicSelect
+					key={renderKey}
 					label="About"
 					selectValue={topic}
 					setSelectValue={setTopic}

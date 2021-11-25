@@ -12,7 +12,6 @@ export const sendContactMessageAPI = async (
 		console.log('error', error);
 		return;
 	}
-	console.log('headers', headers);
 	return fetch(`${constants.backendBaseURL.DEV}/contact-us`, {
 		method: 'POST',
 		headers,

@@ -1,9 +1,11 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FunctionComponent, useState, useContext } from 'react';
 import { Grid, Typography } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import { signUpUserAPI } from '../../endpoints/user';
+import { GeneralContext } from '../../../context/general';
+import { generalErrorHandler } from '../../utils/errorHandler';
 const constants = require('../../../constants.js');
 import './Signup.css';
 
@@ -12,6 +14,7 @@ export type SignupProps = {
 };
 
 const Signup: FunctionComponent<SignupProps> = ({ setCurrentView }) => {
+	const { alertDispatch } = useContext(GeneralContext);
 	const [credentials, setCredentials] = useState({
 		email: '',
 		password: '',
@@ -24,13 +27,43 @@ const Signup: FunctionComponent<SignupProps> = ({ setCurrentView }) => {
 			[event.target.name]: event.target.value,
 		}));
 	};
-	const signUpUser = () => {
+	const signUpUser = async () => {
+		if (credentials.password.length < 6) {
+			alertDispatch({
+				isOpen: true,
+				message: 'Password must be at least 6 characters.',
+				severity: 'warning',
+			});
+			return;
+		}
 		setLoading(true);
+		let newUser;
+		try {
+			newUser = await (await signUpUserAPI(credentials)).json();
+			if (!newUser.success) {
+				throw { custom: true, message: newUser.error };
+			}
+		} catch (err) {
+			generalErrorHandler(alertDispatch, err);
+			setLoading(false);
+			return;
+		}
+		if (newUser.success) {
+			chrome.storage.local.set({
+				userCredentials: {
+					uid: newUser.data.uid,
+				},
+			});
+		}
 		setTimeout(() => {
 			setLoading(false);
-			signUpUserAPI(credentials);
-			// setCurrentView(constants.routes.HOMEPAGE);
-		}, 1000);
+			alertDispatch({
+				isOpen: true,
+				message: 'Successful signup!',
+				severity: 'success',
+			});
+			setCurrentView(constants.routes.HOMEPAGE);
+		}, 500);
 	};
 	return (
 		<Grid
@@ -53,6 +86,7 @@ const Signup: FunctionComponent<SignupProps> = ({ setCurrentView }) => {
 				<TextField
 					id="outlined-multiline-flexible"
 					label="Password"
+					type="password"
 					name="password"
 					fullWidth
 					value={credentials.password}

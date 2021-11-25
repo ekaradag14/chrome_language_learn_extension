@@ -14,6 +14,12 @@ export const generalErrorHandler = (alertDispatch, err) => {
 			message: err.error,
 			severity: 'warning',
 		});
+	} else if (err.custom) {
+		errorCase = alertDispatch({
+			isOpen: true,
+			message: err.message,
+			severity: 'error',
+		});
 	} else {
 		errorCase = alertDispatch(constants.errorMessages.SOMETHING_WRONG);
 	}

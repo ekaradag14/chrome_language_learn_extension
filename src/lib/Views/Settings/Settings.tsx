@@ -26,20 +26,21 @@ const Settings: FunctionComponent<{}> = () => {
 	const removeDisable = async (urls: string[]) => {
 		chrome.storage.local.get(['bannedSites'], async (res) => {
 			if (res.bannedSites) {
+				//Create a new array with selected elements removed
 				let newBannedSites = res.bannedSites.filter((el) => !urls.includes(el));
 				chrome.storage.local.set({
 					bannedSites: newBannedSites,
 				});
-				setBannedSites(newBannedSites);
-				alertDispatch(constants.alertMessages.SUCCESSFUL_DISABLE_REMOVE);
+				try {
+					await removeBannedSiteAPI({ sites: urls });
+					setBannedSites(newBannedSites);
+					alertDispatch(constants.alertMessages.SUCCESSFUL_DISABLE_REMOVE);
+				} catch (err) {
+					alertDispatch(constants.errorMessages.SOMETHING_WRONG);
+					return;
+				}
 			}
 		});
-
-		try {
-			await removeBannedSiteAPI({ sites: urls });
-		} catch (err) {
-			console.error(err);
-		}
 	};
 
 	const disableDomain = (type: 'page' | 'site') => {
@@ -47,50 +48,48 @@ const Settings: FunctionComponent<{}> = () => {
 			var tab = tabs[0];
 			var url = new URL(tab.url);
 			var domain = type === 'site' ? url.hostname : tab.url;
-			if (domain === 'newtab') return;
 			domain.replace('https://', '');
 			let resp;
 			chrome.storage.local.get(['bannedSites'], async (res) => {
 				if (res.bannedSites) {
+					// Has user used site banning before
 					if (!res.bannedSites.includes(domain)) {
+						// Is this page already blocked
 						chrome.storage.local.set({
 							bannedSites: [...res.bannedSites, domain],
 						});
-						setBannedSites((pS) => [...pS, domain]);
 						try {
 							resp = await addBannedSiteAPI({ url: domain });
+							setBannedSites((pS) => [...pS, domain]);
+							setTimeout(() => {
+								alertDispatch(constants.alertMessages.SUCCESSFUL_SITE_DISABLE);
+							}, 400);
 						} catch (err) {
-							console.error(err);
+							alertDispatch(constants.errorMessages.SOMETHING_WRONG);
+							return;
 						}
-
-						console.log(resp);
 					}
 				} else {
 					chrome.storage.local.set({
-						bannedSites: [domain],
+						// This is the first time user using it
+						bannedSites: [domain], // TODO: add an empty array on signup to remove this check
 					});
-					setBannedSites([domain]);
 					try {
 						resp = await addBannedSiteAPI({ url: domain });
+						setBannedSites([domain]);
+						setTimeout(() => {
+							alertDispatch(constants.alertMessages.SUCCESSFUL_SITE_DISABLE);
+						}, 400);
 					} catch (err) {
-						console.error(err);
+						alertDispatch(constants.errorMessages.SOMETHING_WRONG);
+						return;
 					}
-
-					console.log(resp);
 				}
-				setTimeout(() => {
-					alertDispatch(
-						type === 'site'
-							? constants.alertMessages.SUCCESSFUL_SITE_DISABLE
-							: constants.alertMessages.SUCCESSFUL_PAGE_DISABLE
-					);
-				}, 400);
 			});
 		});
 	};
 	useEffect(() => {
 		chrome.storage.local.get(['bannedSites'], (res) => {
-			console.log(res);
 			if (res.bannedSites) {
 				setBannedSites(res.bannedSites);
 			}
