@@ -17,12 +17,14 @@ export type HeaderProps = {
 	currentView: string;
 	setCurrentView: React.Dispatch<React.SetStateAction<string>>;
 	setTheme: React.Dispatch<React.SetStateAction<typeof lightTheme>>;
+	logoutAction: React.Dispatch<React.SetStateAction<any>>;
 };
 
 const Header: FunctionComponent<HeaderProps> = ({
 	setTheme,
 	currentView,
 	setCurrentView,
+	logoutAction,
 }) => {
 	return (
 		<Grid
@@ -36,19 +38,7 @@ const Header: FunctionComponent<HeaderProps> = ({
 		>
 			{currentView === constants.routes.HOMEPAGE ? (
 				<Tooltip title="Logout">
-					<IconButton
-						onClick={() => {
-							chrome.storage.local.clear(function () {
-								var error = chrome.runtime.lastError;
-								if (!error) {
-									setCurrentView(constants.routes.LOGIN);
-								}
-							});
-
-							setCurrentView(constants.routes.LOGIN);
-						}}
-						aria-label="Logout"
-					>
+					<IconButton onClick={logoutAction} aria-label="Logout">
 						<LogoutRoundedIcon color="primary" />
 					</IconButton>
 				</Tooltip>

@@ -32,11 +32,7 @@ chrome.storage.local.get(
 					isBanned = true;
 				}
 			});
-			console.log(
-				!isBanned,
-				!res.dailyLimitReached,
-				res.userSettings.targetLanguages
-			);
+
 			if (
 				!isBanned &&
 				!res.dailyLimitReached &&
@@ -77,7 +73,7 @@ const createTagsForUser = (userSettings: UserSettingsProps) => {
 			window.getComputedStyle(item).position !== 'absolute'
 		) {
 			//Check if element has no element children and no a tag or button tag as parent (Since our div causes click event on them)
-			console.log('item found', item);
+			// console.log('item found', item);
 			chosenItem = item;
 			break;
 		}
@@ -85,7 +81,7 @@ const createTagsForUser = (userSettings: UserSettingsProps) => {
 	if (!chosenItem) {
 		console.log('no suitable item was found');
 	}
-	chosenItem = document.querySelector('.noprint');
+	// chosenItem = document.querySelector('.noprint');
 
 	//Check if element is in a correct form
 	if (!chosenItem) return;

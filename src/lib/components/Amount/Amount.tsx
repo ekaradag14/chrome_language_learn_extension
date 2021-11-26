@@ -38,7 +38,7 @@ const Amount: FunctionComponent<AmountProps> = ({ value, setValue }) => {
 					valueLabelDisplay="auto"
 					step={1}
 					marks
-					value={value.amount}
+					value={null}
 					onChange={(e, n) =>
 						setValue((pS: UserSettingsProps) => ({ ...pS, amount: n }))
 					}

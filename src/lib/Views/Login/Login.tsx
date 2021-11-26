@@ -4,6 +4,13 @@ import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
 import { signInWithEmailAndPassword } from 'firebase/auth'; // New import
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 import * as firebase from '../../firebaseInit';
 import './Login.css';
 import { GeneralContext } from '../../../context/general';
@@ -14,14 +21,20 @@ const constants = require('../../../constants.js');
 
 export type LoginProps = {
 	setCurrentView: React.Dispatch<React.SetStateAction<string>>;
+	setUserSettings: React.Dispatch<React.SetStateAction<any>>;
+	setLanguageIsChangeable: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const Login: FunctionComponent<LoginProps> = ({ setCurrentView }) => {
+const Login: FunctionComponent<LoginProps> = ({
+	setCurrentView,
+	setUserSettings,
+	setLanguageIsChangeable,
+}) => {
 	const [credentials, setCredentials] = useState({
-		email: 'eren@eren.com',
-		password: '123456',
+		email: '',
+		password: '',
 	});
-
+	const [showPassword, setShowPassword] = useState(true);
 	const { alertDispatch } = useContext(GeneralContext);
 	const [loading, setLoading] = useState(false);
 
@@ -49,12 +62,20 @@ const Login: FunctionComponent<LoginProps> = ({ setCurrentView }) => {
 			return;
 		}
 		if (userData) {
+			const { settings, bannedSites, isPremium, lastLanguageChange } =
+				userData.data;
+
 			chrome.storage.local.set({
-				userSettings: userData.data.settings,
-				bannedSites: userData.data.bannedSites,
-				isPremium: userData.data.isPremium,
-				lastLanguageChange: userData.data.lastLanguageChange,
+				userSettings: settings,
+				bannedSites,
+				isPremium,
+				lastLanguageChange,
 			});
+			setUserSettings(settings);
+			setLanguageIsChangeable(
+				Math.floor(Date.now() / 1000) - parseInt(lastLanguageChange) > 86400 ||
+					isPremium === true
+			);
 		}
 		if (idToken) {
 			chrome.storage.local.set({
@@ -74,6 +95,19 @@ const Login: FunctionComponent<LoginProps> = ({ setCurrentView }) => {
 			rowSpacing={1}
 			style={{ marginTop: 'auto', marginBottom: 'auto' }}
 		>
+			<Grid
+				style={{
+					padding: 3,
+					paddingTop: 10,
+					textAlign: 'center',
+					color: 'gray',
+					fontSize: 20,
+				}}
+				item
+				xs={12}
+			>
+				Login
+			</Grid>
 			<Grid style={{ padding: 10 }} item xs={12}>
 				<TextField
 					id="user-mail-text-field"
@@ -85,16 +119,33 @@ const Login: FunctionComponent<LoginProps> = ({ setCurrentView }) => {
 					onChange={handleChange}
 				/>
 			</Grid>
-			<Grid style={{ padding: 10 }} item xs={12}>
-				<TextField
-					id="outlined-multiline-flexible"
-					label="Password"
-					name="password"
-					type="password"
-					fullWidth
-					value={credentials.password}
-					onChange={handleChange}
-				/>
+			<Grid style={{ padding: 10, paddingTop: 0 }} item xs={12}>
+				<FormControl style={{ margin: 0 }} variant="outlined">
+					<InputLabel htmlFor="outlined-adornment-password">
+						Password
+					</InputLabel>
+					<OutlinedInput
+						id="outlined-multiline-flexible"
+						name="password"
+						label="Password"
+						type={showPassword ? 'password' : 'text'}
+						fullWidth
+						value={credentials.password}
+						onChange={handleChange}
+						endAdornment={
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onClick={() => setShowPassword((pS) => !pS)}
+									onMouseDown={(e) => e.preventDefault()}
+									edge="end"
+								>
+									{showPassword ? <VisibilityOff /> : <Visibility />}
+								</IconButton>
+							</InputAdornment>
+						}
+					/>
+				</FormControl>
 			</Grid>
 			<Grid style={{ padding: 0 }} item xs={12} textAlign="center">
 				<p style={{ margin: 0 }}>

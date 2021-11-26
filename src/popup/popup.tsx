@@ -1,9 +1,9 @@
 import React, { FunctionComponent, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Divider, Grid } from '@mui/material';
-import Card from '@mui/material/Card';
+import { ButtonBase, Divider, Grid } from '@mui/material';
+import { Card, Button } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
-
+import { Dialog } from '../lib/components/Dialog';
 //Context
 import { ThemeProvider } from '@mui/material/styles';
 import GeneralContextProvider from '../context/general';
@@ -35,13 +35,12 @@ const App: FunctionComponent<{}> = () => {
 	const [languageIsChangeable, setLanguageIsChangeable] =
 		useState<boolean>(true);
 	const [isUserPremium, setIsUserPremium] = useState<boolean>(false);
-
+	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [userSettings, setUserSettings] = useState<UserSettingsProps>({
-		frequency: 1,
-		amount: 1,
 		targetLanguages: [],
 		ignoreSpecialCharacters: false,
 	});
+
 	const views = {
 		[constants.routes.HOMEPAGE]: (
 			<Homepage
@@ -54,17 +53,38 @@ const App: FunctionComponent<{}> = () => {
 		),
 		[constants.routes.SETTINGS]: <Settings />,
 		[constants.routes.CONTACT]: <Contact />,
-		[constants.routes.LOGIN]: <Login setCurrentView={setCurrentView} />,
+		[constants.routes.LOGIN]: (
+			<Login
+				setUserSettings={setUserSettings}
+				setCurrentView={setCurrentView}
+				setLanguageIsChangeable={setLanguageIsChangeable}
+			/>
+		),
 		[constants.routes.SIGNUP]: <Signup setCurrentView={setCurrentView} />,
+	};
+	const logoutHandler = () => {
+		chrome.storage.local.clear(function () {
+			var error = chrome.runtime.lastError;
+			if (!error) {
+				setCurrentView(constants.routes.LOGIN);
+			}
+		});
+		setIsModalOpen(false);
+		setCurrentView(constants.routes.LOGIN);
 	};
 	useEffect(() => {
 		chrome.storage.local.get(
-			['userSettings', 'lastLanguageChange', 'isPremium'],
+			['userSettings', 'lastLanguageChange', 'isPremium', 'userCredentials'],
 			async (res) => {
+				if (
+					!res.userCredentials ||
+					(res.userCredentials && !res.userCredentials.uid)
+				) {
+					setCurrentView(constants.routes.LOGIN);
+					return;
+				}
 				if (res.userSettings) {
 					setUserSettings(res.userSettings);
-				} else {
-					setCurrentView(constants.routes.LOGIN);
 				}
 				if (res.isPremium) setIsUserPremium(res.isPremium);
 				if (res.lastLanguageChange) {
@@ -84,6 +104,7 @@ const App: FunctionComponent<{}> = () => {
 						<Header
 							currentView={currentView}
 							setCurrentView={setCurrentView}
+							logoutAction={() => setIsModalOpen(true)}
 							setTheme={setTheme}
 						/>
 					)}
@@ -134,6 +155,33 @@ const App: FunctionComponent<{}> = () => {
 						<Footer setCurrentView={setCurrentView} />
 					)}
 				</Grid>
+				<Dialog
+					open={isModalOpen}
+					setOpen={setIsModalOpen}
+					title={null}
+					children={
+						<div
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+							}}
+						>
+							<p style={{ fontSize: 14, color: 'gray', padding: 10 }}>
+								Do you want to log out?
+							</p>
+						</div>
+					}
+					actionChildren={
+						<Button
+							color="primary"
+							onClick={logoutHandler}
+							variant="contained"
+							style={{ maxWidth: '60%', margin: 'auto' }}
+						>
+							Ok
+						</Button>
+					}
+				/>
 			</GeneralContextProvider>
 		</ThemeProvider>
 	);

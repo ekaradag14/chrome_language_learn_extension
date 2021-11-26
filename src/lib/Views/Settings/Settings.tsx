@@ -4,8 +4,8 @@ import React, {
 	useEffect,
 	useContext,
 } from 'react';
-import { Card, Divider, Grid } from '@mui/material';
-import Button from '@mui/material/Button';
+import { Card, Divider, CircularProgress, Button, Grid } from '@mui/material';
+
 import { addBannedSiteAPI, removeBannedSiteAPI } from '../../endpoints/user';
 import { Table } from '../../components/Utilities/Table';
 import { GeneralContext } from '../../../context/general';
@@ -15,6 +15,8 @@ const constants = require('../../../constants.js');
 const Settings: FunctionComponent<{}> = () => {
 	const [open, setOpen] = React.useState(false);
 	const [bannedSites, setBannedSites] = useState<string[]>([]);
+	const [isRemovingDisable, setIsRemovingDisable] = useState(false);
+	const [isCardLoading, setIsCardLoading] = useState(false);
 	const { alertDispatch } = useContext(GeneralContext);
 	const handleClickOpen = () => {
 		setOpen(true);
@@ -24,6 +26,7 @@ const Settings: FunctionComponent<{}> = () => {
 		setOpen(false);
 	};
 	const removeDisable = async (urls: string[]) => {
+		setIsRemovingDisable(true);
 		chrome.storage.local.get(['bannedSites'], async (res) => {
 			if (res.bannedSites) {
 				//Create a new array with selected elements removed
@@ -37,13 +40,18 @@ const Settings: FunctionComponent<{}> = () => {
 					alertDispatch(constants.alertMessages.SUCCESSFUL_DISABLE_REMOVE);
 				} catch (err) {
 					alertDispatch(constants.errorMessages.SOMETHING_WRONG);
+					setIsRemovingDisable(false);
 					return;
 				}
 			}
 		});
+		setTimeout(() => {
+			setIsRemovingDisable(false);
+		}, 500);
 	};
 
 	const disableDomain = (type: 'page' | 'site') => {
+		setIsCardLoading(true);
 		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			var tab = tabs[0];
 			var url = new URL(tab.url);
@@ -66,6 +74,7 @@ const Settings: FunctionComponent<{}> = () => {
 							}, 400);
 						} catch (err) {
 							alertDispatch(constants.errorMessages.SOMETHING_WRONG);
+							setIsCardLoading(false);
 							return;
 						}
 					}
@@ -82,11 +91,15 @@ const Settings: FunctionComponent<{}> = () => {
 						}, 400);
 					} catch (err) {
 						alertDispatch(constants.errorMessages.SOMETHING_WRONG);
+						setIsCardLoading(false);
 						return;
 					}
 				}
 			});
 		});
+		setTimeout(() => {
+			setIsCardLoading(false);
+		}, 500);
 	};
 	useEffect(() => {
 		chrome.storage.local.get(['bannedSites'], (res) => {
@@ -113,12 +126,26 @@ const Settings: FunctionComponent<{}> = () => {
 			<h2 style={{ margin: 0, color: 'gray' }}>{title}</h2>
 			<Divider style={{ margin: '10px 0' }} />
 			<p style={{ margin: 0, color: 'gray' }}>{body}</p>
-			<Button
-				onClick={action}
-				style={{ marginLeft: 'auto', padding: 0, marginTop: 10 }}
-			>
-				{buttonText}
-			</Button>
+			{isCardLoading ? (
+				<Grid style={{ position: 'relative', height: 40 }}>
+					<CircularProgress
+						size={30}
+						style={{
+							zIndex: 2,
+							position: 'absolute',
+							right: 15,
+							bottom: 1,
+						}}
+					/>
+				</Grid>
+			) : (
+				<Button
+					onClick={action}
+					style={{ marginLeft: 'auto', padding: 0, marginTop: 10 }}
+				>
+					{buttonText}
+				</Button>
+			)}
 		</Card>
 	);
 	const settingsArray = [
@@ -177,6 +204,7 @@ const Settings: FunctionComponent<{}> = () => {
 			</Button> */}
 			{bannedSites.length !== 0 && (
 				<Table
+					isDeleting={isRemovingDisable}
 					deleteAction={(sites) => removeDisable(sites)}
 					data={bannedSites}
 				/>

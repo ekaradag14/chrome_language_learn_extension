@@ -30,7 +30,7 @@ export const saveSettingsAPI = async (settings) => {
 	return fetch(`${constants.backendBaseURL.DEV}/save-settings`, {
 		method: 'POST',
 		headers,
-		body: JSON.stringify({ settings, uid: '3JJDuaMHUDZdMpsfra4nAY0xg0b2' }),
+		body: JSON.stringify({ settings }),
 	});
 };
 
@@ -63,7 +63,6 @@ export const removeBannedSiteAPI = async (payload) => {
 		headers,
 		body: JSON.stringify({
 			...payload,
-			uid: '3JJDuaMHUDZdMpsfra4nAY0xg0b2',
 		}),
 	});
 };

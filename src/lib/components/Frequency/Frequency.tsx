@@ -46,7 +46,7 @@ const Frequency: FunctionComponent<FrequencyProps> = ({
 					valueLabelDisplay="auto"
 					step={null}
 					marks={marks}
-					value={value.frequency}
+					value={null}
 					onChange={(e, n) =>
 						setValue((pS: UserSettingsProps) => ({ ...pS, frequency: n }))
 					}
@@ -54,7 +54,7 @@ const Frequency: FunctionComponent<FrequencyProps> = ({
 					max={4}
 				/>
 
-				<div className={`no-droplets ${value.frequency === 0 ? 'shown' : ''}`}>
+				<div className={`no-droplets ${null === 0 ? 'shown' : ''}`}>
 					<em>You will not see any droplets</em>
 				</div>
 			</div>

@@ -1,24 +1,28 @@
 import * as React from 'react';
 import { alpha } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
-import DeleteIcon from '@mui/icons-material/Delete';
+import {
+	CircularProgress,
+	Tooltip,
+	IconButton,
+	Checkbox,
+	Paper,
+	Typography,
+	Toolbar,
+	TableSortLabel,
+	TableRow,
+	TablePagination,
+	TableHead,
+	TableContainer,
+	TableCell,
+	TableBody,
+	Table,
+	Box,
+	FormControlLabel,
+	Switch,
+} from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import DeleteIcon from '@mui/icons-material/Delete';
+
 import { visuallyHidden } from '@mui/utils';
 
 interface Data {
@@ -135,10 +139,11 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 interface EnhancedTableToolbarProps {
 	numSelected: number;
 	deleteAction;
+	isDeleting: boolean;
 }
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
-	const { numSelected, deleteAction } = props;
+	const { numSelected, deleteAction, isDeleting } = props;
 
 	return (
 		<Toolbar
@@ -175,16 +180,32 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 			)}
 			{numSelected > 0 && (
 				<Tooltip title="Delete">
-					<IconButton onClick={deleteAction}>
-						<DeleteIcon />
-					</IconButton>
+					{!isDeleting ? (
+						<IconButton onClick={deleteAction}>
+							<DeleteIcon />
+						</IconButton>
+					) : (
+						<CircularProgress
+							size={30}
+							style={{
+								zIndex: 2,
+								position: 'absolute',
+								right: 10,
+								top: '20%',
+							}}
+						/>
+					)}
 				</Tooltip>
 			)}
 		</Toolbar>
 	);
 };
 
-export default function EnhancedTable({ data, deleteAction }) {
+export default function EnhancedTable({
+	data,
+	deleteAction,
+	isDeleting = false,
+}) {
 	const [order, setOrder] = React.useState<Order>('asc');
 	const [orderBy, setOrderBy] = React.useState<keyof Data>('name');
 	const [selected, setSelected] = React.useState<readonly string[]>([]);
@@ -252,6 +273,7 @@ export default function EnhancedTable({ data, deleteAction }) {
 				<EnhancedTableToolbar
 					deleteAction={() => deleteAction(selected)}
 					numSelected={selected.length}
+					isDeleting={isDeleting}
 				/>
 				<TableContainer>
 					<Table aria-labelledby="tableTitle" size={dense ? 'small' : 'medium'}>

@@ -6,8 +6,6 @@ import React, {
 } from 'react';
 
 import { TargetLanguage } from '../../components/TargetLanguage';
-import { Frequency } from '../../components/Frequency';
-import { Amount } from '../../components/Amount';
 import './Homepage.css';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InfoRoundedIcon from '@mui/icons-material/InfoRounded';
@@ -129,12 +127,11 @@ const Homepage: FunctionComponent<{
 						color="primary"
 						onClick={() => saveSettings(true)}
 						loading={loading}
-						loadingPosition="start"
-						startIcon={<SaveIcon />}
+						loadingPosition="center"
 						variant="contained"
 						style={{ maxWidth: '60%', margin: 'auto' }}
 					>
-						Save
+						Ok
 					</LoadingButton>
 				}
 			/>

@@ -37,11 +37,12 @@ chrome.runtime.onConnect.addListener(function (port) {
 			(res) => {
 				if (reqData.successfulTranslation) {
 					if (res.successfulTranslations) {
+						let translationsOfToday = res.successfulTranslations.filter(
+							(el) => el === new Date().getDate()
+						);
 						chrome.storage.local.set({
 							successfulTranslations: [
-								...res.successfulTranslations.filter(
-									(el) => el === new Date().getDate()
-								),
+								...translationsOfToday,
 								new Date().getDate(),
 							],
 						});
@@ -53,20 +54,15 @@ chrome.runtime.onConnect.addListener(function (port) {
 				}
 
 				if (res.translationUsages) {
-					let newUsage = [
-						...res.translationUsages.filter(
-							(el) => el === new Date().getDate()
-						),
-						new Date().getDate(),
-					];
+					let usagesOfToday = res.translationUsages.filter(
+						(el) => el === new Date().getDate()
+					);
+					let newUsage = [...usagesOfToday, new Date().getDate()];
 					chrome.storage.local.set({
 						translationUsages: newUsage,
 					});
 					if (
-						newUsage.length >=
-						constants.USER_LIMITS.free.dailyUsageLimit[
-							res.userSettings.frequency
-						]
+						newUsage.length >= constants.USER_LIMITS.free.dailyUsageLimit[2]
 					) {
 						chrome.storage.local.set({
 							dailyLimitReached: true,
