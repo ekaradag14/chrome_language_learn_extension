@@ -1,20 +1,24 @@
 // TODO: content script
 import './contentScript.css';
-const changeableTags: string[] = [
-	'h2',
-	'h1',
-	'h3',
-	'h4',
+const allChangeableTags: string[] = [
+	// 'yt-formatted-string', // String tag used for texts in youtube
+	// 'h2',
+	// 'h1',
+	// 'h3',
+	// 'h4',
 	'p',
-	'em',
-	'b',
-	'span',
-	'strong',
-	'li',
+	// 'em',
+	// 'b',
+	// 'span',
+	// 'strong',
+	// 'li',
 ];
+const numberOfValidTagItems = 3;
+const maxTagTryCallTimes = 3;
+let createTagsCallTime = 0;
 import InputField from './InputField';
 let isBanned: boolean = false;
-import { UserSettingsProps } from '../lib/modals';
+// import { UserSettingsProps } from '../lib/modals';
 //helpers
 import * as helpers from './helpers';
 export type TranslationResultProps = {
@@ -39,67 +43,62 @@ chrome.storage.local.get(
 				res.userSettings.targetLanguages
 				// helpers.getRandomArbitrary(0, 10) % 2 === 0)
 			) {
-				createTagsForUser(res.userSettings);
+				let targetLanguage =
+					res.userSettings.targetLanguages[
+						helpers.randomNumberInRange(
+							0,
+							res.userSettings.targetLanguages.length
+						)
+					].code;
+				createTagsForUser(targetLanguage, allChangeableTags);
 			}
 		}
 	}
 );
 
-// Add a listener for any port that can be opened in the application
-// chrome.runtime.onConnect.addListener(function (port) {
-// 	port.onMessage.addListener(function (msg) {
-// 		if (msg.joke === 'Knock knock')
-// 			port.postMessage({ question: "Who's there?" });
-// 	});
-// });
-const createTagsForUser = (userSettings: UserSettingsProps) => {
+const createTagsForUser = (
+	targetLanguage: string,
+	changeableTags: string[]
+) => {
+	if (createTagsCallTime >= maxTagTryCallTimes) return;
+	createTagsCallTime = createTagsCallTime + 1;
 	let chosenItem;
-	let targetLanguage =
-		userSettings.targetLanguages[
-			helpers.randomNumberInRange(0, userSettings.targetLanguages.length)
-		].code;
-	const tagTypeToBeChanged =
-		changeableTags[Math.floor(Math.random() * changeableTags.length)];
-	const tags = document.getElementsByTagName(tagTypeToBeChanged);
+	const tagTypeToBeChanged: string = randomArrayElement(changeableTags);
+
+	console.log(createTagsCallTime, 'th Try, Choosen tag is', tagTypeToBeChanged);
+	const tags = document.querySelectorAll(tagTypeToBeChanged);
+	let validItems: Element[] = [];
 	for (const item of tags) {
-		if (
-			!!item &&
-			!item.children.length &&
-			!item.closest('a') &&
-			!item.closest('button') &&
-			!item.classList.contains('sr-only') &&
-			!item.closest('.sr-only') &&
-			!(item?.textContent?.trim().split(' ').length < 2) &&
-			window.getComputedStyle(item).position !== 'absolute'
-		) {
-			//Check if element has no element children and no a tag or button tag as parent (Since our div causes click event on them)
-			// console.log('item found', item);
-			chosenItem = item;
-			break;
-		}
+		if (checkIfElementIsValid(item)) validItems.push(item);
+		if (validItems.length >= numberOfValidTagItems) break;
 	}
-	if (!chosenItem) {
-		console.log('no suitable item was found');
+	console.log('validItems', validItems);
+	// chosenItem = document.querySelector('.mt-md-3');
+	if (!validItems.length) {
+		const possibleTags = changeableTags.filter(
+			(el) => el !== tagTypeToBeChanged
+		);
+		createTagsForUser(targetLanguage, possibleTags);
+		return;
 	}
-	// chosenItem = document.querySelector('.noprint');
+	validItems = validItems.filter((el) => checkIfContentValid(el));
 
-	//Check if element is in a correct form
-	if (!chosenItem) return;
-	let translateText: string = chosenItem?.textContent?.trim();
-	if (!translateText) return;
-	console.log('all is good', chosenItem, translateText);
+	if (!validItems.length) {
+		const possibleTags = changeableTags.filter(
+			(el) => el !== tagTypeToBeChanged
+		);
+		createTagsForUser(targetLanguage, possibleTags);
+		return;
+	}
 
-	//Add Input field and highlight the text
+	chosenItem = randomArrayElement(validItems);
+	let translateText: string = chosenItem?.innerText?.trim();
 	let inputText: string, remainingText: string, words: string[];
+
 	words = translateText.split(' ');
 
-	//First word is generally a special name so return if there is only one word
-	if (words.length < 2) return;
 	inputText = words[1];
-
-	//Check if chosen word has any numbers in it
-	if (helpers.hasUnwantedChars.test(inputText)) return;
-
+	console.log('all is good', chosenItem, translateText);
 	remainingText = words.splice(2, words.length).join(' ');
 
 	const inputDiv: HTMLDivElement = document.createElement('div');
@@ -109,20 +108,19 @@ const createTagsForUser = (userSettings: UserSettingsProps) => {
 
 	//Get the translate button
 	let translateButton: HTMLButtonElement = document.querySelector(
-		'.learnip-translate-button-23'
+		'#learnip-translate-button-23'
 	);
-	let textInput: HTMLInputElement = document.querySelector('.learnip-input-23');
+	let textInput: HTMLInputElement = document.querySelector('#learnip-input-23');
 	//Create Translate Button Functionality
 	translateButton.addEventListener(
 		'click',
 		async function (e) {
 			e.preventDefault();
-			let elem: HTMLInputElement = document.querySelector('.learnip-input-23');
-			let value = elem.value;
+			let value = textInput.value;
 			if (value.length === 0) {
 				return;
 			}
-			// document.querySelector('.learnip-container-div-23').remove();
+			// document.querySelector('#learnip-container-div-23').remove();
 			translateButton.className += ' learnip-clicked-state-23';
 			textInput.className += ' learnip-disabled-input-23';
 			textInput.disabled = true;
@@ -150,13 +148,13 @@ const createTagsForUser = (userSettings: UserSettingsProps) => {
 
 	const changeContent = (translationResult: TranslationResultProps) => {
 		if (translationResult.clear) {
-			helpers.removeElement('.learnip-container-div-23', document);
+			helpers.removeElement('#learnip-container-div-23', document);
 			chosenItem.innerHTML = `${words[0]} ${inputText} ${remainingText}`;
 			return;
 		}
 		let highlightColor = '#eb7272ba';
 		let className = ' learnip-failed-translation-23 ';
-		let wrongInput = `<em style='background-color: #ddd7d7;'>  ${translationResult.userTranslation}</em>`;
+		let wrongInput = `<em id='learnip-wrong-input-23'>  ${translationResult.userTranslation}</em>`;
 
 		if (translationResult.successfulTranslation) {
 			highlightColor = '#a1eb3f8c';
@@ -170,15 +168,55 @@ const createTagsForUser = (userSettings: UserSettingsProps) => {
 
 		setTimeout(() => {
 			chosenItem.innerHTML = `${words[0]} <span style="background-color: ${highlightColor};border-radius:2px;">${translationResult.translatedText}</span> ${wrongInput} ${remainingText}`;
-			document.querySelector('.learnip-container-div-23').className +=
+			document.querySelector('#learnip-container-div-23').className +=
 				' opacity-zero';
 			setTimeout(() => {
-				helpers.removeElement('.learnip-container-div-23', document);
-			}, 500);
+				helpers.removeElement('#learnip-container-div-23', document);
+			}, 600);
 		}, 1000);
 	};
 };
 
+const checkIfElementIsValid = (item) => {
+	let isValid = false;
+	const computedStyles = window.getComputedStyle(item);
+	if (
+		!!item &&
+		!item.children.length && // It has only text
+		!item.closest('a') && // Is not in <a></a> tag
+		!item.closest('button') && // Is not in a button tag
+		item?.innerText?.trim().length > 2 &&
+		!(item?.innerText?.trim().split(' ').length < 2) && //Second word is chosen, so at least 2 words are required
+		computedStyles.position !== 'absolute' &&
+		computedStyles.display !== 'none' &&
+		computedStyles.visibility !== 'hidden'
+		//TODO check for color if transparent
+	) {
+		isValid = true;
+	}
+	return isValid;
+};
+const checkIfContentValid: (item: any) => boolean = (item) => {
+	//Item is converted to any here because innerText is only valid for elements that are not script or style
+	let isValid = true;
+	let translateText: string = item?.innerText?.trim();
+
+	let inputText: string, remainingText: string, words: string[];
+
+	words = translateText.split(' ');
+	if (
+		words.length < 2 || //First word is generally a special name so return if there is only one word
+		words[1].length < 3 || //Check if word is something like a, un , ve , etc.
+		helpers.hasUnwantedChars.test(words[1]) || //Check if chosen word has any numbers in it
+		helpers.hasUnwantedChars.test(words[1])
+	) {
+		isValid = false;
+	}
+	return isValid;
+};
+const randomArrayElement = (array: any[]) => {
+	return array[Math.floor(Math.random() * array.length)];
+};
 // const createTagsForUserPositionly = (userSettings: UserSettingsProps) => {
 // 	let chosenItem;
 // 	let targetLanguage =
@@ -199,7 +237,7 @@ const createTagsForUser = (userSettings: UserSettingsProps) => {
 // 		return;
 // 	}
 
-// 	let translateText = chosenItem?.textContent?.trim();
+// 	let translateText = chosenItem?.innerText?.trim();
 // 	let inputText, remainingText;
 // 	console.log(chosenItem.getBoundingClientRect());
 // 	//Add Input field and highlight the text
@@ -222,7 +260,7 @@ const createTagsForUser = (userSettings: UserSettingsProps) => {
 
 // 	//Create Translate Button Functionality
 // 	// let translateButton = document.querySelector(
-// 	// 	'.learnip-translate-button-23'
+// 	// 	'#learnip-translate-button-23'
 // 	// ) as HTMLElement;
 // 	// translateButton.addEventListener(...);
 

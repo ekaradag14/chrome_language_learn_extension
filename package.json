@@ -3,18 +3,24 @@
 	"version": "1.0.0",
 	"description": "Chrome extension for language learning",
 	"scripts": {
-		"start": "webpack --watch --progress --config webpack.dev.js",
-		"build": "webpack --watch --progress --config webpack.prod.js"
+		"start:js": "webpack --watch --progress --config webpack.dev.js",
+		"watch:css": "npm run build:css && node-sass src/ -o src/ -w -r",
+		"start": "npm-run-all -p watch:css start:js",
+		"build": "npm-run-all build:*",
+		"build:css": "node-sass src/ -o src/ ",
+		"build:js": "webpack --watch --progress --config webpack.prod.js"
 	},
 	"author": "Erencan Karadag",
 	"devDependencies": {
 		"@types/chrome": "^0.0.134",
+		"@types/node-sass": "^4.11.2",
 		"@types/react": "^17.0.3",
 		"@types/react-dom": "^17.0.3",
 		"clean-webpack-plugin": "^3.0.0",
 		"copy-webpack-plugin": "^7.0.0",
 		"css-loader": "^5.2.4",
 		"html-webpack-plugin": "^4.5.2",
+		"node-sass": "^6.0.1",
 		"react": "^17.0.2",
 		"react-dom": "^17.0.2",
 		"style-loader": "^2.0.0",

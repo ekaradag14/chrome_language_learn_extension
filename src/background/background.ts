@@ -12,72 +12,82 @@ const constants = require('../constants.js');
 chrome.runtime.onConnect.addListener(function (port) {
 	port.onMessage.addListener(async function (msg) {
 		let reqData;
-
+		let itsTooLate = false;
 		try {
+			setTimeout(() => {
+				if (!reqData) {
+					itsTooLate = true;
+					port.postMessage({ clear: true });
+				}
+			}, 20000);
 			reqData = await textAPIS.translateTextAPI({
 				language: msg.language,
 				text: msg.text,
 				userTranslation: msg.userTranslation,
 				source: msg.source,
 			});
-			if (reqData.status === 200) {
+
+			if (reqData.status === 200 && !itsTooLate) {
 				reqData = (await reqData.json()).data;
 				port.postMessage(reqData);
 			} else {
 				console.log('Background reqData error', reqData);
 				port.postMessage({ clear: true });
+				itsTooLate = true;
+				return;
 			}
 		} catch (error) {
 			console.log(error);
 			return;
 		}
+		if (!itsTooLate) {
+			chrome.storage.local.get(
+				['translationUsages', 'userSettings', 'successfulTranslations'],
+				(res) => {
+					if (reqData.successfulTranslation) {
+						if (res.successfulTranslations) {
+							let translationsOfToday = res.successfulTranslations.filter(
+								(el) => el === new Date().getDate()
+							);
+							chrome.storage.local.set({
+								successfulTranslations: [
+									...translationsOfToday,
+									new Date().getDate(),
+								],
+							});
+						} else {
+							chrome.storage.local.set({
+								successfulTranslations: [new Date().getDate()],
+							});
+						}
+					}
 
-		chrome.storage.local.get(
-			['translationUsages', 'userSettings', 'successfulTranslations'],
-			(res) => {
-				if (reqData.successfulTranslation) {
-					if (res.successfulTranslations) {
-						let translationsOfToday = res.successfulTranslations.filter(
+					if (res.translationUsages) {
+						let usagesOfToday = res.translationUsages.filter(
 							(el) => el === new Date().getDate()
 						);
+						let newUsage = [...usagesOfToday, new Date().getDate()];
 						chrome.storage.local.set({
-							successfulTranslations: [
-								...translationsOfToday,
-								new Date().getDate(),
-							],
+							translationUsages: newUsage,
 						});
+						if (
+							newUsage.length >= constants.USER_LIMITS.free.dailyUsageLimit[2]
+						) {
+							chrome.storage.local.set({
+								dailyLimitReached: true,
+							});
+						} else {
+							chrome.storage.local.set({
+								dailyLimitReached: false,
+							});
+						}
 					} else {
 						chrome.storage.local.set({
-							successfulTranslations: [new Date().getDate()],
+							translationUsages: [new Date().getDate()],
 						});
 					}
 				}
-
-				if (res.translationUsages) {
-					let usagesOfToday = res.translationUsages.filter(
-						(el) => el === new Date().getDate()
-					);
-					let newUsage = [...usagesOfToday, new Date().getDate()];
-					chrome.storage.local.set({
-						translationUsages: newUsage,
-					});
-					if (
-						newUsage.length >= constants.USER_LIMITS.free.dailyUsageLimit[2]
-					) {
-						chrome.storage.local.set({
-							dailyLimitReached: true,
-						});
-					} else {
-						chrome.storage.local.set({
-							dailyLimitReached: false,
-						});
-					}
-				} else {
-					chrome.storage.local.set({
-						translationUsages: [new Date().getDate()],
-					});
-				}
-			}
-		);
+			);
+		}
 	});
 });

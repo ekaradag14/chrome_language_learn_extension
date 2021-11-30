@@ -60,8 +60,9 @@ module.exports = {
 		},
 	},
 	backendBaseURL: {
-		DEV_1: 'http://localhost:5001/shopgrid-0/us-central1/api',
-		DEV: 'https://us-central1-chrome-language-learn-ext.cloudfunctions.net/api',
+		DEV: 'http://localhost:5001/shopgrid-0/us-central1/api',
+		DEV_1:
+			'https://us-central1-chrome-language-learn-ext.cloudfunctions.net/api',
 	},
 	firebaseConfig: {
 		apiKey: 'AIzaSyAfyWCKjq5t8ZO7oEM8T_A20qs3ZDrBrZE',
