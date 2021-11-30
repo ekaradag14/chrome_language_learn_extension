@@ -66,32 +66,37 @@ const createTagsForUser = (
 	const tagTypeToBeChanged: string = randomArrayElement(changeableTags);
 
 	console.log(createTagsCallTime, 'th Try, Choosen tag is', tagTypeToBeChanged);
+	//Get all elements of selected type
 	const tags = document.querySelectorAll(tagTypeToBeChanged);
+
 	let validItems: Element[] = [];
+
+	//Filter for usable tags
 	for (const item of tags) {
 		if (checkIfElementIsValid(item)) validItems.push(item);
 		if (validItems.length >= numberOfValidTagItems) break;
 	}
+
 	console.log('validItems', validItems);
-	// chosenItem = document.querySelector('.mt-md-3');
+
+	//If we have no suitable items restart without using this tag
 	if (!validItems.length) {
-		const possibleTags = changeableTags.filter(
-			(el) => el !== tagTypeToBeChanged
-		);
-		createTagsForUser(targetLanguage, possibleTags);
+		reSearchWithoutTag(changeableTags, tagTypeToBeChanged, targetLanguage);
 		return;
 	}
+
+	//Filter for elements containing suitable content
 	validItems = validItems.filter((el) => checkIfContentValid(el));
 
 	if (!validItems.length) {
-		const possibleTags = changeableTags.filter(
-			(el) => el !== tagTypeToBeChanged
-		);
-		createTagsForUser(targetLanguage, possibleTags);
+		reSearchWithoutTag(changeableTags, tagTypeToBeChanged, targetLanguage);
 		return;
 	}
 
 	chosenItem = randomArrayElement(validItems);
+	//Manual override point
+	// chosenItem = document.querySelector('.mt-md-3');
+
 	let translateText: string = chosenItem?.innerText?.trim();
 	let inputText: string, remainingText: string, words: string[];
 
@@ -216,6 +221,14 @@ const checkIfContentValid: (item: any) => boolean = (item) => {
 };
 const randomArrayElement = (array: any[]) => {
 	return array[Math.floor(Math.random() * array.length)];
+};
+const reSearchWithoutTag = (
+	changeableTags: string[],
+	tagTypeToBeChanged: string,
+	targetLanguage: string
+) => {
+	const possibleTags = changeableTags.filter((el) => el !== tagTypeToBeChanged);
+	return createTagsForUser(targetLanguage, possibleTags);
 };
 // const createTagsForUserPositionly = (userSettings: UserSettingsProps) => {
 // 	let chosenItem;
