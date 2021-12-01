@@ -94,4 +94,12 @@ module.exports = {
 			dailyUsageLimit: [0, 15, 30, 60, 120],
 		},
 	},
+	algorithmConstants: {
+		numberOfValidTagItems: 3,
+		maxTagTryCallTimes: 3,
+		minWordLength: 2,
+		minWordCount: 2,
+		minSentenceLength: 5,
+		furthestWordIndexLimit: 4,
+	},
 };

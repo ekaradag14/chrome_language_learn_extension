@@ -16,8 +16,8 @@ chrome.runtime.onConnect.addListener(function (port) {
 		try {
 			setTimeout(() => {
 				if (!reqData) {
-					itsTooLate = true;
 					port.postMessage({ clear: true });
+					itsTooLate = true; // This is just used here for convenience (for adding a usage to user usages)
 				}
 			}, 20000);
 			reqData = await textAPIS.translateTextAPI({
@@ -29,7 +29,12 @@ chrome.runtime.onConnect.addListener(function (port) {
 
 			if (reqData.status === 200 && !itsTooLate) {
 				reqData = (await reqData.json()).data;
-				port.postMessage(reqData);
+				if (reqData.translatedText === msg.text) {
+					port.postMessage({ clear: true });
+					itsTooLate = true; // This is just used here for convenience (for adding a usage to user usages)
+				} else {
+					port.postMessage(reqData);
+				}
 			} else {
 				console.log('Background reqData error', reqData);
 				port.postMessage({ clear: true });
