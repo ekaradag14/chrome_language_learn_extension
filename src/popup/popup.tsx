@@ -69,18 +69,29 @@ const App: FunctionComponent<{}> = () => {
 				setCurrentView(constants.routes.LOGIN);
 			}
 		});
+		chrome.storage.local.set({ hasSignedInBefore: true });
 		setIsModalOpen(false);
 		setCurrentView(constants.routes.LOGIN);
 	};
 	useEffect(() => {
 		chrome.storage.local.get(
-			['userSettings', 'lastLanguageChange', 'isPremium', 'userCredentials'],
+			[
+				'userSettings',
+				'lastLanguageChange',
+				'isPremium',
+				'userCredentials',
+				'hasSignedInBefore',
+			],
 			async (res) => {
 				if (
 					!res.userCredentials ||
 					(res.userCredentials && !res.userCredentials.uid)
 				) {
-					setCurrentView(constants.routes.LOGIN);
+					if (res.hasSignedInBefore) {
+						setCurrentView(constants.routes.LOGIN);
+					} else {
+						setCurrentView(constants.routes.SIGNUP);
+					}
 					return;
 				}
 				if (res.userSettings) {

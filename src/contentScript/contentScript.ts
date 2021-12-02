@@ -1,23 +1,24 @@
 // TODO: content script
 import './contentScript.css';
 const allChangeableTags: string[] = [
-	'yt-formatted-string', // String tag used for texts in youtube
-	'h2',
-	'h1',
-	'h3',
-	'h4',
-	'p',
-	'em',
-	'b',
+	// 'yt-formatted-string', // String tag used for texts in youtube
+	// 'h2',
+	// 'h1',
+	// 'h3',
+	// 'h4',
+	// 'p',
+	// 'em',
+	// 'b',
 	'span',
-	'strong',
-	'li',
+	// 'strong',
+	// 'li',
 ];
 
 let createTagsCallTime = 0;
 import InputField from './InputField';
 let isBanned: boolean = false;
-
+let droplets: string[] = [];
+let chosenWords: string[] = [];
 // import { UserSettingsProps } from '../lib/modals';
 //helpers
 import * as helpers from './helpers';
@@ -42,7 +43,6 @@ chrome.storage.local.get(
 				!isBanned &&
 				!res.dailyLimitReached &&
 				res.userSettings.targetLanguages
-				// helpers.getRandomArbitrary(0, 10) % 2 === 0)
 			) {
 				let targetLanguage =
 					res.userSettings.targetLanguages[
@@ -51,13 +51,13 @@ chrome.storage.local.get(
 							res.userSettings.targetLanguages.length
 						)
 					].code;
-				createTagsForUser(targetLanguage, allChangeableTags);
+				createDropletsForUser(targetLanguage, allChangeableTags);
 			}
 		}
 	}
 );
 
-const createTagsForUser = (
+const createDropletsForUser = (
 	targetLanguage: string,
 	changeableTags: string[]
 ) => {
@@ -65,77 +65,156 @@ const createTagsForUser = (
 		return;
 	createTagsCallTime = createTagsCallTime + 1;
 	let chosenItem;
+
 	const tagTypeToBeChanged: string = helpers.randomArrayElement(changeableTags);
 
-	console.log(createTagsCallTime, 'th Try, Choosen tag is', tagTypeToBeChanged);
-	//Get all elements of selected type
-	const tags = document.querySelectorAll(tagTypeToBeChanged);
-
-	let validItems: Element[] = [];
-
-	//Filter for usable tags
-	for (const item of tags) {
-		if (checkIfElementIsValid(item)) validItems.push(item);
-		if (validItems.length >= constants.algorithmConstants.numberOfValidTagItems)
-			break;
-	}
-
-	console.log('validItems', validItems);
-
-	//If we have no suitable items restart without using this tag
-	if (!validItems.length) {
-		reSearchWithoutTag(changeableTags, tagTypeToBeChanged, targetLanguage);
-		return;
-	}
-
-	//Filter for elements containing suitable content
+	let validItems = findValidItems(tagTypeToBeChanged, changeableTags);
 
 	if (!validItems.length) {
 		reSearchWithoutTag(changeableTags, tagTypeToBeChanged, targetLanguage);
 		return;
 	}
 
-	chosenItem = helpers.randomArrayElement(validItems);
+	// chosenItem = helpers.randomArrayElement(validItems);
+	let pageDroplets = [];
+
 	//Manual override point
 	// chosenItem = document.querySelector('.mt-md-3');
 
-	let translateText: string = chosenItem.innerText.trim();
-	let disintegrated = helpers.disintegrateSentence(translateText);
-	if (!disintegrated) {
-		return;
-	}
-	const { entrance, inputText, remainingText } = disintegrated;
+	let dropletsPerPage = 3;
+	validItems.forEach((validItem, index) => {
+		if (index < dropletsPerPage) {
+			let el: any = {
+				targetLanguage,
+				translateText: '',
+				dropletClassName: '',
+				inputText: '',
+				entrance: '',
+				remainingText: '',
+			};
+			el.translateText = validItem.innerText.trim();
+			let disintegrated = helpers.disintegrateSentence(el.translateText);
+			if (!disintegrated) {
+				el = false;
+			} else {
+				el.inputText = disintegrated.inputText;
+				el.dropletClassName = `${helpers.makeId(
+					3
+				)}-${helpers.randomNumberInRange(2000, 5000)}`;
+				el.item = validItem;
+				el.entrance = disintegrated.entrance;
+				el.remainingText = disintegrated.remainingText;
+				//Check if the same word is chosen before or the same class created
+				if (
+					droplets.includes(el.dropletClassName) ||
+					chosenWords.includes(el.inputText) ||
+					helpers.hasUnwantedChars.test(el.inputText)
+				) {
+					el = false;
+				} else {
+					droplets.push(el.dropletClassName);
+					chosenWords.push(el.inputText);
+				}
+			}
+			if (el) pageDroplets.push(el);
+		}
+	});
 
-	console.log('all is good', chosenItem, translateText);
+	pageDroplets.forEach((el) => {
+		const inputDiv: HTMLDivElement = document.createElement('div');
+		inputDiv.innerHTML = InputField(el.targetLanguage, el.dropletClassName);
 
-	const inputDiv: HTMLDivElement = document.createElement('div');
-	inputDiv.innerHTML = InputField(targetLanguage);
-	chosenItem.innerHTML = `${entrance} <span style='background-color: #aef4ff7a;border-radius: 5px;' > ${inputText}</span> ${remainingText}`;
-	chosenItem.classList += ' learnip-chosen-item-23';
-	chosenItem.parentElement.insertBefore(inputDiv, chosenItem);
+		el.item.innerHTML = `${el.entrance} <span style='background-color: #aef4ff7a;border-radius: 5px;' > ${el.inputText}</span> ${el.remainingText}`;
+		el.item.classList += ` learnip-chosen-item-23 ${el.dropletClassName}-text`;
+		el.item.parentElement.insertBefore(inputDiv, el.item);
 
-	//Get the translate button
+		// Create Translate Button Functionality For Each Droplet
+		createTranslateButtonFunctionality(
+			el.dropletClassName,
+			el.inputText,
+			el.targetLanguage,
+			el.entrance,
+			el.remainingText
+		);
+	});
+};
 
-	//Create Translate Button Functionality
-	createTranslateButtonFunctionality(
-		inputText,
-		targetLanguage,
-		entrance,
-		remainingText
+const createTranslateButtonFunctionality = (
+	dropletClassName: string,
+	inputText: string,
+	targetLanguage: string,
+	entrance: string,
+	remainingText: string
+) => {
+	let translateButton: HTMLButtonElement = document.querySelector(
+		`.${dropletClassName} > #learnip-translate-button-23`
+	);
+
+	let textInput: HTMLInputElement = document.querySelector(
+		`.${dropletClassName} > #learnip-input-23`
+	);
+
+	translateButton.addEventListener(
+		'click',
+		async function (e) {
+			e.preventDefault();
+			let value = textInput.value;
+			if (value.length === 0) {
+				return;
+			}
+			// document.querySelector('#learnip-container-div-23').remove();
+			translateButton.className += ' learnip-clicked-state-23';
+			textInput.className += ' learnip-disabled-input-23';
+			textInput.disabled = true;
+			//create a port to send messages throughout the application
+			var port = chrome.runtime.connect({
+				name: 'translationChannel',
+			});
+
+			//Send a message from the port
+			port.postMessage({
+				text: inputText,
+				userTranslation: value,
+				language: targetLanguage,
+				source: document.URL,
+			});
+			//Handle any response that might come on this port
+			port.onMessage.addListener(function (
+				translationResult: TranslationResultProps
+			) {
+				if (translationResult.userTranslation === value) {
+					// So that concurrent translation are not mixed (Assuming translations are not the same, could be improved)
+					changeContent(
+						dropletClassName,
+						translationResult,
+						entrance,
+						inputText,
+						remainingText
+					);
+				}
+			});
+		},
+		false
 	);
 };
 const changeContent = (
+	dropletClassName: string,
 	translationResult: TranslationResultProps,
 	entrance: string,
 	inputText: string,
 	remainingText: string
 ) => {
-	let chosenItem = document.querySelector('.learnip-chosen-item-23');
+	let chosenItem = document.querySelector(
+		`.${dropletClassName}-text.learnip-chosen-item-23`
+	);
 	let translateButton: HTMLButtonElement = document.querySelector(
-		'#learnip-translate-button-23'
+		`.${dropletClassName} > #learnip-translate-button-23`
 	);
 	if (translationResult.clear) {
-		helpers.removeElement('#learnip-container-div-23', document);
+		helpers.removeElement(
+			`#learnip-container-div-23.${dropletClassName}`,
+			document
+		);
 		chosenItem.innerHTML = `${entrance} ${inputText} ${remainingText}`;
 		return;
 	}
@@ -152,62 +231,21 @@ const changeContent = (
 
 	translateButton.classList.remove('learnip-clicked-state-23');
 	translateButton.className += className;
-	console.log('hello');
 	setTimeout(() => {
-		console.log('hello2');
 		chosenItem.innerHTML = `${entrance} <span style="background-color: ${highlightColor};border-radius:2px;">${translationResult.translatedText}</span> ${wrongInput} ${remainingText}`;
-		document.querySelector('#learnip-container-div-23').className +=
-			' opacity-zero';
+		document.querySelector(
+			`.${dropletClassName}#learnip-container-div-23`
+		).className += ' opacity-zero';
+
 		setTimeout(() => {
-			helpers.removeElement('#learnip-container-div-23', document);
+			helpers.removeElement(
+				`#learnip-container-div-23.${dropletClassName}`,
+				document
+			);
 		}, 600);
 	}, 1000);
 };
-const createTranslateButtonFunctionality = (
-	inputText: string,
-	targetLanguage: string,
-	entrance: string,
-	remainingText: string
-) => {
-	let translateButton: HTMLButtonElement = document.querySelector(
-		'#learnip-translate-button-23'
-	);
-	let textInput: HTMLInputElement = document.querySelector('#learnip-input-23');
-	translateButton.addEventListener(
-		'click',
-		async function (e) {
-			e.preventDefault();
-			let value = textInput.value;
-			if (value.length === 0) {
-				return;
-			}
-			// document.querySelector('#learnip-container-div-23').remove();
-			translateButton.className += ' learnip-clicked-state-23';
-			textInput.className += ' learnip-disabled-input-23';
-			textInput.disabled = true;
-			//create a port to send messages throughout the application
-			var port = chrome.runtime.connect({
-				name: 'knockknock',
-			});
-
-			//Send a message from the port
-			port.postMessage({
-				text: inputText,
-				userTranslation: value,
-				language: targetLanguage,
-				source: document.URL,
-			});
-			//Handle any response that might come on this port
-			port.onMessage.addListener(function (
-				translationResult: TranslationResultProps
-			) {
-				changeContent(translationResult, entrance, inputText, remainingText);
-			});
-		},
-		false
-	);
-};
-const checkIfElementIsValid = (item) => {
+const checkIfElementIsValid = (item: HTMLElement) => {
 	let isValid = false;
 	const computedStyles = window.getComputedStyle(item);
 	if (
@@ -237,10 +275,27 @@ const reSearchWithoutTag = (
 	targetLanguage: string
 ) => {
 	const possibleTags = changeableTags.filter((el) => el !== tagTypeToBeChanged);
-	return createTagsForUser(targetLanguage, possibleTags);
+	return createDropletsForUser(targetLanguage, possibleTags);
+};
+const findValidItems = (
+	tagTypeToBeChanged: string,
+	changeableTags: string[]
+) => {
+	const tags = document.querySelectorAll(tagTypeToBeChanged);
+	let validItems: HTMLElement[] = [];
+
+	//Filter for usable tags
+	for (const item of tags) {
+		if (checkIfElementIsValid(item as HTMLElement))
+			validItems.push(item as HTMLElement);
+		if (validItems.length >= constants.algorithmConstants.numberOfValidTagItems)
+			break;
+	}
+
+	return validItems;
 };
 
-// const createTagsForUserPositionly = (userSettings: UserSettingsProps) => {
+// const createDropletsForUserPositionly = (userSettings: UserSettingsProps) => {
 // 	let chosenItem;
 // 	let targetLanguage =
 // 		userSettings.targetLanguages[

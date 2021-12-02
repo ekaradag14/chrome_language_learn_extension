@@ -5,11 +5,8 @@ export const removeElement = (query: string, document) => {
 export const randomNumberInRange = (min: number, max: number) =>
 	Math.floor(Math.random() * (max - min)) + min;
 
-export const hasUnwantedChars: RegExp = /[+\d().{}\[\]!~`@#&$%^*_–|:;“‘<>,?]/;
+export const hasUnwantedChars: RegExp = /[+\d().{}\[\]!~`@#&$%^*_–|:;"“‘<>,?]/;
 
-export const getRandomArbitrary = (min: number, max: number) => {
-	return Math.floor(Math.random() * (max - min) + min);
-};
 export const disintegrateSentence = (sentence: string) => {
 	let words = sentence.split(' ');
 	const possibleIndexes = findSuitableWords(words);
@@ -43,4 +40,14 @@ export const findSuitableWords = (words: string[]) => {
 
 export const randomArrayElement = (array: any[]) => {
 	return array[Math.floor(Math.random() * array.length)];
+};
+export const makeId = (length: number) => {
+	var result = '';
+	var characters =
+		'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	var charactersLength = characters.length;
+	for (var i = 0; i < length; i++) {
+		result += characters.charAt(Math.floor(Math.random() * charactersLength));
+	}
+	return result;
 };
