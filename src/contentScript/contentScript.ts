@@ -100,7 +100,7 @@ const createDropletsForUser = (
 				el.inputText = disintegrated.inputText;
 				el.dropletClassName = `${helpers.makeId(
 					3
-				)}-${helpers.randomNumberInRange(2000, 5000)}`;
+				)}${helpers.randomNumberInRange(2000, 5000)}`;
 				el.item = validItem;
 				el.entrance = disintegrated.entrance;
 				el.remainingText = disintegrated.remainingText;
@@ -147,11 +147,11 @@ const createTranslateButtonFunctionality = (
 	remainingText: string
 ) => {
 	let translateButton: HTMLButtonElement = document.querySelector(
-		`.${dropletClassName} > #learnip-translate-button-23`
+		`.${dropletClassName}  #learnip-translate-button-23`
 	);
 
 	let textInput: HTMLInputElement = document.querySelector(
-		`.${dropletClassName} > #learnip-input-23`
+		`.${dropletClassName}  #learnip-input-23`
 	);
 
 	translateButton.addEventListener(
@@ -184,6 +184,7 @@ const createTranslateButtonFunctionality = (
 			) {
 				if (translationResult.userTranslation === value) {
 					// So that concurrent translation are not mixed (Assuming translations are not the same, could be improved)
+			
 					changeContent(
 						dropletClassName,
 						translationResult,
@@ -204,13 +205,12 @@ const changeContent = (
 	inputText: string,
 	remainingText: string
 ) => {
+
 	let chosenItem = document.querySelector(
 		`.${dropletClassName}-text.learnip-chosen-item-23`
 	);
-	let translateButton: HTMLButtonElement = document.querySelector(
-		`.${dropletClassName} > #learnip-translate-button-23`
-	);
 	if (translationResult.clear) {
+
 		helpers.removeElement(
 			`#learnip-container-div-23.${dropletClassName}`,
 			document
@@ -218,6 +218,11 @@ const changeContent = (
 		chosenItem.innerHTML = `${entrance} ${inputText} ${remainingText}`;
 		return;
 	}
+
+	let translateButton: HTMLButtonElement = document.querySelector(
+		`.${dropletClassName}  #learnip-translate-button-23`
+	);
+
 	let highlightColor = '#eb7272ba';
 	let className = ' learnip-failed-translation-23 ';
 	let wrongInput = `<em id='learnip-wrong-input-23'>  ${translationResult.userTranslation}</em>`;
@@ -253,6 +258,7 @@ const checkIfElementIsValid = (item: HTMLElement) => {
 		!item.children.length && // It has only text
 		!item.closest('a') && // Is not in <a></a> tag
 		!item.closest('button') && // Is not in a button tag
+		computedStyles.cursor !== 'pointer' &&
 		item?.innerText?.trim().length >
 			constants.algorithmConstants.minSentenceLength &&
 		!(

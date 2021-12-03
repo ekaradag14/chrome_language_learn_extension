@@ -30,14 +30,17 @@ chrome.runtime.onConnect.addListener(function (port) {
 			if (reqData.status === 200 && !itsTooLate) {
 				reqData = (await reqData.json()).data;
 				if (reqData.translatedText === msg.text) {
-					port.postMessage({ clear: true });
-					itsTooLate = true; // This is just used here for convenience (for adding a usage to user usages)
+					port.postMessage({
+						clear: true,
+						userTranslation: msg.userTranslation,
+					}); //User translation is added so that it will know which element to remove
+					itsTooLate = true; // This is just used here for convenience (for not adding a usage to user usages)
 				} else {
 					port.postMessage(reqData);
 				}
 			} else {
 				console.log('Background reqData error', reqData);
-				port.postMessage({ clear: true });
+				port.postMessage({ clear: true, userTranslation: msg.userTranslation });
 				itsTooLate = true;
 				return;
 			}
