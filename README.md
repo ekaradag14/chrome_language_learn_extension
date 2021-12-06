@@ -1,4 +1,4 @@
-# React Chrome Extension Boilerplate
+# React Chrome Extension
 
 ## Getting Started
 
