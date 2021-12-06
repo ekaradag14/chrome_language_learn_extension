@@ -1,0 +1,16 @@
+.slider-container {
+	padding: 0;
+	padding-left: 10px;
+	margin-top: -10px;
+}
+
+.no-droplets {
+	color: gray;
+	opacity: 0;
+	transition: all 0.3s ease-in-out 0.2s;
+}
+
+.no-droplets.shown {
+	opacity: 1;
+	margin-bottom: 10px;
+}

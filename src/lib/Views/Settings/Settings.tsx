@@ -9,15 +9,22 @@ import { Card, Divider, CircularProgress, Button, Grid } from '@mui/material';
 import { addBannedSiteAPI, removeBannedSiteAPI } from '../../endpoints/user';
 import { Table } from '../../components/Utilities/Table';
 import { GeneralContext } from '../../../context/general';
+import { Frequency } from '../../components/Frequency';
 import './Settings.css';
+import { ReactJSXElement } from '@emotion/react/types/jsx-namespace';
 const constants = require('../../../constants.js');
+import { UserSettingsProps } from '../../modals';
 
-const Settings: FunctionComponent<{}> = () => {
+const Settings: FunctionComponent<{
+	userSettings: UserSettingsProps;
+	setUserSettings;
+}> = ({ userSettings, setUserSettings }) => {
 	const [open, setOpen] = React.useState(false);
 	const [bannedSites, setBannedSites] = useState<string[]>([]);
 	const [isRemovingDisable, setIsRemovingDisable] = useState(false);
 	const [isCardLoading, setIsCardLoading] = useState(false);
 	const { alertDispatch } = useContext(GeneralContext);
+	const [frequency, setFrequency] = useState(userSettings.frequency);
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
@@ -102,52 +109,14 @@ const Settings: FunctionComponent<{}> = () => {
 		}, 500);
 	};
 	useEffect(() => {
+		console.log(userSettings);
 		chrome.storage.local.get(['bannedSites'], (res) => {
 			if (res.bannedSites) {
 				setBannedSites(res.bannedSites);
 			}
 		});
 	}, []);
-	const SettingsCard: FunctionComponent<{
-		title: string;
-		body: string;
-		buttonText: string;
-		action;
-	}> = ({ title, body, buttonText, action }) => (
-		<Card
-			style={{
-				padding: 10,
-				display: 'flex',
-				flexDirection: 'column',
-				margin: '10px 0',
-				backgroundColor: '#f1eeee',
-			}}
-		>
-			<h2 style={{ margin: 0, color: 'gray' }}>{title}</h2>
-			<Divider style={{ margin: '10px 0' }} />
-			<p style={{ margin: 0, color: 'gray' }}>{body}</p>
-			{isCardLoading ? (
-				<Grid style={{ position: 'relative', height: 40 }}>
-					<CircularProgress
-						size={30}
-						style={{
-							zIndex: 2,
-							position: 'absolute',
-							right: 15,
-							bottom: 1,
-						}}
-					/>
-				</Grid>
-			) : (
-				<Button
-					onClick={action}
-					style={{ marginLeft: 'auto', padding: 0, marginTop: 10 }}
-				>
-					{buttonText}
-				</Button>
-			)}
-		</Card>
-	);
+
 	const settingsArray = [
 		// {
 		// 	title: 'Disable Page',
@@ -155,9 +124,14 @@ const Settings: FunctionComponent<{}> = () => {
 		// 	buttonText: 'Disable',
 		// 	action: () => disableDomain('page'),
 		// },
+
 		{
 			title: 'Disable Site',
-			body: 'Do not run extension on this site. ',
+			body: (
+				<p style={{ margin: 0, color: 'gray' }}>
+					Do not run extension on this site.{' '}
+				</p>
+			),
 			buttonText: 'Disable',
 			action: () => disableDomain('site'),
 		},
@@ -177,9 +151,83 @@ const Settings: FunctionComponent<{}> = () => {
 			}}
 		>
 			{settingsArray.map((el) => (
-				<SettingsCard key={el.title} {...el} />
+				<SettingsCard isCardLoading={isCardLoading} key={el.title} {...el} />
 			))}
-			{/* <Button
+			<SettingsCard
+				title="Frequency"
+				isCardLoading={isCardLoading}
+				body={
+					<div>
+						<p style={{ margin: 0, color: 'gray' }}>
+							'How often you want to see a droplet.
+						</p>
+						<Frequency
+							value={frequency}
+							isUserPremium={false}
+							setValue={setFrequency}
+						/>
+						<div style={{ width: '80%', margin: 'auto' }}></div>
+					</div>
+				}
+				buttonText="Save"
+				action={() => disableDomain('page')}
+			/>
+
+			{bannedSites.length !== 0 && (
+				<Table
+					isDeleting={isRemovingDisable}
+					deleteAction={(sites) => removeDisable(sites)}
+					data={bannedSites}
+				/>
+			)}
+		</div>
+	);
+};
+const SettingsCard: FunctionComponent<{
+	title: string;
+	body: ReactJSXElement;
+	buttonText: string;
+	action;
+	isCardLoading: boolean;
+}> = ({ title, body, buttonText, action, isCardLoading }) => (
+	<Card
+		style={{
+			padding: 10,
+			display: 'flex',
+			flexDirection: 'column',
+			margin: '10px 0',
+			backgroundColor: '#f1eeee',
+		}}
+	>
+		<h2 style={{ margin: 0, color: 'gray' }}>{title}</h2>
+		<Divider style={{ margin: '10px 0' }} />
+		{body}
+		{isCardLoading ? (
+			<Grid style={{ position: 'relative', height: 40 }}>
+				<CircularProgress
+					size={30}
+					style={{
+						zIndex: 2,
+						position: 'absolute',
+						right: 15,
+						bottom: 1,
+					}}
+				/>
+			</Grid>
+		) : (
+			<Button
+				onClick={action}
+				style={{ marginLeft: 'auto', padding: 0, marginTop: 10 }}
+			>
+				{buttonText}
+			</Button>
+		)}
+	</Card>
+);
+export default Settings;
+
+{
+	/* <Button
 				style={{ margin: ' 10px auto' }}
 				onClick={disableSite}
 				color="primary"
@@ -201,16 +249,5 @@ const Settings: FunctionComponent<{}> = () => {
 				variant="contained"
 			>
 				Sync Settings
-			</Button> */}
-			{bannedSites.length !== 0 && (
-				<Table
-					isDeleting={isRemovingDisable}
-					deleteAction={(sites) => removeDisable(sites)}
-					data={bannedSites}
-				/>
-			)}
-		</div>
-	);
-};
-
-export default Settings;
+			</Button> */
+}

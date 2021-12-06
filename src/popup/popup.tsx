@@ -32,6 +32,7 @@ const noAuthRoutes = [constants.routes.LOGIN, constants.routes.SIGNUP];
 const App: FunctionComponent<{}> = () => {
 	const [theme, setTheme] = useState<typeof lightTheme>(lightTheme);
 	const [currentView, setCurrentView] = useState(constants.routes.HOMEPAGE);
+	const [dailyLimitReached, setDailyLimitReached] = useState(false);
 	const [languageIsChangeable, setLanguageIsChangeable] =
 		useState<boolean>(true);
 	const [isUserPremium, setIsUserPremium] = useState<boolean>(false);
@@ -39,11 +40,13 @@ const App: FunctionComponent<{}> = () => {
 	const [userSettings, setUserSettings] = useState<UserSettingsProps>({
 		targetLanguages: [],
 		ignoreSpecialCharacters: false,
+		frequency: 1,
 	});
 
 	const views = {
 		[constants.routes.HOMEPAGE]: (
 			<Homepage
+				dailyLimitReached={dailyLimitReached}
 				isUserPremium={isUserPremium}
 				setLanguageIsChangeable={setLanguageIsChangeable}
 				languageIsChangeable={languageIsChangeable}
@@ -51,7 +54,9 @@ const App: FunctionComponent<{}> = () => {
 				setUserSettings={setUserSettings}
 			/>
 		),
-		[constants.routes.SETTINGS]: <Settings />,
+		[constants.routes.SETTINGS]: (
+			<Settings userSettings={userSettings} setUserSettings={setUserSettings} />
+		),
 		[constants.routes.CONTACT]: <Contact />,
 		[constants.routes.LOGIN]: (
 			<Login
@@ -81,6 +86,7 @@ const App: FunctionComponent<{}> = () => {
 				'isPremium',
 				'userCredentials',
 				'hasSignedInBefore',
+				'dailyLimitReached',
 			],
 			async (res) => {
 				if (
@@ -97,6 +103,7 @@ const App: FunctionComponent<{}> = () => {
 				if (res.userSettings) {
 					setUserSettings(res.userSettings);
 				}
+				if (res.dailyLimitReached) setDailyLimitReached(res.dailyLimitReached);
 				if (res.isPremium) setIsUserPremium(res.isPremium);
 				if (res.lastLanguageChange) {
 					setLanguageIsChangeable(

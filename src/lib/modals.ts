@@ -14,4 +14,5 @@ export type LanguageOptionProps = {
 export type UserSettingsProps = {
 	targetLanguages: LanguageOptionProps[];
 	ignoreSpecialCharacters: boolean;
+	frequency: number;
 };

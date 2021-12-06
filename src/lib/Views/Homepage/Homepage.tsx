@@ -20,12 +20,14 @@ const Homepage: FunctionComponent<{
 	userSettings: UserSettingsProps;
 	languageIsChangeable: boolean;
 	isUserPremium: boolean;
+	dailyLimitReached: boolean;
 	setUserSettings;
 	setLanguageIsChangeable;
 }> = ({
 	userSettings,
 	setUserSettings,
 	languageIsChangeable,
+	dailyLimitReached,
 	setLanguageIsChangeable,
 	isUserPremium,
 }) => {
@@ -84,7 +86,24 @@ const Homepage: FunctionComponent<{
 
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column' }} key={renderKey}>
-			<GrowTurnip value={userSettings} text={'sdlkfn'} />
+			{dailyLimitReached && (
+				<div
+					style={{
+						borderRadius: 10,
+						width: '100%',
+						display: 'flex',
+						flexDirection: 'row',
+						alignItems: 'center',
+						margin: '5px  0',
+					}}
+				>
+					<em style={{ color: 'gray' }}>
+						**You found all your droplets for today!**
+					</em>
+				</div>
+			)}
+
+			<GrowTurnip value={userSettings} />
 			<div style={{ height: 20 }}></div>
 			<TargetLanguage
 				isUserPremium={isUserPremium}
@@ -98,7 +117,7 @@ const Homepage: FunctionComponent<{
 				onClick={() => {
 					return isUserPremium ? saveSettings(false) : handleClick();
 				}}
-				loading={loading}
+				loading={loading && !isModalOpen}
 				loadingPosition="start"
 				startIcon={<SaveIcon />}
 				variant="contained"

@@ -121,7 +121,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 							direction={orderBy === headCell.id ? order : 'asc'}
 							onClick={createSortHandler(headCell.id)}
 						>
-							{headCell.label}
+							<p style={{ color: 'gray', fontSize: 14 }}>{headCell.label}</p>
 							{orderBy === headCell.id ? (
 								//@ts-ignore
 								<Box component="span" sx={visuallyHidden}>
@@ -160,23 +160,9 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 			}}
 		>
 			{numSelected > 0 ? (
-				<Typography
-					sx={{ flex: '1 1 100%' }}
-					color="inherit"
-					variant="subtitle1"
-					component="div"
-				>
-					{numSelected} selected
-				</Typography>
+				<h2 style={{ margin: 0, color: 'gray' }}>{numSelected} selected</h2>
 			) : (
-				<Typography
-					sx={{ flex: '1 1 100%' }}
-					variant="h6"
-					id="tableTitle"
-					component="div"
-				>
-					Disabled Sites
-				</Typography>
+				<h2 style={{ margin: 0, color: 'gray' }}>Disabled Sites</h2>
 			)}
 			{numSelected > 0 && (
 				<Tooltip title="Delete">
@@ -319,7 +305,9 @@ export default function EnhancedTable({
 												scope="row"
 												padding="none"
 											>
-												{row.name}
+												<p style={{ color: 'gray', fontSize: 14 }}>
+													{row.name.replace('www.', '')}
+												</p>
 											</TableCell>
 										</TableRow>
 									);

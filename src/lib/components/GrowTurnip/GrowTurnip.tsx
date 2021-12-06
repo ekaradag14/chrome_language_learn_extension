@@ -4,12 +4,10 @@ import { Grid } from '@mui/material';
 import './GrowTurnip.css';
 
 export type GrowTurnipProps = {
-	text: string;
 	value;
 };
 
-const GrowTurnip: FunctionComponent<GrowTurnipProps> = ({ text, value }) => {
-	const [percentage, setPercentage] = useState(10);
+const GrowTurnip: FunctionComponent<GrowTurnipProps> = ({ value }) => {
 	const [currentStatus, setCurrentStatus] = useState({
 		waterHeight: 10,
 		turnipImg: '/assets/grow_turnip_1.svg',
