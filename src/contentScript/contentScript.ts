@@ -1,17 +1,17 @@
 // TODO: content script
 import './contentScript.css';
 const allChangeableTags: string[] = [
-	// 'yt-formatted-string', // String tag used for texts in youtube
-	// 'h2',
-	// 'h1',
-	// 'h3',
-	// 'h4',
-	// 'p',
-	// 'em',
-	// 'b',
+	'yt-formatted-string', // String tag used for texts in youtube
+	'h2',
+	'h1',
+	'h3',
+	'h4',
+	'p',
+	'em',
+	'b',
 	'span',
-	// 'strong',
-	// 'li',
+	'strong',
+	'li',
 ];
 
 let createTagsCallTime = 0;
@@ -19,6 +19,7 @@ import InputField from './InputField';
 let isBanned: boolean = false;
 let droplets: string[] = [];
 let chosenWords: string[] = [];
+let frequency = 0;
 // import { UserSettingsProps } from '../lib/modals';
 //helpers
 import * as helpers from './helpers';
@@ -42,13 +43,16 @@ chrome.storage.local.get(
 			if (
 				!isBanned &&
 				!res.dailyLimitReached &&
-				res.userSettings.targetLanguages
+				res.userSettings.targetLanguages &&
+				Math.random() < (res.userSettings.frequency * 1.4) / 10
 			) {
+				frequency = res.userSettings.frequency;
 				let targetLanguage =
 					res.userSettings.targetLanguages[
 						helpers.randomNumberInRange(
 							0,
-							res.userSettings.targetLanguages.length
+							res.userSettings.targetLanguages.length,
+							true
 						)
 					].code;
 				createDropletsForUser(targetLanguage, allChangeableTags);
@@ -80,8 +84,11 @@ const createDropletsForUser = (
 
 	//Manual override point
 	// chosenItem = document.querySelector('.mt-md-3');
-
-	let dropletsPerPage = 3;
+	let dropletsPerPage = Math.max(
+		Math.min(Math.floor(helpers.randomNumberInRange(0.5, 1.8) * frequency), 3),
+		1
+	);
+	console.log('Chance passed', dropletsPerPage);
 	validItems.forEach((validItem, index) => {
 		if (index < dropletsPerPage) {
 			let el: any = {
@@ -100,7 +107,7 @@ const createDropletsForUser = (
 				el.inputText = disintegrated.inputText;
 				el.dropletClassName = `${helpers.makeId(
 					3
-				)}${helpers.randomNumberInRange(2000, 5000)}`;
+				)}${helpers.randomNumberInRange(2000, 5000, true)}`;
 				el.item = validItem;
 				el.entrance = disintegrated.entrance;
 				el.remainingText = disintegrated.remainingText;
@@ -121,6 +128,7 @@ const createDropletsForUser = (
 	});
 
 	pageDroplets.forEach((el) => {
+		console.log(el);
 		const inputDiv: HTMLDivElement = document.createElement('div');
 		inputDiv.innerHTML = InputField(el.targetLanguage, el.dropletClassName);
 
@@ -184,7 +192,7 @@ const createTranslateButtonFunctionality = (
 			) {
 				if (translationResult.userTranslation === value) {
 					// So that concurrent translation are not mixed (Assuming translations are not the same, could be improved)
-			
+
 					changeContent(
 						dropletClassName,
 						translationResult,
@@ -205,12 +213,10 @@ const changeContent = (
 	inputText: string,
 	remainingText: string
 ) => {
-
 	let chosenItem = document.querySelector(
 		`.${dropletClassName}-text.learnip-chosen-item-23`
 	);
 	if (translationResult.clear) {
-
 		helpers.removeElement(
 			`#learnip-container-div-23.${dropletClassName}`,
 			document

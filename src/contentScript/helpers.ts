@@ -2,10 +2,17 @@ const constants = require('../constants.js');
 export const removeElement = (query: string, document) => {
 	return document.querySelector(query).remove();
 };
-export const randomNumberInRange = (min: number, max: number) =>
-	Math.floor(Math.random() * (max - min)) + min;
+export const randomNumberInRange = (
+	min: number,
+	max: number,
+	integer?: boolean
+) => {
+	let randomNo = Math.random() * (max - min);
+	if (integer) randomNo = Math.floor(randomNo);
+	return randomNo + min;
+};
 
-export const hasUnwantedChars: RegExp = /[+\d().{}\[\]!~`@#&$%^*_–|:;"“‘<>,?]/;
+export const hasUnwantedChars: RegExp = /[+\d().{}\[\]!~`@#&$/%^*_–|:;"“‘<>,?]/;
 
 export const disintegrateSentence = (sentence: string) => {
 	let words = sentence.split(' ');

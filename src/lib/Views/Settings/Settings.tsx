@@ -19,12 +19,12 @@ const Settings: FunctionComponent<{
 	userSettings: UserSettingsProps;
 	setUserSettings;
 }> = ({ userSettings, setUserSettings }) => {
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState<boolean>(false);
 	const [bannedSites, setBannedSites] = useState<string[]>([]);
-	const [isRemovingDisable, setIsRemovingDisable] = useState(false);
-	const [isCardLoading, setIsCardLoading] = useState(false);
+	const [isRemovingDisable, setIsRemovingDisable] = useState<boolean>(false);
+	const [isCardLoading, setIsCardLoading] = useState<boolean>(false);
 	const { alertDispatch } = useContext(GeneralContext);
-	const [frequency, setFrequency] = useState(userSettings.frequency);
+	const [frequency, setFrequency] = useState<number>(userSettings.frequency);
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
@@ -44,7 +44,7 @@ const Settings: FunctionComponent<{
 				try {
 					await removeBannedSiteAPI({ sites: urls });
 					setBannedSites(newBannedSites);
-					alertDispatch(constants.alertMessages.SUCCESSFUL_DISABLE_REMOVE);
+					alertDispatch(constants.alertMessages.SUCCESSFUL_SETTINGS_CHANGE);
 				} catch (err) {
 					alertDispatch(constants.errorMessages.SOMETHING_WRONG);
 					setIsRemovingDisable(false);
@@ -77,7 +77,9 @@ const Settings: FunctionComponent<{
 							resp = await addBannedSiteAPI({ url: domain });
 							setBannedSites((pS) => [...pS, domain]);
 							setTimeout(() => {
-								alertDispatch(constants.alertMessages.SUCCESSFUL_SITE_DISABLE);
+								alertDispatch(
+									constants.alertMessages.SUCCESSFUL_SETTINGS_CHANGE
+								);
 							}, 400);
 						} catch (err) {
 							alertDispatch(constants.errorMessages.SOMETHING_WRONG);
@@ -94,7 +96,7 @@ const Settings: FunctionComponent<{
 						resp = await addBannedSiteAPI({ url: domain });
 						setBannedSites([domain]);
 						setTimeout(() => {
-							alertDispatch(constants.alertMessages.SUCCESSFUL_SITE_DISABLE);
+							alertDispatch(constants.alertMessages.SUCCESSFUL_SETTINGS_CHANGE);
 						}, 400);
 					} catch (err) {
 						alertDispatch(constants.errorMessages.SOMETHING_WRONG);
@@ -107,6 +109,19 @@ const Settings: FunctionComponent<{
 		setTimeout(() => {
 			setIsCardLoading(false);
 		}, 500);
+	};
+
+	const saveFrequency = (frequency: number) => {
+		chrome.storage.local.get(['userSettings'], async (res) => {
+			if (res.userSettings) {
+				chrome.storage.local.set({
+					userSettings: { ...res.userSettings, frequency },
+				});
+				setTimeout(() => {
+					alertDispatch(constants.alertMessages.SUCCESSFUL_SETTINGS_CHANGE);
+				}, 300);
+			}
+		});
 	};
 	useEffect(() => {
 		console.log(userSettings);
@@ -129,7 +144,7 @@ const Settings: FunctionComponent<{
 			title: 'Disable Site',
 			body: (
 				<p style={{ margin: 0, color: 'gray' }}>
-					Do not run extension on this site.{' '}
+					Do not run Learnip on this site.{' '}
 				</p>
 			),
 			buttonText: 'Disable',
@@ -159,18 +174,17 @@ const Settings: FunctionComponent<{
 				body={
 					<div>
 						<p style={{ margin: 0, color: 'gray' }}>
-							'How often you want to see a droplet.
+							How often you want to see a droplet.
 						</p>
 						<Frequency
 							value={frequency}
 							isUserPremium={false}
 							setValue={setFrequency}
 						/>
-						<div style={{ width: '80%', margin: 'auto' }}></div>
 					</div>
 				}
 				buttonText="Save"
-				action={() => disableDomain('page')}
+				action={() => saveFrequency(frequency)}
 			/>
 
 			{bannedSites.length !== 0 && (

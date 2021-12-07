@@ -33,19 +33,10 @@ module.exports = {
 			message: 'Please fill all required fields.',
 			severity: 'warning',
 		},
-		SUCCESSFUL_PAGE_DISABLE: {
+
+		SUCCESSFUL_SETTINGS_CHANGE: {
 			isOpen: true,
-			message: 'Page disabled successfully.',
-			severity: 'success',
-		},
-		SUCCESSFUL_SITE_DISABLE: {
-			isOpen: true,
-			message: 'Site disabled successfully.',
-			severity: 'success',
-		},
-		SUCCESSFUL_DISABLE_REMOVE: {
-			isOpen: true,
-			message: 'Site disable removed successfully.',
+			message: 'Settings saved successfully.',
 			severity: 'success',
 		},
 		BAD_EMAIL: {
