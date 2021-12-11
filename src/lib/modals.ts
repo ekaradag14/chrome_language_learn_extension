@@ -16,3 +16,27 @@ export type UserSettingsProps = {
 	ignoreSpecialCharacters: boolean;
 	frequency: number;
 };
+
+export type LanguageType = {
+	code: string;
+	id: string;
+	title: string;
+};
+
+export type ConfigType = {
+	baseFrequencySeed: number;
+	frequencyLowLimit: number;
+	frequencyHightLimit: number;
+	numberOfValidTagItems: number;
+	maxTagTryCallTimes: number;
+	minWordLength: number;
+	minWordCount: number;
+	minSentenceLength: number;
+	furthestWordIndexLimit: number;
+};
+export type TranslationResultProps = {
+	clear?: boolean;
+	userTranslation: string;
+	translatedText: string;
+	successfulTranslation: boolean;
+};

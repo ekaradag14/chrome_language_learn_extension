@@ -66,3 +66,31 @@ export const removeBannedSiteAPI = async (payload) => {
 		}),
 	});
 };
+
+export const getLanguagesAPI = async () => {
+	let headers;
+	try {
+		headers = await getHeaders.default();
+	} catch (error) {
+		console.log('error', error);
+		return;
+	}
+	return fetch(`${constants.backendBaseURL.DEV}/languages`, {
+		method: 'GET',
+		headers,
+	});
+};
+
+export const getConfigAPI = async () => {
+	let headers;
+	try {
+		headers = await getHeaders.default();
+	} catch (error) {
+		console.log('error', error);
+		return;
+	}
+	return fetch(`${constants.backendBaseURL.DEV}/config`, {
+		method: 'GET',
+		headers,
+	});
+};

@@ -2,14 +2,26 @@ import React, { FunctionComponent, useState } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import './TargetLanguage.css';
-import { UserSettingsProps, LanguageOptionProps } from '../../modals';
-import { Grid, Modal, Checkbox, Box, Typography } from '@mui/material';
+import {
+	UserSettingsProps,
+	LanguageOptionProps,
+	LanguageType,
+} from '../../modals';
+import {
+	Grid,
+	Modal,
+	Checkbox,
+	Box,
+	Typography,
+	CircularProgress,
+} from '@mui/material';
 export type TargetLanguageProps = {
 	value: UserSettingsProps;
 	languageIsChangeable: boolean;
 	ignoreSpecialCharacters: boolean;
 	isUserPremium: boolean;
 	setValue;
+	languages: LanguageType[];
 };
 const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 	value,
@@ -17,6 +29,7 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 	languageIsChangeable,
 	isUserPremium,
 	ignoreSpecialCharacters,
+	languages,
 }) => {
 	const handleCheckChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setValue((pS) => ({
@@ -30,10 +43,11 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 				multiple
 				limitTags={1}
 				id="tags-standard"
-				options={supportedLanguages}
+				options={languages}
 				getOptionLabel={(option) => option.title}
 				value={value.targetLanguages || []}
-				disabled={!languageIsChangeable}
+				loading={!languages.length}
+				disabled={!languageIsChangeable || !languages.length}
 				getOptionDisabled={(option) =>
 					!isUserPremium &&
 					value.targetLanguages &&
@@ -44,9 +58,25 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 					setValue((pS) => ({ ...pS, targetLanguages: newValue }));
 				}}
 				renderInput={(params) => (
-					<TextField {...params} variant="outlined" label="Target Languages" />
+					<TextField
+						{...params}
+						variant="outlined"
+						label="Target Languages"
+						InputProps={{
+							...params.InputProps,
+							endAdornment: (
+								<React.Fragment>
+									{!languages.length ? (
+										<CircularProgress color="inherit" size={20} />
+									) : null}
+									{params.InputProps.endAdornment}
+								</React.Fragment>
+							),
+						}}
+					/>
 				)}
 			/>
+
 			<Grid
 				container
 				justifyContent="center"
@@ -70,12 +100,5 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 		</>
 	);
 };
-const supportedLanguages: LanguageOptionProps[] = [
-	{ title: 'English', code: 'en' },
-	{ title: 'Spanish', code: 'es' },
-	{ title: 'German', code: 'de' },
-	{ title: 'Russian', code: 'ru' },
-	{ title: 'French', code: 'fr' },
-	{ title: 'Italian', code: 'it' },
-];
+
 export default TargetLanguage;

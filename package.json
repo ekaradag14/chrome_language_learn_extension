@@ -6,6 +6,7 @@
 		"start:js": "webpack --watch --progress --config webpack.dev.js",
 		"watch:css": "npm run build:css && node-sass src/ -o src/ -w -r",
 		"start": "npm-run-all -p watch:css start:js",
+		"startBackend": "cd ../chrome_language_learn_backend/functions && npm run watch",
 		"build": "npm-run-all build:*",
 		"build:css": "node-sass src/ -o src/ ",
 		"build:js": "webpack --watch --progress --config webpack.prod.js"

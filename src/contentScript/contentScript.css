@@ -38,6 +38,7 @@
   border: 2px solid transparent !important;
   border-bottom-left-radius: 0 !important;
   border-radius: 20px;
+  outline: none !important;
   box-shadow: none;
   color: transparent;
   margin-top: auto;
@@ -56,9 +57,9 @@
     width: 70%;
     color: #747171;
     background-color: white;
-    border: 2px solid #cbf6fd;
+    border: 2px solid #cbf6fd !important;
     padding-left: 10px;
-    border-bottom-left-radius: 20px; }
+    border-bottom-left-radius: 20px !important; }
     #learnip-input-23.learnip-disabled-input-23 ~ #learnip-country-img-23 {
       opacity: 0.85; }
 

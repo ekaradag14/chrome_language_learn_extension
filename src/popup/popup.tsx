@@ -26,13 +26,16 @@ import { Homepage } from '../lib/Views/Homepage';
 import { Contact } from '../lib/Views/Contact';
 import { Login } from '../lib/Views/Login';
 import { Signup } from '../lib/Views/Signup';
-import { UserSettingsProps } from '../lib/modals';
+import { LanguageType, UserSettingsProps } from '../lib/modals';
+import { getLanguagesAPI, getConfigAPI } from '../lib/endpoints/user';
+import { generalErrorHandler } from '../lib/utils/errorHandler';
 const constants = require('../constants.js');
 const noAuthRoutes = [constants.routes.LOGIN, constants.routes.SIGNUP];
 const App: FunctionComponent<{}> = () => {
 	const [theme, setTheme] = useState<typeof lightTheme>(lightTheme);
 	const [currentView, setCurrentView] = useState(constants.routes.HOMEPAGE);
 	const [dailyLimitReached, setDailyLimitReached] = useState(false);
+	const [languages, setLanguages] = useState<LanguageType[]>([]);
 	const [languageIsChangeable, setLanguageIsChangeable] =
 		useState<boolean>(true);
 	const [isUserPremium, setIsUserPremium] = useState<boolean>(false);
@@ -46,6 +49,7 @@ const App: FunctionComponent<{}> = () => {
 	const views = {
 		[constants.routes.HOMEPAGE]: (
 			<Homepage
+				languages={languages}
 				dailyLimitReached={dailyLimitReached}
 				isUserPremium={isUserPremium}
 				setLanguageIsChangeable={setLanguageIsChangeable}
@@ -87,6 +91,8 @@ const App: FunctionComponent<{}> = () => {
 				'userCredentials',
 				'hasSignedInBefore',
 				'dailyLimitReached',
+				'translationLanguages',
+				'config',
 			],
 			async (res) => {
 				if (
@@ -110,6 +116,56 @@ const App: FunctionComponent<{}> = () => {
 						Math.floor(Date.now() / 1000) - parseInt(res.lastLanguageChange) >
 							86400 || res.isPremium === true
 					);
+				}
+				//If languages are nor present or were fetched too long ago
+				if (
+					!res.translationLanguages ||
+					Date.now() - res.translationLanguages.lastFetched > 4 * 86400 //Pull every four days
+				) {
+					let languages;
+					try {
+						languages = await (await getLanguagesAPI()).json();
+						if (!languages.success) {
+							throw { custom: true, message: languages.error };
+						}
+					} catch (err) {
+						return;
+					}
+					console.log('languages', languages);
+					if (languages.success) {
+						setLanguages(languages.data);
+						chrome.storage.local.set({
+							translationLanguages: {
+								languages: languages.data,
+								lastFetched: Date.now(),
+							},
+						});
+					}
+				} else {
+					setLanguages(res.translationLanguages.languages);
+				}
+				if (
+					!res.config ||
+					Date.now() - res.config.lastFetched > 4 * 86400 //Pull every four days
+				) {
+					let config;
+					try {
+						config = await (await getConfigAPI()).json();
+						if (!config.success) {
+							throw { custom: true, message: config.error };
+						}
+					} catch (err) {
+						return;
+					}
+					console.log('config', config);
+					if (config.success) {
+						chrome.storage.local.set({
+							config: {
+								config: config.data,
+								lastFetched: Date.now(),
+							},
+						});
+					}
 				}
 			}
 		);

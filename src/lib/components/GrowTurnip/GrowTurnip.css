@@ -1,36 +1,34 @@
 .pot {
-	display: flex;
-	flex-direction: row-reverse;
-	justify-content: flex-end;
-	margin-top: auto;
-	background-color: rgb(188, 106, 94);
-	width: 20px;
-	height: 60px;
-	margin-left: 40px;
-	border-radius: 3px 3px 10px 10px;
-	border: 10px solid rgb(188, 106, 94);
-	border-top: transparent;
-	transform: perspective(6px) rotateX(-1deg);
-}
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  margin-top: auto;
+  background-color: #bc6a5e;
+  width: 20px;
+  height: 60px;
+  margin-left: 40px;
+  border-radius: 3px 3px 10px 10px;
+  border: 10px solid #bc6a5e;
+  border-top: transparent;
+  transform: perspective(6px) rotateX(-1deg); }
 
 .filled-water {
-	width: 100%;
-	border-radius: 4px;
-	height: 0;
-	margin-top: auto;
-	background-color: rgb(156, 230, 252);
-	transition: all 0.8s ease 0.3s;
-}
+  width: 100%;
+  border-radius: 4px;
+  height: 0;
+  margin-top: auto;
+  background-color: #9ce6fc;
+  transition: all 0.8s ease 0.3s; }
+
 .interior {
-	height: 100%;
-	width: 100%;
-	display: flex;
-	flex-direction: row-reverse;
-	justify-content: flex-end;
-	background-color: rgb(144, 71, 60);
-}
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  background-color: #90473c; }
+
 .grow-container {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-}
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between; }

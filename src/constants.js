@@ -86,6 +86,9 @@ module.exports = {
 		},
 	},
 	algorithmConstants: {
+		baseFrequencySeed: 1.4,
+		frequencyLowLimit: 0.5,
+		frequencyHightLimit: 1.8,
 		numberOfValidTagItems: 3,
 		maxTagTryCallTimes: 3,
 		minWordLength: 2,

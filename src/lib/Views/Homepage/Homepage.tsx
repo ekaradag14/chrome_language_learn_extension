@@ -13,7 +13,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import { GeneralContext } from '../../../context/general';
 import { saveSettingsAPI } from '../../endpoints/user';
 const constants = require('../../../constants.js');
-import { UserSettingsProps } from '../../modals';
+import { LanguageType, UserSettingsProps } from '../../modals';
 import { Dialog } from '../../components/Dialog';
 import { GrowTurnip } from '../../components/GrowTurnip';
 const Homepage: FunctionComponent<{
@@ -23,6 +23,7 @@ const Homepage: FunctionComponent<{
 	dailyLimitReached: boolean;
 	setUserSettings;
 	setLanguageIsChangeable;
+	languages: LanguageType[];
 }> = ({
 	userSettings,
 	setUserSettings,
@@ -30,6 +31,7 @@ const Homepage: FunctionComponent<{
 	dailyLimitReached,
 	setLanguageIsChangeable,
 	isUserPremium,
+	languages,
 }) => {
 	const [loading, setLoading] = useState(false);
 
@@ -106,6 +108,7 @@ const Homepage: FunctionComponent<{
 			<GrowTurnip value={userSettings} />
 			<div style={{ height: 20 }}></div>
 			<TargetLanguage
+				languages={languages}
 				isUserPremium={isUserPremium}
 				ignoreSpecialCharacters={userSettings.ignoreSpecialCharacters}
 				languageIsChangeable={languageIsChangeable}

@@ -23,50 +23,59 @@ let frequency = 0;
 // import { UserSettingsProps } from '../lib/modals';
 //helpers
 import * as helpers from './helpers';
+import { ConfigType, TranslationResultProps } from '../lib/modals';
 const constants = require('../constants.js');
-export type TranslationResultProps = {
-	clear?: boolean;
-	userTranslation: string;
-	translatedText: string;
-	successfulTranslation: boolean;
-};
-chrome.storage.local.get(
-	['bannedSites', 'userSettings', 'dailyLimitReached'],
-	(res) => {
-		if (res.bannedSites) {
-			res.bannedSites.forEach((el: string[]) => {
-				if (el.includes(document.domain)) {
-					isBanned = true;
-				}
-			});
+let config: ConfigType = constants.algorithmConstants;
 
-			if (
-				!isBanned &&
-				!res.dailyLimitReached &&
-				res.userSettings.targetLanguages &&
-				Math.random() < (res.userSettings.frequency * 1.4) / 10
-			) {
-				frequency = res.userSettings.frequency;
-				let targetLanguage =
-					res.userSettings.targetLanguages[
-						helpers.randomNumberInRange(
-							0,
-							res.userSettings.targetLanguages.length,
-							true
-						)
-					].code;
-				createDropletsForUser(targetLanguage, allChangeableTags);
+window.addEventListener('load', function () {
+	//Start the process when page load completes to not cause performance issues on user
+	chrome.storage.local.get(
+		['bannedSites', 'userSettings', 'dailyLimitReached', 'config'],
+		(res) => {
+			//Get the config for word search and randomness
+			if (res.config) {
+				config = res.config.config;
+				console.log('config', config);
+			}
+			//Check if this site is banned
+			if (res.bannedSites) {
+				res.bannedSites.forEach((el: string[]) => {
+					if (el.includes(document.domain)) {
+						isBanned = true;
+					}
+				});
+
+				if (
+					!isBanned &&
+					!res.dailyLimitReached &&
+					res.userSettings.targetLanguages &&
+					Math.random() <
+						(res.userSettings.frequency * config.baseFrequencySeed) / 10
+				) {
+					frequency = res.userSettings.frequency;
+					let targetLanguage =
+						res.userSettings.targetLanguages[
+							helpers.randomNumberInRange(
+								0,
+								res.userSettings.targetLanguages.length,
+								true
+							)
+						].code;
+					createDropletsForUser(targetLanguage, allChangeableTags);
+				}
 			}
 		}
-	}
-);
+	);
+});
+var port = chrome.runtime.connect({
+	name: 'translationChannel',
+});
 
 const createDropletsForUser = (
 	targetLanguage: string,
 	changeableTags: string[]
 ) => {
-	if (createTagsCallTime >= constants.algorithmConstants.maxTagTryCallTimes)
-		return;
+	if (createTagsCallTime >= config.maxTagTryCallTimes) return;
 	createTagsCallTime = createTagsCallTime + 1;
 	let chosenItem;
 
@@ -85,7 +94,15 @@ const createDropletsForUser = (
 	//Manual override point
 	// chosenItem = document.querySelector('.mt-md-3');
 	let dropletsPerPage = Math.max(
-		Math.min(Math.floor(helpers.randomNumberInRange(0.5, 1.8) * frequency), 3),
+		Math.min(
+			Math.floor(
+				helpers.randomNumberInRange(
+					config.frequencyLowLimit,
+					config.frequencyHightLimit
+				) * frequency
+			),
+			3
+		),
 		1
 	);
 	console.log('Chance passed', dropletsPerPage);
@@ -175,9 +192,6 @@ const createTranslateButtonFunctionality = (
 			textInput.className += ' learnip-disabled-input-23';
 			textInput.disabled = true;
 			//create a port to send messages throughout the application
-			var port = chrome.runtime.connect({
-				name: 'translationChannel',
-			});
 
 			//Send a message from the port
 			port.postMessage({
@@ -265,12 +279,8 @@ const checkIfElementIsValid = (item: HTMLElement) => {
 		!item.closest('a') && // Is not in <a></a> tag
 		!item.closest('button') && // Is not in a button tag
 		computedStyles.cursor !== 'pointer' &&
-		item?.innerText?.trim().length >
-			constants.algorithmConstants.minSentenceLength &&
-		!(
-			item?.innerText?.trim().split(' ').length <
-			constants.algorithmConstants.minWordCount
-		) && //Second word is chosen, so at least 2 words are required
+		item?.innerText?.trim().length > config.minSentenceLength &&
+		!(item?.innerText?.trim().split(' ').length < config.minWordCount) && //Second word is chosen, so at least 2 words are required
 		computedStyles.position !== 'absolute' &&
 		computedStyles.display !== 'none' &&
 		computedStyles.visibility !== 'hidden'
@@ -300,8 +310,7 @@ const findValidItems = (
 	for (const item of tags) {
 		if (checkIfElementIsValid(item as HTMLElement))
 			validItems.push(item as HTMLElement);
-		if (validItems.length >= constants.algorithmConstants.numberOfValidTagItems)
-			break;
+		if (validItems.length >= config.numberOfValidTagItems) break;
 	}
 
 	return validItems;
