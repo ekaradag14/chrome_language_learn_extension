@@ -25,7 +25,7 @@ let frequency = 0;
 import * as helpers from './helpers';
 import { ConfigType, TranslationResultProps } from '../lib/modals';
 const constants = require('../constants.js');
-let config: ConfigType = constants.algorithmConstants;
+let wordSearchConfig: ConfigType = constants.algorithmConstants;
 
 window.addEventListener('load', function () {
 	//Start the process when page load completes to not cause performance issues on user
@@ -34,8 +34,8 @@ window.addEventListener('load', function () {
 		(res) => {
 			//Get the config for word search and randomness
 			if (res.config) {
-				config = res.config.config;
-				console.log('config', config);
+				wordSearchConfig = res.config.config;
+				console.log('config', wordSearchConfig);
 			}
 			//Check if this site is banned
 			if (res.bannedSites) {
@@ -50,7 +50,8 @@ window.addEventListener('load', function () {
 					!res.dailyLimitReached &&
 					res.userSettings.targetLanguages &&
 					Math.random() <
-						(res.userSettings.frequency * config.baseFrequencySeed) / 10
+						(res.userSettings.frequency * wordSearchConfig.baseFrequencySeed) /
+							10
 				) {
 					frequency = res.userSettings.frequency;
 					let targetLanguage =
@@ -75,7 +76,7 @@ const createDropletsForUser = (
 	targetLanguage: string,
 	changeableTags: string[]
 ) => {
-	if (createTagsCallTime >= config.maxTagTryCallTimes) return;
+	if (createTagsCallTime >= wordSearchConfig.maxTagTryCallTimes) return;
 	createTagsCallTime = createTagsCallTime + 1;
 	let chosenItem;
 
@@ -97,8 +98,8 @@ const createDropletsForUser = (
 		Math.min(
 			Math.floor(
 				helpers.randomNumberInRange(
-					config.frequencyLowLimit,
-					config.frequencyHightLimit
+					wordSearchConfig.frequencyLowLimit,
+					wordSearchConfig.frequencyHightLimit
 				) * frequency
 			),
 			3
@@ -279,8 +280,10 @@ const checkIfElementIsValid = (item: HTMLElement) => {
 		!item.closest('a') && // Is not in <a></a> tag
 		!item.closest('button') && // Is not in a button tag
 		computedStyles.cursor !== 'pointer' &&
-		item?.innerText?.trim().length > config.minSentenceLength &&
-		!(item?.innerText?.trim().split(' ').length < config.minWordCount) && //Second word is chosen, so at least 2 words are required
+		item?.innerText?.trim().length > wordSearchConfig.minSentenceLength &&
+		!(
+			item?.innerText?.trim().split(' ').length < wordSearchConfig.minWordCount
+		) && //Second word is chosen, so at least 2 words are required
 		computedStyles.position !== 'absolute' &&
 		computedStyles.display !== 'none' &&
 		computedStyles.visibility !== 'hidden'
@@ -310,7 +313,7 @@ const findValidItems = (
 	for (const item of tags) {
 		if (checkIfElementIsValid(item as HTMLElement))
 			validItems.push(item as HTMLElement);
-		if (validItems.length >= config.numberOfValidTagItems) break;
+		if (validItems.length >= wordSearchConfig.numberOfValidTagItems) break;
 	}
 
 	return validItems;
