@@ -149,11 +149,17 @@ const createDropletsForUser = (
 		console.log(el);
 		const inputDiv: HTMLDivElement = document.createElement('div');
 		inputDiv.innerHTML = InputField(el.targetLanguage, el.dropletClassName);
-
+		document.addEventListener(
+			'scroll',
+			() => checkAndGlow(inputDiv.children[0].children[0] as HTMLElement),
+			{
+				passive: true,
+			}
+		);
 		el.item.innerHTML = `${el.entrance} <span style='background-color: #aef4ff7a;border-radius: 5px;' > ${el.inputText}</span> ${el.remainingText}`;
 		el.item.classList += ` learnip-chosen-item-23 ${el.dropletClassName}-text`;
 		el.item.parentElement.insertBefore(inputDiv, el.item);
-
+		console.log('item', el.item);
 		// Create Translate Button Functionality For Each Droplet
 		createTranslateButtonFunctionality(
 			el.dropletClassName,
@@ -317,6 +323,16 @@ const findValidItems = (
 	}
 
 	return validItems;
+};
+
+const checkAndGlow = (element: HTMLElement) => {
+	if (helpers.isInViewport(element, document, window)) {
+		element.classList.add('learnip-glow-23');
+		// @ts-ignore: Unreachable code error
+		document.removeEventListener('scroll', checkAndGlow, {
+			passive: true,
+		});
+	}
 };
 
 // const createDropletsForUserPositionly = (userSettings: UserSettingsProps) => {
