@@ -20,15 +20,19 @@ chrome.runtime.onConnect.addListener(function (port) {
 					itsTooLate = true; // This is just used here for convenience (for adding a usage to user usages)
 				}
 			}, 20000);
+
+			//Send the user payload for translation
 			reqData = await textAPIS.translateTextAPI({
 				language: msg.language,
 				text: msg.text,
-				userTranslation: msg.userTranslation,
 				source: msg.source,
 			});
 
+			//Check for successful translation and timeout error (Don't wait the user too much)
 			if (reqData.status === 200 && !itsTooLate) {
 				reqData = (await reqData.json()).data;
+				//If the translatedText is the same with the source (Special namaes,etc. don't get translated) Clear the translation
+				//TODO: Inform user why it was cleared
 				if (reqData.translatedText === msg.text) {
 					port.postMessage({
 						clear: true,
@@ -36,6 +40,31 @@ chrome.runtime.onConnect.addListener(function (port) {
 					}); //User translation is added so that it will know which element to remove
 					itsTooLate = true; // This is just used here for convenience (for not adding a usage to user usages)
 				} else {
+					chrome.storage.local.get(['currentTranslations'], (res) => {
+						if (res.currentTranslations) {
+							let newCurrentTranslations = res.currentTranslations.filter(
+								(el) => Date.now() - el.createdAt < 864000
+							);
+							newCurrentTranslations.push({
+								...reqData,
+								createdAt: Date.now(),
+								clear: false,
+							});
+							chrome.storage.local.set({
+								currentTranslations: newCurrentTranslations,
+							});
+						} else {
+							chrome.storage.local.set({
+								currentTranslations: [
+									{
+										...reqData,
+										createdAt: Date.now(),
+										clear: false,
+									},
+								],
+							});
+						}
+					});
 					port.postMessage(reqData);
 				}
 			} else {
@@ -99,3 +128,17 @@ chrome.runtime.onConnect.addListener(function (port) {
 		}
 	});
 });
+
+//TODO: Create a generic function for adding stuff into local storage
+// const setToLocalStorage: { keyName: string; values: string[] }[] = (items) => {
+// 	let keys: string[] = items.map((el) => el.keyName);
+// 	items.forEach((el) => {
+// 		chrome.storage.local.get(keys, (res) => {
+// 			keys.forEach(el => {
+// 				if (res[el]) {
+
+// 				}
+// 			})
+// 		});
+// 	});
+// };
