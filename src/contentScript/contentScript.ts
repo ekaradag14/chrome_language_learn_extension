@@ -35,12 +35,12 @@ window.addEventListener('load', function () {
 					(res.userSettings.frequency * wordSearchConfig.baseFrequencySeed) /
 						10;
 				const willItBeShown =
-					(!isBanned &&
-						!res.dailyLimitReached &&
-						res.userSettings.targetLanguages &&
-						randomShow) ||
-					true;
-				console.log('willItBeShown', willItBeShown, 'randomShow', randomShow);
+					!isBanned &&
+					!res.dailyLimitReached &&
+					res.userSettings.targetLanguages &&
+					randomShow;
+
+				//	console.log('willItBeShown', willItBeShown, 'randomShow', randomShow);
 				if (willItBeShown) {
 					frequency = res.userSettings.frequency;
 					let targetLanguage =
@@ -167,7 +167,7 @@ const createDropletsForUser = (
 				source: document.URL,
 			});
 			inputElement.removeEventListener('input', fireTranslation);
-			
+
 			// TODO: DISCONNECT PORT WHEN IT IS NOT USED ANYMORE
 		};
 		inputElement.addEventListener('input', fireTranslation);
