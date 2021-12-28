@@ -11,7 +11,8 @@ $input-extended-width: 70%;
 	height: 23px;
 	margin-bottom: 3px;
 	transition: all 0.3s ease-in-out;
-	width: 120px;
+	width: 160px;
+	max-width: 100%;
 
 	&:hover {
 		#learnip-translate-button-23 {
@@ -23,7 +24,7 @@ $input-extended-width: 70%;
 			color: #747171;
 			padding-left: $input-active-left-padding;
 			padding-right: 24px;
-			border-bottom-left-radius: 20px;
+			border-bottom-left-radius: 20px !important;
 			background-color: white;
 			border: 2px solid $default-droplet-blue !important;
 		}
@@ -54,7 +55,7 @@ $input-extended-width: 70%;
 	font-family: sans-serif !important;
 	border: 2px solid transparent !important;
 	border-bottom-left-radius: 0 !important;
-	border-radius: 20px;
+	border-radius: 20px !important;
 	outline: none !important;
 	box-shadow: none;
 	color: transparent;
@@ -103,7 +104,7 @@ $input-extended-width: 70%;
 	width: 20px;
 	height: 20px;
 	margin-left: 8px;
-	border-radius: 50%;
+	border-radius: 50% !important;
 	border-width: 0;
 	transition: all 0.2s ease-in-out;
 	margin-top: auto;
@@ -167,7 +168,7 @@ $input-extended-width: 70%;
 	//User's wrong input
 	background-color: #ddd7d7;
 	color: black;
-	border-radius: 2px;
+	border-radius: 2px !important;
 }
 
 @keyframes button-loading-spinner {

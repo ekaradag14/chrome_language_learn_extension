@@ -16,16 +16,19 @@ const GrowTurnip: FunctionComponent<GrowTurnipProps> = ({ value }) => {
 	});
 	useEffect(() => {
 		chrome.storage.local.get(['successfulTranslations'], async (res) => {
-			let successDroplets = res.successfulTranslations.filter(
-				(el) => el === new Date().getDate()
-			).length;
-			const currentPercentage = Math.ceil((successDroplets / 30) * 100);
-			const imgAndMessage = chooseTurnipAndMessage(currentPercentage);
-			setCurrentStatus({
-				waterHeight: keepInRange(currentPercentage),
-				turnipImg: imgAndMessage.img,
-				message: imgAndMessage.message,
-			});
+			if (res.successfulTranslations) {
+				let successDroplets = res.successfulTranslations.filter(
+					(el) => el === new Date().getDate()
+				).length;
+				const currentPercentage = Math.ceil((successDroplets / 30) * 100);
+				const imgAndMessage = chooseTurnipAndMessage(currentPercentage);
+				setCurrentStatus({
+					waterHeight: keepInRange(currentPercentage),
+					turnipImg: imgAndMessage.img,
+					message: imgAndMessage.message,
+				});	
+			}
+
 		});
 	}, []);
 	return (

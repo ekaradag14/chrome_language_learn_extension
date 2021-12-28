@@ -1,30 +1,16 @@
-// TODO: content script
+import InputField from './InputField';
+import * as helpers from './helpers';
+import { ConfigType, TranslationResultProps } from '../lib/modals';
 import './contentScript.css';
-const allChangeableTags: string[] = [
-	'yt-formatted-string', // String tag used for texts in youtube
-	'h2',
-	'h1',
-	'h3',
-	'h4',
-	'p',
-	'em',
-	'b',
-	'span',
-	'strong',
-	'li',
-];
+
+const constants = require('../constants.js');
+const allChangeableTags = helpers.getChangeableTags();
 
 let createTagsCallTime = 0;
-import InputField from './InputField';
 let isBanned: boolean = false;
 let droplets: string[] = [];
 let chosenWords: string[] = [];
 let frequency = 0;
-// import { UserSettingsProps } from '../lib/modals';
-//helpers
-import * as helpers from './helpers';
-import { ConfigType, TranslationResultProps } from '../lib/modals';
-const constants = require('../constants.js');
 let wordSearchConfig: ConfigType = constants.algorithmConstants;
 
 window.addEventListener('load', function () {
@@ -112,7 +98,9 @@ const createDropletsForUser = (
 		),
 		1
 	);
+
 	console.log('Chance passed', dropletsPerPage);
+
 	validItems.forEach((validItem, index) => {
 		if (index < dropletsPerPage) {
 			let el: any = {
@@ -124,6 +112,8 @@ const createDropletsForUser = (
 				remainingText: '',
 			};
 			el.translateText = validItem.innerText.trim();
+
+			//Disintegrate sentence for translation and recreation
 			let disintegrated = helpers.disintegrateSentence(el.translateText);
 			if (!disintegrated) {
 				el = false;
@@ -156,6 +146,8 @@ const createDropletsForUser = (
 		const inputDiv: HTMLDivElement = document.createElement('div');
 		inputDiv.innerHTML = InputField(el.targetLanguage, el.dropletClassName);
 		let inputElement = inputDiv.children[0].children[0] as HTMLElement;
+
+		//When user scrolls into a droplet in viewport, they glow
 		document.addEventListener(
 			'scroll',
 			() => checkAndGlow(inputElement), //Pass the input element for glow effect
@@ -175,8 +167,8 @@ const createDropletsForUser = (
 				source: document.URL,
 			});
 			inputElement.removeEventListener('input', fireTranslation);
-			port.disconnect();
-			// TODO: FIRE TRANSLATION AND STORE
+			
+			// TODO: DISCONNECT PORT WHEN IT IS NOT USED ANYMORE
 		};
 		inputElement.addEventListener('input', fireTranslation);
 		el.item.innerHTML = `${el.entrance} <span style='background-color: #aef4ff7a;border-radius: 5px;' > ${el.inputText}</span> ${el.remainingText}`;
@@ -260,7 +252,7 @@ const createTranslateButtonFunctionality = (
 				}
 
 				timePassed += 1;
-			}, 1000);
+			}, 500);
 			//Handle any response that might come on this port
 		},
 		false
@@ -274,14 +266,6 @@ const changeContent = (
 	remainingText: string,
 	userTranslation: string
 ) => {
-	console.log(
-		dropletClassName,
-		translationResult,
-		entrance,
-		inputText,
-		remainingText,
-		userTranslation
-	);
 	let chosenItem = document.querySelector(
 		`.${dropletClassName}-text.learnip-chosen-item-23`
 	);
@@ -302,7 +286,11 @@ const changeContent = (
 		className: string,
 		wrongInput: string = '';
 
-	if (translationResult.compareText === userTranslation.toLowerCase()) {
+	const isTranslationSuccessful =
+		translationResult.compareText === userTranslation.toLowerCase();
+
+	//Check if the translation was successful
+	if (isTranslationSuccessful) {
 		highlightColor = '#a1eb3f8c';
 		className = ' learnip-successful-translation-23';
 		translationResult.translatedText = userTranslation;
@@ -312,8 +300,20 @@ const changeContent = (
 		wrongInput = `<em id='learnip-wrong-input-23'>  ${userTranslation}</em>`;
 	}
 
+	var usagePort = chrome.runtime.connect({
+		name: 'translationChannel',
+	});
+
+	usagePort.postMessage({
+		type: 'usagePort',
+		isTranslationSuccessful,
+	});
+
+	usagePort.disconnect();
+
 	translateButton.classList.remove('learnip-clicked-state-23');
 	translateButton.className += className;
+
 	setTimeout(() => {
 		chosenItem.innerHTML = `${entrance} <span style="background-color: ${highlightColor};border-radius:2px;">${translationResult.translatedText}</span> ${wrongInput} ${remainingText}`;
 		document.querySelector(
@@ -334,7 +334,7 @@ const checkIfElementIsValid = (item: HTMLElement) => {
 	if (
 		!!item &&
 		!item.children.length && // It has only text
-		!item.closest('a') && // Is not in <a></a> tag
+		!item.closest('a') && // Is not in <a></a> tag (a tags or buttons cause clicks)
 		!item.closest('button') && // Is not in a button tag
 		computedStyles.cursor !== 'pointer' &&
 		item?.innerText?.trim().length > wordSearchConfig.minSentenceLength &&

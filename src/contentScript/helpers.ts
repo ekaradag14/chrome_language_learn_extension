@@ -75,3 +75,17 @@ export const isInViewport = (
 				document.documentElement.clientWidth) /* or $(window).width() */
 	);
 };
+
+export const getChangeableTags = (): string[] => [
+	'yt-formatted-string', // String tag used for texts in youtube
+	'h2',
+	'h1',
+	'h3',
+	'h4',
+	'p',
+	'em',
+	'b',
+	'span',
+	'strong',
+	'li',
+];
