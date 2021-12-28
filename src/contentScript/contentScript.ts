@@ -1,30 +1,16 @@
-// TODO: content script
+import InputField from './InputField';
+import * as helpers from './helpers';
+import { ConfigType, TranslationResultProps } from '../lib/modals';
 import './contentScript.css';
-const allChangeableTags: string[] = [
-	'yt-formatted-string', // String tag used for texts in youtube
-	'h2',
-	'h1',
-	'h3',
-	'h4',
-	'p',
-	'em',
-	'b',
-	'span',
-	'strong',
-	'li',
-];
+
+const constants = require('../constants.js');
+const allChangeableTags = helpers.getChangeableTags();
 
 let createTagsCallTime = 0;
-import InputField from './InputField';
 let isBanned: boolean = false;
 let droplets: string[] = [];
 let chosenWords: string[] = [];
 let frequency = 0;
-// import { UserSettingsProps } from '../lib/modals';
-//helpers
-import * as helpers from './helpers';
-import { ConfigType, TranslationResultProps } from '../lib/modals';
-const constants = require('../constants.js');
 let wordSearchConfig: ConfigType = constants.algorithmConstants;
 
 window.addEventListener('load', function () {
@@ -44,15 +30,18 @@ window.addEventListener('load', function () {
 						isBanned = true;
 					}
 				});
-
-				if (
-					!isBanned &&
-					!res.dailyLimitReached &&
-					res.userSettings.targetLanguages &&
+				let randomShow =
 					Math.random() <
-						(res.userSettings.frequency * wordSearchConfig.baseFrequencySeed) /
-							10
-				) {
+					(res.userSettings.frequency * wordSearchConfig.baseFrequencySeed) /
+						10;
+				const willItBeShown =
+					(!isBanned &&
+						!res.dailyLimitReached &&
+						res.userSettings.targetLanguages &&
+						randomShow) ||
+					true;
+				console.log('willItBeShown', willItBeShown, 'randomShow', randomShow);
+				if (willItBeShown) {
 					frequency = res.userSettings.frequency;
 					let targetLanguage =
 						res.userSettings.targetLanguages[
@@ -62,14 +51,17 @@ window.addEventListener('load', function () {
 								true
 							)
 						].code;
+					console.log(
+						'targetLanguage',
+						targetLanguage,
+						'allChangeableTags',
+						allChangeableTags
+					);
 					createDropletsForUser(targetLanguage, allChangeableTags);
 				}
 			}
 		}
 	);
-});
-var port = chrome.runtime.connect({
-	name: 'translationChannel',
 });
 
 const createDropletsForUser = (
@@ -106,7 +98,9 @@ const createDropletsForUser = (
 		),
 		1
 	);
+
 	console.log('Chance passed', dropletsPerPage);
+
 	validItems.forEach((validItem, index) => {
 		if (index < dropletsPerPage) {
 			let el: any = {
@@ -118,6 +112,8 @@ const createDropletsForUser = (
 				remainingText: '',
 			};
 			el.translateText = validItem.innerText.trim();
+
+			//Disintegrate sentence for translation and recreation
 			let disintegrated = helpers.disintegrateSentence(el.translateText);
 			if (!disintegrated) {
 				el = false;
@@ -149,13 +145,32 @@ const createDropletsForUser = (
 		console.log(el);
 		const inputDiv: HTMLDivElement = document.createElement('div');
 		inputDiv.innerHTML = InputField(el.targetLanguage, el.dropletClassName);
+		let inputElement = inputDiv.children[0].children[0] as HTMLElement;
+
+		//When user scrolls into a droplet in viewport, they glow
 		document.addEventListener(
 			'scroll',
-			() => checkAndGlow(inputDiv.children[0].children[0] as HTMLElement),
+			() => checkAndGlow(inputElement), //Pass the input element for glow effect
 			{
 				passive: true,
 			}
 		);
+		var port = chrome.runtime.connect({
+			name: 'translationChannel',
+		});
+
+		const fireTranslation = () => {
+			console.log('input changed');
+			port.postMessage({
+				text: el.inputText,
+				language: el.targetLanguage,
+				source: document.URL,
+			});
+			inputElement.removeEventListener('input', fireTranslation);
+			
+			// TODO: DISCONNECT PORT WHEN IT IS NOT USED ANYMORE
+		};
+		inputElement.addEventListener('input', fireTranslation);
 		el.item.innerHTML = `${el.entrance} <span style='background-color: #aef4ff7a;border-radius: 5px;' > ${el.inputText}</span> ${el.remainingText}`;
 		el.item.classList += ` learnip-chosen-item-23 ${el.dropletClassName}-text`;
 		el.item.parentElement.insertBefore(inputDiv, el.item);
@@ -201,28 +216,44 @@ const createTranslateButtonFunctionality = (
 			//create a port to send messages throughout the application
 
 			//Send a message from the port
-			port.postMessage({
-				text: inputText,
-				userTranslation: value,
-				language: targetLanguage,
-				source: document.URL,
-			});
-			//Handle any response that might come on this port
-			port.onMessage.addListener(function (
-				translationResult: TranslationResultProps
-			) {
-				if (translationResult.userTranslation === value) {
-					// So that concurrent translation are not mixed (Assuming translations are not the same, could be improved)
+			let timePassed = 0;
+			let translationResult;
+			let inter = setInterval(() => {
+				if (timePassed > 10) {
+					clearInterval(inter);
+				}
 
+				let storageTranslationCallback = (res) => {
+					if (res.currentTranslations) {
+						let response = res.currentTranslations.filter(
+							(el) => el.basePrompt === inputText
+						);
+						if (response.length) {
+							translationResult = response[0];
+						}
+					}
+				};
+
+				chrome.storage.local.get(
+					['currentTranslations'],
+					storageTranslationCallback
+				);
+
+				if (translationResult) {
 					changeContent(
 						dropletClassName,
 						translationResult,
 						entrance,
 						inputText,
-						remainingText
+						remainingText,
+						value
 					);
+					clearInterval(inter);
 				}
-			});
+
+				timePassed += 1;
+			}, 500);
+			//Handle any response that might come on this port
 		},
 		false
 	);
@@ -232,7 +263,8 @@ const changeContent = (
 	translationResult: TranslationResultProps,
 	entrance: string,
 	inputText: string,
-	remainingText: string
+	remainingText: string,
+	userTranslation: string
 ) => {
 	let chosenItem = document.querySelector(
 		`.${dropletClassName}-text.learnip-chosen-item-23`
@@ -250,19 +282,38 @@ const changeContent = (
 		`.${dropletClassName}  #learnip-translate-button-23`
 	);
 
-	let highlightColor = '#eb7272ba';
-	let className = ' learnip-failed-translation-23 ';
-	let wrongInput = `<em id='learnip-wrong-input-23'>  ${translationResult.userTranslation}</em>`;
+	let highlightColor: string,
+		className: string,
+		wrongInput: string = '';
 
-	if (translationResult.successfulTranslation) {
+	const isTranslationSuccessful =
+		translationResult.compareText === userTranslation.toLowerCase();
+
+	//Check if the translation was successful
+	if (isTranslationSuccessful) {
 		highlightColor = '#a1eb3f8c';
-		wrongInput = '';
 		className = ' learnip-successful-translation-23';
-		translationResult.translatedText = translationResult.userTranslation;
+		translationResult.translatedText = userTranslation;
+	} else {
+		highlightColor = '#eb7272ba';
+		className = ' learnip-failed-translation-23 ';
+		wrongInput = `<em id='learnip-wrong-input-23'>  ${userTranslation}</em>`;
 	}
+
+	var usagePort = chrome.runtime.connect({
+		name: 'translationChannel',
+	});
+
+	usagePort.postMessage({
+		type: 'usagePort',
+		isTranslationSuccessful,
+	});
+
+	usagePort.disconnect();
 
 	translateButton.classList.remove('learnip-clicked-state-23');
 	translateButton.className += className;
+
 	setTimeout(() => {
 		chosenItem.innerHTML = `${entrance} <span style="background-color: ${highlightColor};border-radius:2px;">${translationResult.translatedText}</span> ${wrongInput} ${remainingText}`;
 		document.querySelector(
@@ -283,7 +334,7 @@ const checkIfElementIsValid = (item: HTMLElement) => {
 	if (
 		!!item &&
 		!item.children.length && // It has only text
-		!item.closest('a') && // Is not in <a></a> tag
+		!item.closest('a') && // Is not in <a></a> tag (a tags or buttons cause clicks)
 		!item.closest('button') && // Is not in a button tag
 		computedStyles.cursor !== 'pointer' &&
 		item?.innerText?.trim().length > wordSearchConfig.minSentenceLength &&

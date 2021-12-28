@@ -35,7 +35,7 @@ const App: FunctionComponent<{}> = () => {
 	const [theme, setTheme] = useState<typeof lightTheme>(lightTheme);
 	const [currentView, setCurrentView] = useState(constants.routes.HOMEPAGE);
 	const [dailyLimitReached, setDailyLimitReached] = useState(false);
-	const [languages, setLanguages] = useState<LanguageType[]>([]);
+	const [languages, setLanguages] = useState<LanguageType[]>(initialLanguages);
 	const [languageIsChangeable, setLanguageIsChangeable] =
 		useState<boolean>(true);
 	const [isUserPremium, setIsUserPremium] = useState<boolean>(false);
@@ -118,32 +118,33 @@ const App: FunctionComponent<{}> = () => {
 					);
 				}
 				//If languages are nor present or were fetched too long ago
-				if (
-					!res.translationLanguages ||
-					Date.now() - res.translationLanguages.lastFetched > 4 * 86400 //Pull every four days
-				) {
-					let languages;
-					try {
-						languages = await (await getLanguagesAPI()).json();
-						if (!languages.success) {
-							throw { custom: true, message: languages.error };
-						}
-					} catch (err) {
-						return;
-					}
-					console.log('languages', languages);
-					if (languages.success) {
-						setLanguages(languages.data);
-						chrome.storage.local.set({
-							translationLanguages: {
-								languages: languages.data,
-								lastFetched: Date.now(),
-							},
-						});
-					}
-				} else {
-					setLanguages(res.translationLanguages.languages);
-				}
+				//TODO: make this dynamic
+				// if (
+				// 	!res?.translationLanguages?.length ||
+				// 	Date.now() - res.translationLanguages.lastFetched > 4 * 86400 //Pull every four days
+				// ) {
+				// 	let languages;
+				// 	try {
+				// 		languages = await (await getLanguagesAPI()).json();
+				// 		if (!languages.success) {
+				// 			throw { custom: true, message: languages.error };
+				// 		}
+				// 	} catch (err) {
+				// 		return;
+				// 	}
+				// 	console.log('languages', languages);
+				// 	if (languages.success) {
+				// 		setLanguages(languages.data);
+				// 		chrome.storage.local.set({
+				// 			translationLanguages: {
+				// 				languages: languages.data,
+				// 				lastFetched: Date.now(),
+				// 			},
+				// 		});
+				// 	}
+				// } else {
+				// 	setLanguages(res.translationLanguages.languages);
+				// }
 				if (
 					!res.config ||
 					Date.now() - res.config.lastFetched > 4 * 86400 //Pull every four days
@@ -260,6 +261,39 @@ const App: FunctionComponent<{}> = () => {
 		</ThemeProvider>
 	);
 };
+
+const initialLanguages: { code: string; id: string; title: string }[] = [
+	{
+		code: 'es',
+		id: '5p16wzZWlQwWtz6pL7IZ',
+		title: 'Spanish',
+	},
+	{
+		code: 'en',
+		id: 'JYj7S1zjiBbmKyeVvR2D',
+		title: 'English',
+	},
+	{
+		code: 'fr',
+		id: 'LaXZ05bpojRGzchNszvN',
+		title: 'French',
+	},
+	{
+		code: 'de',
+		id: 'Q4t64w3Gc6WsOjTlyOVK',
+		title: 'German',
+	},
+	{
+		code: 'it',
+		id: 'dKTLRx8BMdPXwdupOgyv',
+		title: 'Italian',
+	},
+	{
+		code: 'ru',
+		id: 'l9Cle1ZWJwSmV4qmEn8S',
+		title: 'Russian',
+	},
+];
 
 const root = document.createElement('div');
 document.body.appendChild(root);

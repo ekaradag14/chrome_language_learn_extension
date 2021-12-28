@@ -61,7 +61,7 @@ const TargetLanguage: FunctionComponent<TargetLanguageProps> = ({
 					<TextField
 						{...params}
 						variant="outlined"
-						label="Target Languages"
+						label="Practice Languages"
 						InputProps={{
 							...params.InputProps,
 							endAdornment: (

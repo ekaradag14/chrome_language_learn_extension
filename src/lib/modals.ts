@@ -36,7 +36,7 @@ export type ConfigType = {
 };
 export type TranslationResultProps = {
 	clear?: boolean;
-	userTranslation: string;
+	compareText: string;
 	translatedText: string;
 	successfulTranslation: boolean;
 };

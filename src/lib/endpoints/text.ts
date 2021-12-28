@@ -5,7 +5,6 @@ import * as getHeaders from './getHeaders';
 export const translateTextAPI = async (translationPayload: {
 	text: string;
 	language: string;
-	userTranslation: string;
 	source: string;
 }) => {
 	let headers;
