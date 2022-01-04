@@ -1,8 +1,11 @@
-import InputField from './InputField';
+import InputField from './InputFields/InputField';
+import TranslationInputField from './InputFields/TranslationInputField';
+
 import * as helpers from './helpers';
 import { ConfigType, TranslationResultProps } from '../lib/modals';
 import './contentScript.css';
-
+import './multipleChoiceStyles.css';
+const developmentMode = true;
 const constants = require('../constants.js');
 const allChangeableTags = helpers.getChangeableTags();
 
@@ -12,6 +15,7 @@ let droplets: string[] = [];
 let chosenWords: string[] = [];
 let frequency = 0;
 let wordSearchConfig: ConfigType = constants.algorithmConstants;
+let dropletTypeClassNumber = '23';
 
 window.addEventListener('load', function () {
 	//Start the process when page load completes to not cause performance issues on user
@@ -20,8 +24,10 @@ window.addEventListener('load', function () {
 		(res) => {
 			//Get the config for word search and randomness
 			if (res.config) {
-				wordSearchConfig = res.config.config;
-				console.log('config', wordSearchConfig);
+				wordSearchConfig = developmentMode
+					? constants.algorithmConstants
+					: res.config.config;
+				developmentMode && console.log('config', wordSearchConfig);
 			}
 			//Check if this site is banned
 			if (res.bannedSites) {
@@ -35,14 +41,16 @@ window.addEventListener('load', function () {
 					(res.userSettings.frequency * wordSearchConfig.baseFrequencySeed) /
 						10;
 				const willItBeShown =
-					!isBanned &&
-					!res.dailyLimitReached &&
-					res.userSettings.targetLanguages &&
-					randomShow;
+					(!isBanned &&
+						!res.dailyLimitReached &&
+						res.userSettings.targetLanguages &&
+						randomShow) ||
+					developmentMode;
 
-				//	console.log('willItBeShown', willItBeShown, 'randomShow', randomShow);
+				developmentMode &&
+					console.log('willItBeShown', willItBeShown, 'randomShow', randomShow);
 				if (willItBeShown) {
-					frequency = res.userSettings.frequency;
+					frequency = res.userSettings.frequency || 1;
 					let targetLanguage =
 						res.userSettings.targetLanguages[
 							helpers.randomNumberInRange(
@@ -51,12 +59,6 @@ window.addEventListener('load', function () {
 								true
 							)
 						].code;
-					console.log(
-						'targetLanguage',
-						targetLanguage,
-						'allChangeableTags',
-						allChangeableTags
-					);
 					createDropletsForUser(targetLanguage, allChangeableTags);
 				}
 			}
@@ -70,7 +72,6 @@ const createDropletsForUser = (
 ) => {
 	if (createTagsCallTime >= wordSearchConfig.maxTagTryCallTimes) return;
 	createTagsCallTime = createTagsCallTime + 1;
-	let chosenItem;
 
 	const tagTypeToBeChanged: string = helpers.randomArrayElement(changeableTags);
 
@@ -81,25 +82,21 @@ const createDropletsForUser = (
 		return;
 	}
 
-	// chosenItem = helpers.randomArrayElement(validItems);
 	let pageDroplets = [];
 
-	//Manual override point
-	// chosenItem = document.querySelector('.mt-md-3');
 	let dropletsPerPage = Math.max(
 		Math.min(
 			Math.floor(
 				helpers.randomNumberInRange(
 					wordSearchConfig.frequencyLowLimit,
-					wordSearchConfig.frequencyHightLimit
+					wordSearchConfig.frequencyHightLimit,
+					true
 				) * frequency
 			),
 			3
 		),
 		1
 	);
-
-	console.log('Chance passed', dropletsPerPage);
 
 	validItems.forEach((validItem, index) => {
 		if (index < dropletsPerPage) {
@@ -142,9 +139,18 @@ const createDropletsForUser = (
 	});
 
 	pageDroplets.forEach((el) => {
-		console.log(el);
 		const inputDiv: HTMLDivElement = document.createElement('div');
-		inputDiv.innerHTML = InputField(el.targetLanguage, el.dropletClassName);
+
+		if ('multiple-choice') {
+			inputDiv.innerHTML = TranslationInputField(
+				el.targetLanguage,
+				el.dropletClassName
+			);
+			dropletTypeClassNumber = '22';
+		} else {
+			inputDiv.innerHTML = InputField(el.targetLanguage, el.dropletClassName);
+		}
+
 		let inputElement = inputDiv.children[0].children[0] as HTMLElement;
 
 		//When user scrolls into a droplet in viewport, they glow
@@ -159,30 +165,80 @@ const createDropletsForUser = (
 			name: 'translationChannel',
 		});
 
-		const fireTranslation = () => {
-			console.log('input changed');
-			port.postMessage({
-				text: el.inputText,
-				language: el.targetLanguage,
-				source: document.URL,
-			});
-			inputElement.removeEventListener('input', fireTranslation);
+		if (!'multiple-choice') {
+			const fireTranslation = () => {
+				port.postMessage({
+					text: el.inputText,
+					language: el.targetLanguage,
+					source: document.URL,
+				});
+				inputElement.removeEventListener('input', fireTranslation);
 
-			// TODO: DISCONNECT PORT WHEN IT IS NOT USED ANYMORE
-		};
-		inputElement.addEventListener('input', fireTranslation);
+				// TODO: DISCONNECT PORT WHEN IT IS NOT USED ANYMORE
+			};
+			inputElement.addEventListener('input', fireTranslation);
+		}
+
 		el.item.innerHTML = `${el.entrance} <span style='background-color: #aef4ff7a;border-radius: 5px;' > ${el.inputText}</span> ${el.remainingText}`;
-		el.item.classList += ` learnip-chosen-item-23 ${el.dropletClassName}-text`;
+		el.item.classList += ` learnip-chosen-item-${dropletTypeClassNumber} ${el.dropletClassName}-text`;
 		el.item.parentElement.insertBefore(inputDiv, el.item);
-		console.log('item', el.item);
+		developmentMode && console.log('item', el.item);
+
+		if ('multiple-choice') {
+			let containerDiv: HTMLDivElement = document.querySelector(
+				`.${el.dropletClassName}#learnip-container-div-${dropletTypeClassNumber}`
+			);
+			console.log(
+				'translation fired',
+				`.${el.dropletClassName}#learnip-container-div-${dropletTypeClassNumber}`
+			);
+			const fireTranslation = () => {
+				console.log('translation fired');
+				port.postMessage({
+					text: el.inputText,
+					language: el.targetLanguage,
+					source: document.URL,
+				});
+				containerDiv.removeEventListener('mouseover', fireTranslation);
+
+				// TODO: DISCONNECT PORT WHEN IT IS NOT USED ANYMORE
+			};
+			const clickOnChoice = (e) => {
+				console.log('hello');
+				let lastClicked: HTMLButtonElement | null = document.querySelector(
+					`.learnip-choice-${dropletTypeClassNumber}.clicked`
+				);
+				lastClicked?.classList.remove('clicked');
+				e.target.classList += ' clicked';
+				console.log(e.target);
+			};
+			let choiceButton: HTMLButtonElement = document.querySelector(
+				`.learnip-choice-${dropletTypeClassNumber}`
+			);
+			containerDiv.addEventListener('mouseover', fireTranslation);
+			choiceButton.addEventListener('click', clickOnChoice);
+		}
+
 		// Create Translate Button Functionality For Each Droplet
-		createTranslateButtonFunctionality(
+		const translateButtonProps: [
+			dropletClassName: string,
+			inputText: string,
+			targetLanguage: string,
+			entrance: string,
+			remainingText: string
+		] = [
 			el.dropletClassName,
 			el.inputText,
 			el.targetLanguage,
 			el.entrance,
-			el.remainingText
-		);
+			el.remainingText,
+		];
+
+		if ('multiple-choice') {
+			createMultipleChoiceTranslateButtonFunctionality(...translateButtonProps);
+		} else {
+			createTranslateButtonFunctionality(...translateButtonProps);
+		}
 	});
 };
 
@@ -194,11 +250,11 @@ const createTranslateButtonFunctionality = (
 	remainingText: string
 ) => {
 	let translateButton: HTMLButtonElement = document.querySelector(
-		`.${dropletClassName}  #learnip-translate-button-23`
+		`.${dropletClassName}  #learnip-translate-button-${dropletTypeClassNumber}`
 	);
 
 	let textInput: HTMLInputElement = document.querySelector(
-		`.${dropletClassName}  #learnip-input-23`
+		`.${dropletClassName}  #learnip-input-${dropletTypeClassNumber}`
 	);
 
 	translateButton.addEventListener(
@@ -210,8 +266,8 @@ const createTranslateButtonFunctionality = (
 				return;
 			}
 			// document.querySelector('#learnip-container-div-23').remove();
-			translateButton.className += ' learnip-clicked-state-23';
-			textInput.className += ' learnip-disabled-input-23';
+			translateButton.className += ` learnip-clicked-state-${dropletTypeClassNumber}`;
+			textInput.className += ` learnip-disabled-input-${dropletTypeClassNumber}`;
 			textInput.disabled = true;
 			//create a port to send messages throughout the application
 
@@ -258,6 +314,78 @@ const createTranslateButtonFunctionality = (
 		false
 	);
 };
+
+const createMultipleChoiceTranslateButtonFunctionality = (
+	dropletClassName: string,
+	inputText: string,
+	targetLanguage: string,
+	entrance: string,
+	remainingText: string
+) => {
+	let containerDiv: HTMLButtonElement = document.querySelector(
+		`.${dropletClassName}#learnip-container-div-${dropletTypeClassNumber}`
+	);
+	// console.log(
+	// 	'containerDiv',
+	// 	containerDiv,
+	// 	'dropletClassName',
+	// 	dropletClassName,
+	// 	'dropletTypeClassNumber',
+	// 	dropletTypeClassNumber
+	// );
+	const makeTranslation = (e) => {
+		console.log('hello');
+
+		containerDiv.className += ` learnip-fetch-choices-${dropletTypeClassNumber}`;
+
+		//Send a message from the port
+		let timePassed = 0;
+		let translationResult;
+		let inter = setInterval(() => {
+			if (timePassed > 10) {
+				clearInterval(inter);
+			}
+
+			let storageTranslationCallback = (res) => {
+				if (res.currentTranslations) {
+					let response = res.currentTranslations.filter(
+						(el) => el.basePrompt === inputText
+					);
+					if (response.length) {
+						translationResult = response[0];
+					}
+				}
+			};
+
+			chrome.storage.local.get(
+				['currentTranslations'],
+				storageTranslationCallback
+			);
+
+			if (translationResult) {
+				containerDiv.classList.remove(
+					`learnip-fetch-choices-${dropletTypeClassNumber}`
+				);
+				containerDiv.className += ` learnip-with-choices-${dropletTypeClassNumber}`;
+				false &&
+					changeContent(
+						dropletClassName,
+						translationResult,
+						entrance,
+						inputText,
+						remainingText,
+						value
+					);
+				clearInterval(inter);
+			}
+
+			timePassed += 1;
+		}, 500);
+		containerDiv.removeEventListener('mouseover', makeTranslation, false);
+		//Handle any response that might come on this port
+	};
+	containerDiv.addEventListener('mouseover', makeTranslation, false);
+};
 const changeContent = (
 	dropletClassName: string,
 	translationResult: TranslationResultProps,
@@ -267,11 +395,11 @@ const changeContent = (
 	userTranslation: string
 ) => {
 	let chosenItem = document.querySelector(
-		`.${dropletClassName}-text.learnip-chosen-item-23`
+		`.${dropletClassName}-text.learnip-chosen-item-${dropletTypeClassNumber}`
 	);
 	if (translationResult.clear) {
 		helpers.removeElement(
-			`#learnip-container-div-23.${dropletClassName}`,
+			`#learnip-container-div-${dropletTypeClassNumber}.${dropletClassName}`,
 			document
 		);
 		chosenItem.innerHTML = `${entrance} ${inputText} ${remainingText}`;
@@ -279,7 +407,7 @@ const changeContent = (
 	}
 
 	let translateButton: HTMLButtonElement = document.querySelector(
-		`.${dropletClassName}  #learnip-translate-button-23`
+		`.${dropletClassName}  #learnip-translate-button-${dropletTypeClassNumber}`
 	);
 
 	let highlightColor: string,
@@ -292,12 +420,12 @@ const changeContent = (
 	//Check if the translation was successful
 	if (isTranslationSuccessful) {
 		highlightColor = '#a1eb3f8c';
-		className = ' learnip-successful-translation-23';
+		className = ` learnip-successful-translation-${dropletTypeClassNumber}`;
 		translationResult.translatedText = userTranslation;
 	} else {
 		highlightColor = '#eb7272ba';
-		className = ' learnip-failed-translation-23 ';
-		wrongInput = `<em id='learnip-wrong-input-23'>  ${userTranslation}</em>`;
+		className = ` learnip-failed-translation-${dropletTypeClassNumber} `;
+		wrongInput = `<em id='learnip-wrong-input-${dropletTypeClassNumber}'>  ${userTranslation}</em>`;
 	}
 
 	var usagePort = chrome.runtime.connect({
@@ -311,23 +439,27 @@ const changeContent = (
 
 	usagePort.disconnect();
 
-	translateButton.classList.remove('learnip-clicked-state-23');
+	translateButton.classList.remove(
+		`learnip-clicked-state-${dropletTypeClassNumber}`
+	);
 	translateButton.className += className;
 
 	setTimeout(() => {
 		chosenItem.innerHTML = `${entrance} <span style="background-color: ${highlightColor};border-radius:2px;">${translationResult.translatedText}</span> ${wrongInput} ${remainingText}`;
 		document.querySelector(
-			`.${dropletClassName}#learnip-container-div-23`
+			`.${dropletClassName}#learnip-container-div-${dropletTypeClassNumber}`
 		).className += ' opacity-zero';
 
 		setTimeout(() => {
 			helpers.removeElement(
-				`#learnip-container-div-23.${dropletClassName}`,
+				`#learnip-container-div-${dropletTypeClassNumber}.${dropletClassName}`,
 				document
 			);
 		}, 600);
 	}, 1000);
 };
+
+//#region HELPERS
 const checkIfElementIsValid = (item: HTMLElement) => {
 	let isValid = false;
 	const computedStyles = window.getComputedStyle(item);
@@ -350,7 +482,6 @@ const checkIfElementIsValid = (item: HTMLElement) => {
 	}
 	return isValid;
 };
-
 const reSearchWithoutTag = (
 	changeableTags: string[],
 	tagTypeToBeChanged: string,
@@ -375,17 +506,18 @@ const findValidItems = (
 
 	return validItems;
 };
-
 const checkAndGlow = (element: HTMLElement) => {
 	if (helpers.isInViewport(element, document, window)) {
-		element.classList.add('learnip-glow-23');
+		element.classList.add(`learnip-glow-${dropletTypeClassNumber}`);
 		// @ts-ignore: Unreachable code error
 		document.removeEventListener('scroll', checkAndGlow, {
 			passive: true,
 		});
 	}
 };
+//#endregion
 
+//#region Position Based
 // const createDropletsForUserPositionly = (userSettings: UserSettingsProps) => {
 // 	let chosenItem;
 // 	let targetLanguage =
@@ -435,3 +567,4 @@ const checkAndGlow = (element: HTMLElement) => {
 
 // 	// const changeContent = (...)
 // };
+//#endregion
