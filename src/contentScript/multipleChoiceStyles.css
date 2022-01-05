@@ -42,6 +42,14 @@
   background-color: #14281d;
   color: #cbf6fd; }
 
+.learnip-choice-22.clicked ~ #learnip-input-22 {
+  cursor: pointer;
+  pointer-events: all !important;
+  background-color: transparent; }
+
+.learnip-choice-22.clicked ~ #learnip-input-22 #learnip-translate-button-22 {
+  opacity: 1; }
+
 .learnip-selected-translate-text-22 {
   transition: all 0.3s ease-in-out !important; }
 
@@ -61,7 +69,9 @@
   border: 2px solid transparent !important;
   border-bottom-left-radius: 0 !important;
   border-radius: 20px !important;
+  margin-left: 2px;
   outline: none !important;
+  pointer-events: none !important;
   box-shadow: none;
   color: transparent;
   margin-top: auto;
@@ -69,7 +79,11 @@
   height: 22px;
   outline: none;
   transition: all 0.2s ease-in-out;
-  width: 22px; }
+  width: 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; }
 
 #learnip-input-22:focus {
   border: 2px solid #cbf6fd; }
@@ -97,12 +111,10 @@
 #learnip-translate-button-22 {
   cursor: pointer;
   fill: transparent;
-  pointer-events: none !important;
   background-color: transparent;
   opacity: 0;
   width: 20px;
   height: 20px;
-  margin-left: 8px;
   border-radius: 50% !important;
   border-width: 0;
   transition: all 0.2s ease-in-out;

@@ -161,22 +161,26 @@ const createDropletsForUser = (
 				passive: true,
 			}
 		);
+
+		//Create the port and translation message
 		var port = chrome.runtime.connect({
 			name: 'translationChannel',
 		});
+		const fireTranslation = () => {
+			port.postMessage({
+				text: el.inputText,
+				language: el.targetLanguage,
+				source: document.URL,
+			});
 
+			// TODO: DISCONNECT PORT WHEN IT IS NOT USED ANYMORE
+		};
 		if (!'multiple-choice') {
-			const fireTranslation = () => {
-				port.postMessage({
-					text: el.inputText,
-					language: el.targetLanguage,
-					source: document.URL,
-				});
-				inputElement.removeEventListener('input', fireTranslation);
-
-				// TODO: DISCONNECT PORT WHEN IT IS NOT USED ANYMORE
+			const translationListenerInput = () => {
+				fireTranslation();
+				inputElement.removeEventListener('input', translationListenerInput);
 			};
-			inputElement.addEventListener('input', fireTranslation);
+			inputElement.addEventListener('input', translationListenerInput);
 		}
 
 		el.item.innerHTML = `${el.entrance} <span style='background-color: #aef4ff7a;border-radius: 5px;' > ${el.inputText}</span> ${el.remainingText}`;
@@ -188,35 +192,39 @@ const createDropletsForUser = (
 			let containerDiv: HTMLDivElement = document.querySelector(
 				`.${el.dropletClassName}#learnip-container-div-${dropletTypeClassNumber}`
 			);
-			console.log(
-				'translation fired',
-				`.${el.dropletClassName}#learnip-container-div-${dropletTypeClassNumber}`
-			);
-			const fireTranslation = () => {
-				console.log('translation fired');
-				port.postMessage({
-					text: el.inputText,
-					language: el.targetLanguage,
-					source: document.URL,
-				});
-				containerDiv.removeEventListener('mouseover', fireTranslation);
 
-				// TODO: DISCONNECT PORT WHEN IT IS NOT USED ANYMORE
+			const translationListenerMultipleChoice = () => {
+				fireTranslation();
+				containerDiv.removeEventListener(
+					'mouseover',
+					translationListenerMultipleChoice
+				);
 			};
+
 			const clickOnChoice = (e) => {
-				console.log('hello');
 				let lastClicked: HTMLButtonElement | null = document.querySelector(
 					`.learnip-choice-${dropletTypeClassNumber}.clicked`
 				);
+				const countryImage = document.querySelector(
+					`#learnip-country-img-${dropletTypeClassNumber}`
+				);
+				countryImage?.remove();
 				lastClicked?.classList.remove('clicked');
 				e.target.classList += ' clicked';
-				console.log(e.target);
 			};
-			let choiceButton: HTMLButtonElement = document.querySelector(
+
+			let choiceButtons: HTMLCollection = document.querySelectorAll(
 				`.learnip-choice-${dropletTypeClassNumber}`
 			);
-			containerDiv.addEventListener('mouseover', fireTranslation);
-			choiceButton.addEventListener('click', clickOnChoice);
+
+			for (let button of choiceButtons) {
+				button.addEventListener('click', clickOnChoice);
+			}
+
+			containerDiv.addEventListener(
+				'mouseover',
+				translationListenerMultipleChoice
+			);
 		}
 
 		// Create Translate Button Functionality For Each Droplet

@@ -55,6 +55,15 @@ $input-extended-width: 70%;
 	&.clicked {
 		background-color: #14281d;
 		color: $default-droplet-blue;
+
+		~ #learnip-input-22 {
+			cursor: pointer;
+			pointer-events: all !important;
+			background-color: transparent;
+			#learnip-translate-button-22 {
+				opacity: 1;
+			}
+		}
 	}
 }
 
@@ -80,7 +89,9 @@ $input-extended-width: 70%;
 	border: 2px solid transparent !important;
 	border-bottom-left-radius: 0 !important;
 	border-radius: 20px !important;
+	margin-left: 2px;
 	outline: none !important;
+	pointer-events: none !important;
 	box-shadow: none;
 	color: transparent;
 	margin-top: auto;
@@ -89,6 +100,10 @@ $input-extended-width: 70%;
 	outline: none;
 	transition: all 0.2s ease-in-out;
 	width: 22px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 
 	&:focus {
 		border: 2px solid $default-droplet-blue;
@@ -123,12 +138,11 @@ $input-extended-width: 70%;
 #learnip-translate-button-22 {
 	cursor: pointer;
 	fill: transparent;
-	pointer-events: none !important;
+
 	background-color: transparent;
 	opacity: 0;
 	width: 20px;
 	height: 20px;
-	margin-left: 8px;
 	border-radius: 50% !important;
 	border-width: 0;
 	transition: all 0.2s ease-in-out;

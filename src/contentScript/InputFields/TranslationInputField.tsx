@@ -11,11 +11,14 @@ const TranslationInputField = (country: string, className: string) => `
     <button class='learnip-choice-22'>Lorem</button>
     <button class='learnip-choice-22'>Ipsum</button>
     <button class='learnip-choice-22'>Dolor</button>
-    <div id='learnip-input-22'> </div> 
-    <span id='learnip-country-img-22'>${flags[country]}</span>
-    <button id="learnip-translate-button-22">
-       ${defaultCheck}
-    </button>
+    <div id='learnip-input-22'>
+
+        <button id="learnip-translate-button-22">
+             ${defaultCheck}
+        </button>
+    </div> 
+    <span id='learnip-country-img-22'>${flags[country]}</span> 
+
 </div>
 `;
 
