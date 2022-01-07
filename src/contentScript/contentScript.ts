@@ -7,7 +7,7 @@ import './contentScript.css';
 import './multipleChoiceStyles.css';
 const developmentMode = true;
 const constants = require('../constants.js');
-const allChangeableTags = helpers.getChangeableTags();
+const allChangeableTags = ['h4'] || helpers.getChangeableTags();
 
 let createTagsCallTime = 0;
 let isBanned: boolean = false;
@@ -134,13 +134,12 @@ const createDropletsForUser = (
 					chosenWords.push(el.inputText);
 				}
 			}
+
 			if (el) pageDroplets.push(el);
 		}
 	});
-
-	pageDroplets.forEach((el) => {
+	pageDroplets.forEach((el, index) => {
 		const inputDiv: HTMLDivElement = document.createElement('div');
-
 		if ('multiple-choice') {
 			inputDiv.innerHTML = TranslationInputField(
 				el.targetLanguage,
@@ -216,7 +215,6 @@ const createDropletsForUser = (
 			let choiceButtons: HTMLCollection = document.querySelectorAll(
 				`.learnip-choice-${dropletTypeClassNumber}`
 			);
-
 			for (let button of choiceButtons) {
 				button.addEventListener('click', clickOnChoice);
 			}
@@ -241,9 +239,9 @@ const createDropletsForUser = (
 			el.entrance,
 			el.remainingText,
 		];
-
+		console.log('index9', index);
 		if ('multiple-choice') {
-			createMultipleChoiceTranslateButtonFunctionality(...translateButtonProps);
+			createMultipleChoiceHoverFunctionality(...translateButtonProps);
 		} else {
 			createTranslateButtonFunctionality(...translateButtonProps);
 		}
@@ -323,7 +321,7 @@ const createTranslateButtonFunctionality = (
 	);
 };
 
-const createMultipleChoiceTranslateButtonFunctionality = (
+const createMultipleChoiceHoverFunctionality = (
 	dropletClassName: string,
 	inputText: string,
 	targetLanguage: string,
@@ -350,15 +348,17 @@ const createMultipleChoiceTranslateButtonFunctionality = (
 		let timePassed = 0;
 		let translationResult;
 		let inter = setInterval(() => {
-			if (timePassed > 10) {
+			if (timePassed > 20) {
 				clearInterval(inter);
 			}
 
 			let storageTranslationCallback = (res) => {
+				developmentMode && console.log('storage check');
 				if (res.currentTranslations) {
 					let response = res.currentTranslations.filter(
 						(el) => el.basePrompt === inputText
 					);
+
 					if (response.length) {
 						translationResult = response[0];
 					}
@@ -371,25 +371,62 @@ const createMultipleChoiceTranslateButtonFunctionality = (
 			);
 
 			if (translationResult) {
+				developmentMode && console.log('translation found', translationResult);
 				containerDiv.classList.remove(
 					`learnip-fetch-choices-${dropletTypeClassNumber}`
 				);
+
+				let userOptions = document.querySelectorAll('.learnip-choice-22');
+				let possibleOptions = Object.keys(translationResult.options);
+				userOptions[
+					helpers.randomNumberInRange(0, userOptions.length, true)
+				].innerHTML = translationResult.compareText;
+
+				for (let userOption of userOptions) {
+					if (!userOption.innerHTML) {
+						const fillElement = () => {
+							let languageKey = helpers.randomArrayElement(possibleOptions);
+							const isOptionValid =
+								translationResult.options[languageKey] !== undefined &&
+								translationResult.options[languageKey] !==
+									translationResult.basePrompt;
+							if (isOptionValid) {
+								userOption.innerHTML = translationResult.options[languageKey];
+								delete translationResult.options[languageKey];
+							}
+						};
+						while (!userOption.innerHTML) {
+							fillElement();
+						}
+					}
+				}
+
 				containerDiv.className += ` learnip-with-choices-${dropletTypeClassNumber}`;
-				false &&
+
+				let translateButton: HTMLButtonElement = document.querySelector(
+					`#learnip-translate-button-${dropletTypeClassNumber}`
+				);
+				translateButton.addEventListener('click', () => {
+					let selectedButton: HTMLButtonElement = document.querySelector(
+						`.clicked.learnip-choice-${dropletTypeClassNumber} `
+					);
 					changeContent(
 						dropletClassName,
 						translationResult,
 						entrance,
 						inputText,
 						remainingText,
-						value
+						selectedButton.innerText.toLowerCase()
 					);
+				});
+
 				clearInterval(inter);
 			}
 
 			timePassed += 1;
 		}, 500);
 		containerDiv.removeEventListener('mouseover', makeTranslation, false);
+		//TODO: Handle case if translation result is not found
 		//Handle any response that might come on this port
 	};
 	containerDiv.addEventListener('mouseover', makeTranslation, false);
@@ -514,15 +551,7 @@ const findValidItems = (
 
 	return validItems;
 };
-const checkAndGlow = (element: HTMLElement) => {
-	if (helpers.isInViewport(element, document, window)) {
-		element.classList.add(`learnip-glow-${dropletTypeClassNumber}`);
-		// @ts-ignore: Unreachable code error
-		document.removeEventListener('scroll', checkAndGlow, {
-			passive: true,
-		});
-	}
-};
+
 //#endregion
 
 //#region Position Based
@@ -576,3 +605,12 @@ const checkAndGlow = (element: HTMLElement) => {
 // 	// const changeContent = (...)
 // };
 //#endregion
+export const checkAndGlow = (element: HTMLElement) => {
+	if (helpers.isInViewport(element, document, window)) {
+		element.classList.add(`learnip-glow-${dropletTypeClassNumber}`);
+		// @ts-ignore: Unreachable code error
+		document.removeEventListener('scroll', checkAndGlow, {
+			passive: true,
+		});
+	}
+};

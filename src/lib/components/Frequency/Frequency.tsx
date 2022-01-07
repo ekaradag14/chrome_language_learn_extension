@@ -22,7 +22,7 @@ const Frequency: FunctionComponent<FrequencyProps> = ({
 }) => {
 	const marks = isUserPremium
 		? [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }]
-		: [{ value: 0 }, { value: 1 }, { value: 2 }];
+		: [{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }];
 	return (
 		<Grid id="frequency-container">
 			<Slider

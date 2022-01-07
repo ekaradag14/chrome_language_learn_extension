@@ -36,7 +36,10 @@
   box-shadow: none;
   outline: none;
   border: none;
-  transition: max-width 3.2s ease-in, padding 2.2s ease, margin 2.2s ease, opacity 1.2s ease; }
+  transition: max-width 3.2s ease-in, padding 2.2s ease, margin 2.2s ease, opacity 1.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; }
 
 .learnip-choice-22.clicked {
   background-color: #14281d;
