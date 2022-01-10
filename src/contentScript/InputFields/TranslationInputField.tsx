@@ -8,12 +8,11 @@ let crossSVG =
 
 const TranslationInputField = (country: string, className: string) => `
 <div id="learnip-container-div-22" class="${className}" >
-    <button class='learnip-choice-22' id='first-learnip-choice-22'></button>
-    <button class='learnip-choice-22' id='second-learnip-choice-22'></button>
-    <button class='learnip-choice-22' id='third-learnip-choice-22'></button>
-    <div id='learnip-input-22'>
-
-        <button id="learnip-translate-button-22">
+    <button class='learnip-choice-22 ${className}' id='first-learnip-choice-22'></button>
+    <button class='learnip-choice-22 ${className}' id='second-learnip-choice-22'></button>
+    <button class='learnip-choice-22 ${className}' id='third-learnip-choice-22'></button>
+    <div class='${className}' id='learnip-input-22'>
+        <button  class='${className}'  id="learnip-translate-button-22">
              ${defaultCheck}
         </button>
     </div> 

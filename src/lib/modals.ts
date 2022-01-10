@@ -38,5 +38,13 @@ export type TranslationResultProps = {
 	clear?: boolean;
 	compareText: string;
 	translatedText: string;
+	options: {
+		de: string;
+		en: string;
+		es: string;
+		fr: string;
+		it: string;
+		ru: string;
+	};
 	successfulTranslation: boolean;
 };

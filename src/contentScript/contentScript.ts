@@ -7,7 +7,7 @@ import './contentScript.css';
 import './multipleChoiceStyles.css';
 const developmentMode = true;
 const constants = require('../constants.js');
-const allChangeableTags = ['h4'] || helpers.getChangeableTags();
+const allChangeableTags = helpers.getChangeableTags();
 
 let createTagsCallTime = 0;
 let isBanned: boolean = false;
@@ -16,7 +16,7 @@ let chosenWords: string[] = [];
 let frequency = 0;
 let wordSearchConfig: ConfigType = constants.algorithmConstants;
 let dropletTypeClassNumber = '23';
-
+let targetLanguage = 'es';
 window.addEventListener('load', function () {
 	//Start the process when page load completes to not cause performance issues on user
 	chrome.storage.local.get(
@@ -51,7 +51,7 @@ window.addEventListener('load', function () {
 					console.log('willItBeShown', willItBeShown, 'randomShow', randomShow);
 				if (willItBeShown) {
 					frequency = res.userSettings.frequency || 1;
-					let targetLanguage =
+					targetLanguage =
 						res.userSettings.targetLanguages[
 							helpers.randomNumberInRange(
 								0,
@@ -59,24 +59,21 @@ window.addEventListener('load', function () {
 								true
 							)
 						].code;
-					createDropletsForUser(targetLanguage, allChangeableTags);
+					createDropletsForUser(allChangeableTags);
 				}
 			}
 		}
 	);
 });
 
-const createDropletsForUser = (
-	targetLanguage: string,
-	changeableTags: string[]
-) => {
+const createDropletsForUser = (changeableTags: string[]) => {
 	if (createTagsCallTime >= wordSearchConfig.maxTagTryCallTimes) return;
 	createTagsCallTime = createTagsCallTime + 1;
 
 	const tagTypeToBeChanged: string = helpers.randomArrayElement(changeableTags);
 
 	let validItems = findValidItems(tagTypeToBeChanged, changeableTags);
-
+	console.log('changeableTags', changeableTags);
 	if (!validItems.length) {
 		reSearchWithoutTag(changeableTags, tagTypeToBeChanged, targetLanguage);
 		return;
@@ -97,7 +94,7 @@ const createDropletsForUser = (
 		),
 		1
 	);
-
+	console.log('dropletsPerPage', dropletsPerPage);
 	validItems.forEach((validItem, index) => {
 		if (index < dropletsPerPage) {
 			let el: any = {
@@ -202,10 +199,10 @@ const createDropletsForUser = (
 
 			const clickOnChoice = (e) => {
 				let lastClicked: HTMLButtonElement | null = document.querySelector(
-					`.learnip-choice-${dropletTypeClassNumber}.clicked`
+					`.learnip-choice-${dropletTypeClassNumber}.clicked.${el.dropletClassName}`
 				);
 				const countryImage = document.querySelector(
-					`#learnip-country-img-${dropletTypeClassNumber}`
+					`.${el.dropletClassName} #learnip-country-img-${dropletTypeClassNumber}`
 				);
 				countryImage?.remove();
 				lastClicked?.classList.remove('clicked');
@@ -213,7 +210,7 @@ const createDropletsForUser = (
 			};
 
 			let choiceButtons: HTMLCollection = document.querySelectorAll(
-				`.learnip-choice-${dropletTypeClassNumber}`
+				`.learnip-choice-${dropletTypeClassNumber}.${el.dropletClassName}`
 			);
 			for (let button of choiceButtons) {
 				button.addEventListener('click', clickOnChoice);
@@ -239,7 +236,6 @@ const createDropletsForUser = (
 			el.entrance,
 			el.remainingText,
 		];
-		console.log('index9', index);
 		if ('multiple-choice') {
 			createMultipleChoiceHoverFunctionality(...translateButtonProps);
 		} else {
@@ -331,17 +327,12 @@ const createMultipleChoiceHoverFunctionality = (
 	let containerDiv: HTMLButtonElement = document.querySelector(
 		`.${dropletClassName}#learnip-container-div-${dropletTypeClassNumber}`
 	);
-	// console.log(
-	// 	'containerDiv',
-	// 	containerDiv,
-	// 	'dropletClassName',
-	// 	dropletClassName,
-	// 	'dropletTypeClassNumber',
-	// 	dropletTypeClassNumber
-	// );
-	const makeTranslation = (e) => {
-		console.log('hello');
+	let textInput: HTMLInputElement = document.querySelector(
+		`.${dropletClassName}#learnip-input-${dropletTypeClassNumber}`
+	);
 
+	const makeTranslation = () => {
+		textInput.style.backgroundColor = 'transparent';
 		containerDiv.className += ` learnip-fetch-choices-${dropletTypeClassNumber}`;
 
 		//Send a message from the port
@@ -372,15 +363,23 @@ const createMultipleChoiceHoverFunctionality = (
 
 			if (translationResult) {
 				developmentMode && console.log('translation found', translationResult);
+				let containerDiv: HTMLButtonElement = document.querySelector(
+					`.${dropletClassName}#learnip-container-div-${dropletTypeClassNumber}`
+				);
+				console.log('containerDiv', containerDiv);
 				containerDiv.classList.remove(
 					`learnip-fetch-choices-${dropletTypeClassNumber}`
 				);
 
-				let userOptions = document.querySelectorAll('.learnip-choice-22');
+				let userOptions = document.querySelectorAll(
+					`.learnip-choice-22.${dropletClassName}`
+				);
+
 				let possibleOptions = Object.keys(translationResult.options);
 				userOptions[
 					helpers.randomNumberInRange(0, userOptions.length, true)
-				].innerHTML = translationResult.compareText;
+				].innerHTML = translationResult.options[targetLanguage];
+				delete translationResult.options[targetLanguage];
 
 				for (let userOption of userOptions) {
 					if (!userOption.innerHTML) {
@@ -404,11 +403,11 @@ const createMultipleChoiceHoverFunctionality = (
 				containerDiv.className += ` learnip-with-choices-${dropletTypeClassNumber}`;
 
 				let translateButton: HTMLButtonElement = document.querySelector(
-					`#learnip-translate-button-${dropletTypeClassNumber}`
+					`#learnip-translate-button-${dropletTypeClassNumber}.${dropletClassName}`
 				);
 				translateButton.addEventListener('click', () => {
 					let selectedButton: HTMLButtonElement = document.querySelector(
-						`.clicked.learnip-choice-${dropletTypeClassNumber} `
+						`.clicked.learnip-choice-${dropletTypeClassNumber}.${dropletClassName} `
 					);
 					changeContent(
 						dropletClassName,
@@ -442,17 +441,21 @@ const changeContent = (
 	let chosenItem = document.querySelector(
 		`.${dropletClassName}-text.learnip-chosen-item-${dropletTypeClassNumber}`
 	);
+	let containerSelector = `#learnip-container-div-${dropletTypeClassNumber}`;
+	let translateButtonSelector = `.${dropletClassName}  #learnip-translate-button-${dropletTypeClassNumber}`;
+	if ('multiple-choice') {
+		containerSelector = `#learnip-container-div-${dropletTypeClassNumber}`;
+		translateButtonSelector = `.${dropletClassName}#learnip-translate-button-${dropletTypeClassNumber}`;
+	}
+
 	if (translationResult.clear) {
-		helpers.removeElement(
-			`#learnip-container-div-${dropletTypeClassNumber}.${dropletClassName}`,
-			document
-		);
+		helpers.removeElement(containerSelector, document);
 		chosenItem.innerHTML = `${entrance} ${inputText} ${remainingText}`;
 		return;
 	}
 
 	let translateButton: HTMLButtonElement = document.querySelector(
-		`.${dropletClassName}  #learnip-translate-button-${dropletTypeClassNumber}`
+		translateButtonSelector
 	);
 
 	let highlightColor: string,
@@ -490,7 +493,7 @@ const changeContent = (
 	translateButton.className += className;
 
 	setTimeout(() => {
-		chosenItem.innerHTML = `${entrance} <span style="background-color: ${highlightColor};border-radius:2px;">${translationResult.translatedText}</span> ${wrongInput} ${remainingText}`;
+		chosenItem.innerHTML = `${entrance} <span style="background-color: ${highlightColor};border-radius:2px;">${translationResult.options[targetLanguage]}</span> ${wrongInput} ${remainingText}`;
 		document.querySelector(
 			`.${dropletClassName}#learnip-container-div-${dropletTypeClassNumber}`
 		).className += ' opacity-zero';
@@ -533,7 +536,7 @@ const reSearchWithoutTag = (
 	targetLanguage: string
 ) => {
 	const possibleTags = changeableTags.filter((el) => el !== tagTypeToBeChanged);
-	return createDropletsForUser(targetLanguage, possibleTags);
+	return createDropletsForUser(possibleTags);
 };
 const findValidItems = (
 	tagTypeToBeChanged: string,
@@ -550,6 +553,16 @@ const findValidItems = (
 	}
 
 	return validItems;
+};
+
+export const checkAndGlow = (element: HTMLElement) => {
+	if (helpers.isInViewport(element, document, window)) {
+		element.classList.add(`learnip-glow-${dropletTypeClassNumber}`);
+		// @ts-ignore: Unreachable code error
+		document.removeEventListener('scroll', checkAndGlow, {
+			passive: true,
+		});
+	}
 };
 
 //#endregion
@@ -605,12 +618,3 @@ const findValidItems = (
 // 	// const changeContent = (...)
 // };
 //#endregion
-export const checkAndGlow = (element: HTMLElement) => {
-	if (helpers.isInViewport(element, document, window)) {
-		element.classList.add(`learnip-glow-${dropletTypeClassNumber}`);
-		// @ts-ignore: Unreachable code error
-		document.removeEventListener('scroll', checkAndGlow, {
-			passive: true,
-		});
-	}
-};
